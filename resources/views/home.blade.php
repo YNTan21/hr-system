@@ -1,7 +1,7 @@
 @section('site-title', 'home')
 <x-layout.master>
     @auth
-        Logged In
+        Logged In hehehe
     @endauth
     @guest
         Guest
