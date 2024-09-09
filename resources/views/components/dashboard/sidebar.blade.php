@@ -24,14 +24,14 @@
             <div class="">
                 {{-- card card-body --}}
                 <a href="{{route('leaveType.create')}}" class="sidebar-submenu-link text-dark text-decoration-none">
-                    <button type="button" class="btn btn-light">New Leave Type</button>
+                    <a type="button" class="btn btn-light">New Leave Type</a>
                     {{-- <i class="fa-solid fa-circle-plus pe-1"></i>New Leave --}}
                 </a>
             </div>
             <div class="">
                 {{-- card card-body --}}
                 <a href="" class="sidebar-submenu-link text-dark text-decoration-none">
-                    <button type="button" class="btn btn-light">Manage Leave</button>
+                    <a type="button" class="btn btn-light">Manage Leave</a>
                     {{-- <i class="fa-solid fa-circle-plus pe-1"></i>New Leave --}}
                 </a>
             </div>
