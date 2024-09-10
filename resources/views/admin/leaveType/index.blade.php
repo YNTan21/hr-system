@@ -39,7 +39,7 @@
                                         </li> --}}
                                         <li class="list-inline-item">
                                             {{-- <button type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Edit</button> --}}
-                                            <a href="{{ route('leaveType.edit', $leaveType->id) }}" class="btn btn-sm btn-primary" style="font-size: 12px">
+                                            <a href="{{ route('admin.leaveType.edit', $leaveType->id) }}" class="btn btn-sm btn-primary" style="font-size: 12px">
                                                 <i class="fa-solid fa-pen-to-square"></i>
                                             </a>
                                         </li>
@@ -66,7 +66,7 @@
                                                         <!-- Modal content -->
                                                         <div class="p-6 text-center">
                                                             <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">Are you sure you want to delete the leave type: <strong>{{ $leaveType->leave_type }}</strong>?</h3>
-                                                            <form action="{{ route('leaveType.destroy', $leaveType->id) }}" method="POST">
+                                                            <form action="{{ route('admin.leaveType.destroy', $leaveType->id) }}" method="POST">
                                                                 @csrf
                                                                 @method('DELETE')
                                                                 <button type="submit" class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2">

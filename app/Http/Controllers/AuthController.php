@@ -39,7 +39,7 @@ class AuthController extends Controller
         // login
         if(Auth::attempt($fields, $request->remember))
         {
-            return redirect()->intended();
+            return redirect()->intended('/admin/dashboard');
         }
         else
         {
@@ -61,6 +61,6 @@ class AuthController extends Controller
         $request->session()->regenerateToken();
 
         // redirect
-        return redirect('/');
+        return redirect('/login');
     }
 }

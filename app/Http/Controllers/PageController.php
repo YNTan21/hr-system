@@ -8,11 +8,11 @@ class PageController extends Controller
 {
     public function dashboard()
     {
-        return view('dashboard.index');
+        return view('admin.dashboard');
     }
 
     public function leaveType_create()
     {
-        return view('leaveType.create');
+        return view('admin.leaveType.create');
     }
 }
