@@ -11,6 +11,12 @@ class PageController extends Controller
         return view('admin.dashboard');
     }
 
+    public function open_menu()
+    {
+        $user = Auth::user();
+        return view('admin/dashboard',['username' => $user->username, 'email' => $email->email]);
+    }
+
     public function leaveType_create()
     {
         return view('admin.leaveType.create');
