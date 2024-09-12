@@ -39,7 +39,16 @@ class AuthController extends Controller
         // login
         if(Auth::attempt($fields, $request->remember))
         {
-            return redirect()->intended('/admin/dashboard');
+            $user = Auth::user();
+
+            if($user->is_admin)
+            {
+                return redirect()->intended('/admin/dashboard');
+            }
+            else
+            {
+                return redirect()->intended('/user/dashboard');
+            }
         }
         else
         {

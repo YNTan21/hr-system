@@ -9,21 +9,20 @@ use App\Models\User;
 use App\Models\LeaveType;
 use App\Models\Leave;
 
-class LeaveController extends Controller
+class UserLeaveController extends Controller
 {
     use AuthorizesRequests;
     
     public function create()
     {
-        $users = User::all();
         $leaveTypes = LeaveType::all();
-        return view('admin.leave.create', compact('users','leaveTypes'));
+        $user = auth()->user(); // Get the authenticated user
+        return view('user.leave.create', compact('leaveTypes', 'user'));
     }
 
     public function store(Request $request)
     {
         $validatedData = $request->validate([
-            'user_id' => 'required|exists:users,id', 
             'leave_type_id' => 'required|exists:leave_type,id', 
             'from_date' => 'required|date',
             'to_date' => 'required|date|after_or_equal:from_date',
@@ -32,7 +31,7 @@ class LeaveController extends Controller
         ]);
 
         $leave = Leave::create([
-            'user_id' => $validatedData['user_id'],
+            'user_id' => auth()->id(),
             'leave_type_id' => $validatedData['leave_type_id'],
             'from_date' => $validatedData['from_date'],
             'to_date' => $validatedData['to_date'],
@@ -41,16 +40,12 @@ class LeaveController extends Controller
             'status' => 'pending',
         ]);
 
-        return redirect()->route('admin.leave.index')->with('success', 'Leave created successfully.');
+        return redirect()->route('user.leave.index')->with('success', 'Leave request submitted successfully.');
     }
 
     public function index(Request $request)
     {
-        $query = Leave::with('user', 'leaveType');
-
-        if ($request->filled('user_id')) {
-            $query->where('user_id', $request->user_id);
-        }
+        $query = Leave::where('user_id', auth()->id())->with(['leaveType', 'user']);
 
         if ($request->filled('leave_type_id')) {
             $query->where('leave_type_id', $request->leave_type_id);
@@ -65,54 +60,42 @@ class LeaveController extends Controller
         }
 
         $leaves = $query->paginate(10);
-
-        $users = User::all();
         $leaveTypes = LeaveType::all();
 
-        return view('admin.leave.index', compact('leaves', 'users', 'leaveTypes'));
+        return view('user.leave.index', compact('leaves', 'leaveTypes'));
     }
 
     public function edit($id)
     {
+        $leave = Leave::where('user_id', auth()->id())->with('user')->findOrFail($id);
         
-        $leave = Leave::findOrFail($id);
-        Gate::authorize('update', $leave);
-
-        if ($leave->user_id !== auth()->id() && !auth()->user()->is_admin) {
-            return redirect()->route('admin.leave.index')->with('error', 'You do not have permission to edit this leave.');
+        if ($leave->status !== 'pending') {
+            return redirect()->route('user.leave.index')->with('error', 'You can only edit pending leave requests.');
         }
 
-        $this->authorize('update', $leave);  
-
-        $users = User::all();
         $leaveTypes = LeaveType::all(); 
 
-        return view('admin.leave.edit', compact('leave', 'users', 'leaveTypes'));
+        return view('user.leave.edit', compact('leave', 'leaveTypes'));
     }
 
     public function update(Request $request, $id)
     {
-        $leave = Leave::findOrFail($id);
+        $leave = Leave::where('user_id', auth()->id())->findOrFail($id);
 
-        // Check if the authenticated user is the owner of the leave  
-        if ($leave->user_id !== auth()->id() && !auth()->user()->is_admin) {
-            return redirect()->route('admin.leave.index')->with('error', 'You do not have permission to update this leave.');
+        if ($leave->status !== 'pending') {
+            return redirect()->route('user.leave.index')->with('error', 'You can only update pending leave requests.');
         }
 
-        $this->authorize('update', $leave);
-
         $validatedData = $request->validate([
-            'user_id' => 'required|exists:users,id', 
             'leave_type_id' => 'required|exists:leave_type,id', 
             'from_date' => 'required|date',
             'to_date' => 'required|date|after_or_equal:from_date',
             'number_of_days' => 'required|integer|min:1',
             'reason' => 'nullable|string|max:255',
-            'status' => 'required|in:pending,approved,rejected',
         ]);
 
         $leave->update($validatedData);
 
-        return redirect()->route('admin.leave.index')->with('success', 'Leave updated successfully.');
+        return redirect()->route('user.leave.index')->with('success', 'Leave request updated successfully.');
     }
 }

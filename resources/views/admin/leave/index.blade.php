@@ -95,7 +95,30 @@
                                 <td class="px-6 py-3">{{ $leave->to_date }}</td>
                                 <td class="px-6 py-3">{{ $leave->number_of_days }}</td>
                                 <td class="px-6 py-3">{{ $leave->reason }}</td>
-                                <td class="px-6 py-3">{{ ucfirst($leave->status) }}</td>
+                                <td class="px-6 py-3">
+                                    @if($leave->status == 'pending')
+                                        <span class="px-2 py-1 font-semibold leading-tight text-orange-700 bg-orange-100 rounded-lg">
+                                            {{ ucfirst($leave->status) }}
+                                        </span>
+                                    @elseif($leave->status == 'approved')
+                                        <span class="px-2 py-1 font-semibold leading-tight text-green-700 bg-green-100 rounded-lg">
+                                            {{ ucfirst($leave->status) }}
+                                        </span>
+                                    @elseif($leave->status == 'rejected')
+                                        <span class="px-2 py-1 font-semibold leading-tight text-red-700 bg-red-100 rounded-lg">
+                                            {{ ucfirst($leave->status) }}
+                                        </span>
+                                    @endif
+                                </td>
+                                <td class="px-6 py-3">
+                                    <ul class="list-inline m-0">
+                                        <li class="list-inline-item">
+                                            <a href="{{ route('admin.leave.edit', $leave->id) }}" class="btn btn-sm btn-primary" style="font-size: 12px">
+                                                <i class="fa-solid fa-pen-to-square"></i>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </td>
                             </tr>
                         @endforeach
                     </tbody>
