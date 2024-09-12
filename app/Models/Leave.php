@@ -10,25 +10,20 @@ class Leave extends Model
     use HasFactory;
 
     protected $fillable = [
-        'employee_name',
-        'leave_type',
+        'user_id',
+        'leave_type_id',
         'from_date',
         'to_date',
         'number_of_days',
         'reason',
+        'status',
     ];
 
-    // Define relationships
-
-    // Relationship: Leave belongs to a user (assuming employee_name refers to a user)
-    public function user()
-    {
-        return $this->belongsTo(User::class, 'employee_name');
+    public function user() {
+        return $this->belongsTo(User::class);
     }
-
-    // Relationship: Leave belongs to a leave type
-    public function leaveType()
-    {
-        return $this->belongsTo(LeaveType::class, 'leave_type');
+    
+    public function leaveType() {
+        return $this->belongsTo(LeaveType::class);
     }
 }

@@ -17,4 +17,9 @@ class LeaveType extends Model
         'status',
         'deduct_annual_leave',
     ];
+
+    public function leaves()
+    {
+        return $this->hasMany(Leave::class);
+    }
 }

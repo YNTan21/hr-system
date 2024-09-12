@@ -9,18 +9,12 @@
             <div class="p-4 sm:ml-64">
                 <div class="p-4 border-2 border-gray-200 rounded-lg dark:border-gray-700 mt-14">
                 
-                {{-- Success Message
+                {{-- Success Message --}}
                 @if (session('success'))
                 <div class="alert alert-success text-center">
                     {{ session('success') }}
                 </div>
                 @endif
-
-                @error('leaveType')
-                            <p class="error">
-                                {{ $message }}
-                            </p>
-                        @enderror --}}
 
                 <form action="{{route('admin.leave.store')}}" method="post">
                     @csrf
@@ -32,24 +26,34 @@
 
                     {{-- Employee dropdown --}}
                     <div class="form-group">
-                        <label for="employee_name">Employee Name</label>
-                        <select name="employee_name" id="employee_name" class="form-control" required>
+                        <label for="user_id">Employee Name</label>
+                        <select name="user_id" id="user_id" class="form-control" required>
                             <option value="" disabled selected>Select an employee</option>
                             @foreach ($users as $user)
                                 <option value="{{ $user->id }}">{{ $user->username }}</option>
                             @endforeach
                         </select>
+                        @error('user_id')
+                            <p class="error">
+                                {{ $message }}
+                            </p>
+                        @enderror 
                     </div>
 
                     {{-- Leave Type dropdown --}}
                     <div class="form-group">
-                        <label for="leave_type">Leave Type</label>
-                        <select name="employee_name" id="employee_name" class="form-control" required>
+                        <label for="leave_type_id">Leave Type</label>
+                        <select name="leave_type_id" id="leave_type_id" class="form-control" required>
                             <option value="" disabled selected>Select a leave type</option>
                             @foreach ($leaveTypes as $leaveType)
                                 <option value="{{ $leaveType->id }}">{{ $leaveType->leave_type }}</option>
                             @endforeach
                         </select>
+                        @error('leave_type_id')
+                            <p class="error">
+                                {{ $message }}
+                            </p>
+                        @enderror 
                     </div>
 
                     <div class="flex space-x-4">
@@ -57,12 +61,22 @@
                         <div class="flex-1">
                             <label for="from_date" class="block text-sm font-medium text-gray-700">From Date</label>
                             <input type="date" name="from_date" id="from_date" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" min="{{ \Carbon\Carbon::today()->toDateString() }}" required>
+                            @error('from_date')
+                                <p class="error">
+                                    {{ $message }}
+                                </p>
+                            @enderror 
                         </div>
                     
                         <!-- To Date -->
                         <div class="flex-1">
                             <label for="to_date" class="block text-sm font-medium text-gray-700">To Date</label>
                             <input type="date" name="to_date" id="to_date" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" min="{{ \Carbon\Carbon::today()->toDateString() }}" required>
+                            @error('user_id')
+                                <p class="to_date">
+                                    {{ $message }}
+                                </p>
+                            @enderror 
                         </div>
                     </div>
                     
@@ -76,12 +90,28 @@
                     <div class="form-group">
                         <label for="reason">Reason</label>
                         <textarea name="reason" id="reason" class="form-control" required></textarea>
+                        @error('reason')
+                            <p class="error">
+                                {{ $message }}
+                            </p>
+                        @enderror 
+                    </div>
+
+                    {{-- Status --}}
+                    <div class="form-group">
+                        <label for="status">Status</label>
+                        <select name="status" id="status" class="form-control">
+                            <option value="pending" selected>Pending</option>
+                            <option value="approved">Approved</option>
+                            <option value="rejected">Rejected</option>
+                        </select>
                     </div>
 
                     <!-- Add submit button -->
                     <div class="col text-center p-2 px-5">
                         <button type="submit" class="btn btn-dark">Submit</button>
                     </div>
+
                 </form>
                 </div>
             </div>

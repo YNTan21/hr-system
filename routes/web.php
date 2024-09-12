@@ -28,7 +28,7 @@ Route::middleware('auth')->group(function(){
     // leave
     Route::get('/admin/leave/create', [LeaveController::class, 'create'])->name('admin.leave.create');
     Route::post('/admin/leave', [LeaveController::class, 'store'])->name('admin.leave.store');
-    Route::view('/admin/leave/index', 'admin.leave.index')->name('admin.leave.index');
+    Route::get('/admin/leave/index', [LeaveController::class, 'index'])->name('admin.leave.index');
 });
 
 Route::middleware('guest')->group(function(){
