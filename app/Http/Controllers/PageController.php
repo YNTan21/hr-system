@@ -11,6 +11,11 @@ class PageController extends Controller
         return view('admin.dashboard');
     }
 
+    public function user_dashboard()
+    {
+        return view('user.dashboard');
+    }
+
     public function open_menu()
     {
         $user = Auth::user();

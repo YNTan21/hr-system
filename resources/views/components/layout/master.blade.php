@@ -11,6 +11,8 @@
         <link href="{{ asset('css/main.css') . '?v=' . time() }}" rel="stylesheet">
         {{-- FontAwesome --}}
         <link rel="stylesheet" href="{{ asset('fontawesome/css/all.min.css') }}">
+        <!-- Flatpickr CSS -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
         @vite(['resources/css/app.css','resources/js/app.js'])
     </head>
     <body>
@@ -23,5 +25,7 @@
         <script src="{{asset('bootstrap/js/bootstrap.bundle.min.js')}}" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
         {{-- fontawesome --}}
         <script src="{{ asset('fontawesome/js/all.min.js') }}"></script>
+        <!-- Flatpickr JavaScript -->
+        <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     </body>
 </html>

@@ -9,7 +9,6 @@ use App\Models\Leave;
 
 class LeaveController extends Controller
 {
-    // Display the form
     public function create()
     {
         $users = User::all();
@@ -19,64 +18,87 @@ class LeaveController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'user_id' => 'required', 
-            'leave_type_id' => 'required', 
+        $validatedData = $request->validate([
+            'user_id' => 'required|exists:users,id', 
+            'leave_type_id' => 'required|exists:leave_types,id', 
             'from_date' => 'required|date',
             'to_date' => 'required|date|after_or_equal:from_date',
-            'number_of_days' => 'required|integer',
-            'reason' => 'nullable',
+            'number_of_days' => 'required|integer|min:1',
+            'reason' => 'nullable|string|max:255',
         ]);
 
-        $fields = [
-            'user_id' => $request->user_id, 
-            'leave_type_id' => $request->leave_type_id, 
-            'from_date' => $request->from_date, 
-            'to_date' => $request->to_date, 
-            'number_of_days' => $request->number_of_days, 
-            'reason' => $request->reason, 
-            'status' => 'pending', 
-        ];
-
-        Leave::create($fields);
-        // Auth::user()->posts()->store($fields);
+        $leave = Leave::create([
+            'user_id' => $validatedData['user_id'],
+            'leave_type_id' => $validatedData['leave_type_id'],
+            'from_date' => $validatedData['from_date'],
+            'to_date' => $validatedData['to_date'],
+            'number_of_days' => $validatedData['number_of_days'],
+            'reason' => $validatedData['reason'],
+            'status' => 'pending',
+        ]);
 
         return redirect()->route('admin.leave.index')->with('success', 'Leave created successfully.');
     }
 
     public function index(Request $request)
     {
-        // Initialize the query builder
         $query = Leave::with('user', 'leaveType');
 
-        // Filter by employee name
         if ($request->filled('user_id')) {
             $query->where('user_id', $request->user_id);
         }
 
-        // Filter by leave type
         if ($request->filled('leave_type_id')) {
             $query->where('leave_type_id', $request->leave_type_id);
         }
 
-        // Filter by status
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
 
-        // Filter by date range
         if ($request->filled('from_date') && $request->filled('to_date')) {
             $query->whereBetween('from_date', [$request->from_date, $request->to_date]);
         }
 
-        // Execute the query with pagination
         $leaves = $query->paginate(10);
-
-        // $leaves = Leave::with('user', 'leaveType')->paginate(10);
 
         $users = User::all();
         $leaveTypes = LeaveType::all();
 
         return view('admin.leave.index', compact('leaves', 'users', 'leaveTypes'));
+    }
+
+    public function edit($id)
+    {
+        $leave = Leave::findOrFail($id);
+        $users = User::all();
+        $leaveTypes = LeaveType::all();
+        return view('admin.leave.edit', compact('leave', 'users', 'leaveTypes'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $validatedData = $request->validate([
+            'user_id' => 'required|exists:users,id', 
+            'leave_type_id' => 'required|exists:leave_types,id', 
+            'from_date' => 'required|date',
+            'to_date' => 'required|date|after_or_equal:from_date',
+            'number_of_days' => 'required|integer|min:1',
+            'reason' => 'nullable|string|max:255',
+        ]);
+
+        $leave = Leave::findOrFail($id);
+
+        $leave->update([
+            'user_id' => $validatedData['user_id'],
+            'leave_type_id' => $validatedData['leave_type_id'],
+            'from_date' => $validatedData['from_date'],
+            'to_date' => $validatedData['to_date'],
+            'number_of_days' => $validatedData['number_of_days'],
+            'reason' => $validatedData['reason'],
+            'status' => 'pending', // You might want to handle this differently
+        ]);
+
+        return redirect()->route('admin.leave.index')->with('success', 'Leave updated successfully.');
     }
 }

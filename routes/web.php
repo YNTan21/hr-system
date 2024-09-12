@@ -17,6 +17,9 @@ Route::middleware('auth')->group(function(){
     // admin dashboard
     Route::get('/admin/dashboard', [PageController::class, 'dashboard'])->name('admin.dashboard.index');
 
+    // admin dashboard
+    Route::get('/user/dashboard', [PageController::class, 'user_dashboard'])->name('user.dashboard');
+
     // leaveType 
     Route::get('/admin/leaveType/create', [PageController::class, 'leaveType_create'])->name('admin.leaveType.create');
     Route::post('/admin/leaveType', [LeaveTypeController::class, 'store'])->name('admin.leaveType.store');

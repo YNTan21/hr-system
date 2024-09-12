@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Leave extends Model
 {
@@ -19,11 +20,13 @@ class Leave extends Model
         'status',
     ];
 
-    public function user() {
+    public function user():BelongsTo 
+    {
         return $this->belongsTo(User::class);
     }
     
-    public function leaveType() {
+    public function leaveType():BelongsTo 
+    {
         return $this->belongsTo(LeaveType::class);
     }
 }

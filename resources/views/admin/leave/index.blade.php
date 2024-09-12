@@ -10,12 +10,12 @@
                 <div class="p-4 border-2 border-gray-200 rounded-lg dark:border-gray-700 mt-14">
                 <h1 class="text-2xl font-bold text-gray-900 dark:text-white pb-4 text-center">Leave</h1>
                 
-                <form action="{{ route('admin.leave.index') }}" method="GET" class="mb-4">
-                    <div class="grid grid-cols-3 gap-4">
+                <form action="{{ route('admin.leave.index') }}" method="GET" class="flex flex-wrap items-end space-x-4 mb-4">
+                    <div class="flex-1 min-w-[150px]">
                         <!-- Employee Filter -->
                         <div>
-                            <label for="user_id" class="block">Employee Name:</label>
-                            <select name="user_id" id="user_id" class="form-select">
+                            <label for="user_id" class="block text-sm font-medium text-gray-700">Employee Name:</label>
+                            <select name="user_id" id="user_id" class="form-select mt-1 block w-full border-gray-300 rounded-md shadow-sm">
                                 <option value="">All Employees</option>
                                 @foreach ($users as $user)
                                     <option value="{{ $user->id }}" {{ request('user_id') == $user->id ? 'selected' : '' }}>{{ $user->username }}</option>
@@ -24,7 +24,7 @@
                         </div>
                 
                         <!-- Leave Type Filter -->
-                        <div>
+                        <div class="flex-1">
                             <label for="leave_type_id" class="block">Leave Type:</label>
                             <select name="leave_type_id" id="leave_type_id" class="form-select">
                                 <option value="">All Leave Types</option>
@@ -35,7 +35,7 @@
                         </div>
                 
                         <!-- Status Filter -->
-                        <div>
+                        <div class="flex-1">
                             <label for="status" class="block">Status:</label>
                             <select name="status" id="status" class="form-select">
                                 <option value="">All Statuses</option>
@@ -46,7 +46,7 @@
                         </div>
                 
                         <!-- Date Range Filter -->
-                        <div>
+                        <div class="flex-1">
                             <label for="from_date" class="block">From Date:</label>
                             <input type="date" name="from_date" id="from_date" class="form-input" value="{{ request('from_date') }}">
                         </div>
@@ -96,45 +96,6 @@
                                 <td class="px-6 py-3">{{ $leave->number_of_days }}</td>
                                 <td class="px-6 py-3">{{ $leave->reason }}</td>
                                 <td class="px-6 py-3">{{ ucfirst($leave->status) }}</td>
-                                <td class="px-6 py-3">
-                                    <ul class="list-inline m-0">
-                                        {{-- <li class="list-inline-item">
-                                            <button class="btn btn-success btn-sm rounded-0" type="button" data-toggle="tooltip" data-placement="top" title="Edit"><i class="fa fa-edit"></i></button>
-                                        </li>
-                                        <li class="list-inline-item">
-                                            <button class="btn btn-danger btn-sm rounded-0" type="button" data-toggle="tooltip" data-placement="top" title="Delete"><i class="fa fa-trash"></i></button>
-                                        </li> --}}
-                                        <li class="list-inline-item">
-                                            {{-- <button type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Edit</button> --}}
-                                            <a href="#" class="btn btn-sm btn-primary" style="font-size: 12px">
-                                                <i class="fa-solid fa-pen-to-square"></i>
-                                            </a>
-                                        </li>
-                                        <li class="list-inline-item">
-                                            {{-- <button type="button" class="text-white bg-red-700 hover:bg-red-800 focus:outline-none focus:ring-4 focus:ring-red-300 font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">Delete</button> --}}
-                                            {{-- <form action="{{ route('leaveType.destroy', $leaveType->id) }}" method="POST" style="display:inline;">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete the leave type: {{ $leaveType->leave_type }}?');">
-                                                    <i class="fa-solid fa-trash" style="font-size: 18px;"></i>
-                                                </button>
-                                            </form> --}}
-
-                                            <!-- Delete Button -->
-
-                                            {{-- <button type="button" class="btn btn-sm btn-danger" style="font-size: 12px;"  data-modal-target="deleteConfirmationModal-{{ $leaveType->id }}" data-modal-toggle="deleteConfirmationModal-{{ $leaveType->id }}">
-                                                <i class="fa-solid fa-trash"></i>
-                                            </button> --}}
-                                            
-                                        </li>
-                                        {{-- <li>
-                                            <button type="button" class="btn btn-primary">Edit</button>
-                                        </li>
-                                        <li>
-                                            <button type="button" class="btn btn-danger">Delete</button>
-                                        </li> --}}
-                                    </ul>
-                                </td>
                             </tr>
                         @endforeach
                     </tbody>
