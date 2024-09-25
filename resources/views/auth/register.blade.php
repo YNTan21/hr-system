@@ -17,7 +17,7 @@
                                 </div>
                             @endif
                             <div class="col p-2">
-                                <label for="username" class="form-label">Username</label>
+                                <label for="username" class="form-label">Full Name</label>
                                 <input type="text" class="form-control" value="{{old('username')}}" name="username">
                                 @error('username')
                                     <p class="error">

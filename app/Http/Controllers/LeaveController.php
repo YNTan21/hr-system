@@ -46,8 +46,9 @@ class LeaveController extends Controller
 
     public function index(Request $request)
     {
-        $query = Leave::with('user', 'leaveType');
+        $query = Leave::with(['user', 'leaveType']);
 
+        // Apply filters if they are present in the request
         if ($request->filled('user_id')) {
             $query->where('user_id', $request->user_id);
         }
@@ -60,12 +61,21 @@ class LeaveController extends Controller
             $query->where('status', $request->status);
         }
 
-        if ($request->filled('from_date') && $request->filled('to_date')) {
-            $query->whereBetween('from_date', [$request->from_date, $request->to_date]);
+        if ($request->filled('filter_date')) {
+            $filterDate = $request->filter_date;
+            $query->where(function($q) use ($filterDate) {
+                $q->where('from_date', '<=', $filterDate)
+                  ->where('to_date', '>=', $filterDate);
+            });
         }
 
+        // Order by created_at in descending order to show newest leaves first
+        $query->orderBy('created_at', 'desc');
+
+        // Paginate the results
         $leaves = $query->paginate(10);
 
+        // Get all users and leave types for the filters
         $users = User::all();
         $leaveTypes = LeaveType::all();
 
@@ -114,5 +124,56 @@ class LeaveController extends Controller
         $leave->update($validatedData);
 
         return redirect()->route('admin.leave.index')->with('success', 'Leave updated successfully.');
+    }
+
+    public function processLeaves(Request $request)
+    {
+        $query = Leave::with(['user', 'leaveType'])->where('status', 'pending');
+
+        // Apply filters if they are present in the request
+        if ($request->filled('user_id')) {
+            $query->where('user_id', $request->user_id);
+        }
+
+        if ($request->filled('leave_type_id')) {
+            $query->where('leave_type_id', $request->leave_type_id);
+        }
+
+        if ($request->filled('filter_date')) {
+            $filterDate = $request->filter_date;
+            $query->where(function($q) use ($filterDate) {
+                $q->where('from_date', '<=', $filterDate)
+                  ->where('to_date', '>=', $filterDate);
+            });
+        }
+
+        // Order by created_at in descending order to show newest leaves first
+        $query->orderBy('created_at', 'desc');
+
+        // Paginate the results
+        $leaves = $query->paginate(10);
+
+        // Get all users and leave types for the filters
+        $users = User::all();
+        $leaveTypes = LeaveType::all();
+
+        return view('admin.leave.process', compact('leaves', 'users', 'leaveTypes'));
+    }
+
+    public function approve(Leave $leave)
+    {
+        $leave->update(['status' => 'approved']);
+        return redirect()->back()->with('success', 'Leave approved successfully.');
+    }
+
+    public function reject(Leave $leave)
+    {
+        $leave->update(['status' => 'rejected']);
+        return redirect()->back()->with('success', 'Leave rejected successfully.');
+    }
+
+    public function show(Leave $leave)
+    {
+        return view('admin.leave.show', compact('leave'));
     }
 }

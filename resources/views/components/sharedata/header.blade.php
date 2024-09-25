@@ -1,61 +1,3 @@
-
-{{-- <header>
-    <nav class="navbar navbar-expand-lg bg-body-tertiary">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="{{ route('home') }}">HR System</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
-                <div class="offcanvas-header">
-                    <h5 class="offcanvas-title" id="offcanvasNavbarLabel">HR System</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-                </div>
-                <div class="offcanvas-body">
-                    <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
-                        @auth
-                            <li class="nav-item dropdown">
-                                <a class="nav-link d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                {{-- <img src="{{asset('/images/profile/default.webp')}}" class="profile-image" alt="Profile Image"> 
-                                    <span class="navbar username">{{Auth()->user()->username}} <i class="fa-solid fa-angle-down ps-2"></i></span>
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-end">
-                                <li>
-                                    <a class="dropdown-item" href="#">Profile</a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" href="{{route('dashboard.index')}}">Dashboard</a>
-                                </li>
-                                <li>
-                                    <form action="{{route('auth.logout')}}" method="post">
-                                        @csrf 
-                                        <button class="dropdown-item">
-                                            Logout
-                                        </button>
-                                    </form>
-                                </li>
-                                </ul>
-                            </li>
-                        @endauth
-                        @guest
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ route ('register') }}">Register</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ route('login') }}">Login</a>
-                            </li>
-                        @endguest
-                        
-                    </ul>
-                    <div class="d-block d-xl-none d-lg-none">
-                        <x-dashboard.sidebar></x-dashboard.sidebar>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </nav>
-</header> --}}
-
 <header>
 <nav class="fixed top-0 z-50 w-full bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700">
     <div class="px-3 py-3 lg:px-5 lg:pl-3">
@@ -157,15 +99,15 @@
                         <a href="{{ route('admin.leaveType.index') }}" class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Leave Type</a>
                     </li>
                     <li>
-                        <a href="{{ route('admin.leave.index') }}" class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Manage Leave</a>
+                        <a href="{{ route('admin.leave.process') }}" class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Manage Leave</a>
                     </li>
                 @else
                     <li>
-                        <a href="{{ route('user.leave.index') }}" class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Manage Leave</a>
+                        <a href="{{ route('user.leave.index') }}" class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Leave List</a>
                     </li>
                 @endif
                 <li>
-                    <a href="#" class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">View Leave</a>
+                    <a href="{{ route('admin.leave.index') }}" class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Leave List</a>
                 </li>
             </ul>
         </li>

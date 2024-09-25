@@ -6,6 +6,7 @@ use App\Http\Controllers\PageController;
 use App\Http\Controllers\LeaveTypeController;
 use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\UserLeaveController;
+use App\Http\Controllers\EmployeeController;
 // home
 Route::view('/', 'home')->name('home');
 
@@ -32,8 +33,16 @@ Route::middleware('auth')->group(function(){
         Route::get('/admin/leave/create', [LeaveController::class, 'create'])->name('admin.leave.create');
         Route::post('/admin/leave', [LeaveController::class, 'store'])->name('admin.leave.store');
         Route::get('/admin/leave/index', [LeaveController::class, 'index'])->name('admin.leave.index');
-        Route::get('/admin/leave/{id}/edit', [LeaveController::class, 'edit'])->name('admin.leave.edit');
-        Route::put('/admin/leave/{id}', [LeaveController::class, 'update'])->name('admin.leave.update');
+        Route::get('/admin/leave/process', [LeaveController::class, 'processLeaves'])->name('admin.leave.process');
+        // Route::get('/admin/leave/{id}/edit', [LeaveController::class, 'edit'])->name('admin.leave.edit');
+        // Route::put('/admin/leave/{id}', [LeaveController::class, 'update'])->name('admin.leave.update');
+        Route::put('/admin/leave/{leave}/approve', [LeaveController::class, 'approve'])->name('admin.leave.approve');
+        Route::put('/admin/leave/{leave}/reject', [LeaveController::class, 'reject'])->name('admin.leave.reject');  
+        Route::get('/admin/leave/{leave}', [LeaveController::class, 'show'])->name('admin.leave.show');
+
+        // employee
+        Route::get('/admin/employee/{id}/edit', [EmployeeController::class, 'edit'])->name('admin.employee.edit');
+        Route::put('/admin/employee/{id}', [EmployeeController::class, 'update'])->name('admin.employee.update');
     });
 
     // leave

@@ -24,7 +24,7 @@ class AuthController extends Controller
         Auth::login($user);
 
         // redirect
-        return redirect('/register')->with('success', 'account is created successfully');
+        return redirect('/user/dashboard')->with('success', 'account is created successfully');
     }
 
     // login
