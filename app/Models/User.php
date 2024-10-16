@@ -20,6 +20,21 @@ class User extends Authenticatable
         'username',
         'email',
         'password',
+        'ic',
+        'dob',
+        'gender',
+        'phone',
+        'marital_status',
+        'nationality',
+        'address',
+        'bank_name',
+        'bank_account_holder_name',
+        'bank_account_number',
+        'hire_date',
+        'position',
+        'type',
+        'status',
+        'profile_picture',
     ];
 
     /**
@@ -43,11 +58,17 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_admin' => 'boolean',
+            'hire_date' => 'date:Y-m-d',
         ];
     }
 
     public function leaves()
     {
         return $this->hasMany(Leave::class);
+    }
+
+    public function leaveBalances()
+    {
+        return $this->hasMany(LeaveBalance::class);
     }
 }

@@ -24,10 +24,23 @@ class Employee extends Model
         'bank_account_holder_name',
         'bank_name',
         'bank_account_number',
+        'hire_date', 
+        'position', 
+        'type',
+        'status',
+    ];
+
+    protected $casts = [
+        'hire_date' => 'date', // Cast hire_date to a date object
     ];
 
     public function user(): BelongsTo 
     {
         return $this->belongsTo(User::class);
     }
+
+    // public function jobTitle(): BelongsTo
+    // {
+    //     return $this->belongsTo(JobTitle::class);
+    // }
 }

@@ -41,8 +41,16 @@ Route::middleware('auth')->group(function(){
         Route::get('/admin/leave/{leave}', [LeaveController::class, 'show'])->name('admin.leave.show');
 
         // employee
+        Route::get('/admin/employee/index', [EmployeeController::class, 'index'])->name('admin.employee.index');
         Route::get('/admin/employee/{id}/edit', [EmployeeController::class, 'edit'])->name('admin.employee.edit');
         Route::put('/admin/employee/{id}', [EmployeeController::class, 'update'])->name('admin.employee.update');
+        Route::get('/admin/employee/create', [EmployeeController::class, 'create'])->name('admin.employee.create');
+        Route::get('/admin/employee/sCreate', [EmployeeController::class, 'sCreate'])->name('admin.employee.sCreate');
+        Route::post('/admin/employee', [EmployeeController::class, 'store'])->name('admin.employee.store');
+        Route::get('/admin/employee/{id}', [EmployeeController::class, 'show'])->name('admin.employee.show');
+        Route::delete('/admin/employee/{id}', [EmployeeController::class, 'destroy'])->name('admin.employee.destroy');
+        Route::get('/admin/employee/{employee}/edit-password', [EmployeeController::class, 'editPassword'])->name('admin.employee.edit-password');
+        Route::put('/admin/employee/{employee}/update-password', [EmployeeController::class, 'updatePassword'])->name('admin.employee.update-password');
     });
 
     // leave
