@@ -21,7 +21,7 @@ class EmployeeController extends Controller
             return redirect()->route('user.dashboard')->with('error', 'You do not have permission to edit employee profiles.');
         }
 
-        return view('admin.employee.index', compact('employee'));
+        return view('admin.employee.edit', compact('employee'));
     }
 
     public function update(Request $request, $id)

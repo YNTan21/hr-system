@@ -176,4 +176,26 @@ class LeaveController extends Controller
     {
         return view('admin.leave.show', compact('leave'));
     }
+
+    public function leaveBalance(Request $request)
+    {
+        $query = Leave::with(['user', 'leaveType']);
+
+        // Apply filters if they are present in the request
+        if ($request->filled('user_id')) {
+            $query->where('user_id', $request->user_id);
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        // Paginate the results
+        $leaves = $query->paginate(10);
+
+        // Get all users and leave types for the filters
+        $users = User::all();
+
+        return view('admin.leave.leave-balance', compact('leaves', 'users'));
+    }
 }

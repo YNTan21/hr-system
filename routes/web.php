@@ -7,6 +7,7 @@ use App\Http\Controllers\LeaveTypeController;
 use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\UserLeaveController;
 use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\AttendanceController;
 // home
 Route::view('/', 'home')->name('home');
 
@@ -33,6 +34,7 @@ Route::middleware('auth')->group(function(){
         Route::get('/admin/leave/create', [LeaveController::class, 'create'])->name('admin.leave.create');
         Route::post('/admin/leave', [LeaveController::class, 'store'])->name('admin.leave.store');
         Route::get('/admin/leave/index', [LeaveController::class, 'index'])->name('admin.leave.index');
+        Route::get('/admin/leave/leave-balance', [LeaveController::class, 'leaveBalance'])->name('admin.leave.leave-balance');
         Route::get('/admin/leave/process', [LeaveController::class, 'processLeaves'])->name('admin.leave.process');
         // Route::get('/admin/leave/{id}/edit', [LeaveController::class, 'edit'])->name('admin.leave.edit');
         // Route::put('/admin/leave/{id}', [LeaveController::class, 'update'])->name('admin.leave.update');
@@ -51,6 +53,15 @@ Route::middleware('auth')->group(function(){
         Route::delete('/admin/employee/{id}', [EmployeeController::class, 'destroy'])->name('admin.employee.destroy');
         Route::get('/admin/employee/{employee}/edit-password', [EmployeeController::class, 'editPassword'])->name('admin.employee.edit-password');
         Route::put('/admin/employee/{employee}/update-password', [EmployeeController::class, 'updatePassword'])->name('admin.employee.update-password');
+
+        //attendance
+        // Route to view the attendance page
+        Route::get('/admin/attendance/index', [AttendanceController::class, 'index'])->name('admin.attendance.index');
+        // Route to view the latetime page
+        Route::get('/attendance/latetime', [AttendanceController::class, 'indexLatetime'])->name('attendance.latetime');
+        // Route to assign attendance to an employee
+        Route::post('/attendance/assign', [AttendanceController::class, 'assign'])->name('attendance.assign');
+
     });
 
     // leave

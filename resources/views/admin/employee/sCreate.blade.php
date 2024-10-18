@@ -57,25 +57,28 @@
                         <input type="password" name="password" id="password" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
                     </div>
 
-                    <!-- Hire Date -->
-                    <div class="mb-4">
-                        <label for="hire_date" class="block text-sm font-medium text-gray-700">Hire Date</label>
-                        <input type="date" name="hire_date" id="hire_date" value="{{ old('hire_date') }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
-                    </div>
+                    <!-- Hire Date, Position, Employment Type in one line -->
+                    <div class="mb-4 flex space-x-4">
+                        <!-- Hire Date -->
+                        <div class="flex-1">
+                            <label for="hire_date" class="block text-sm font-medium text-gray-700">Hire Date</label>
+                            <input type="date" name="hire_date" id="hire_date" value="{{ old('hire_date') }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
+                        </div>
 
-                    <!-- Position -->
-                    <div class="mb-4">
-                        <label for="position" class="block text-sm font-medium text-gray-700">Position</label>
-                        <input type="text" name="position" id="position" value="{{ old('position') }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
-                    </div>
+                        <!-- Position -->
+                        <div class="flex-1">
+                            <label for="position" class="block text-sm font-medium text-gray-700">Position</label>
+                            <input type="text" name="position" id="position" value="{{ old('position') }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
+                        </div>
 
-                    <!-- Type -->
-                    <div class="mb-4">
-                        <label for="type" class="block text-sm font-medium text-gray-700">Employment Type</label>
-                        <select name="type" id="type" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
-                            <option value="full-time" {{ old('type') == 'full-time' ? 'selected' : '' }}>Full-time</option>
-                            <option value="part-time" {{ old('type') == 'part-time' ? 'selected' : '' }}>Part-time</option>
-                        </select>
+                        <!-- Type -->
+                        <div class="flex-1">
+                            <label for="type" class="block text-sm font-medium text-gray-700">Employment Type</label>
+                            <select name="type" id="type" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
+                                <option value="full-time" {{ old('type') == 'full-time' ? 'selected' : '' }}>Full-time</option>
+                                <option value="part-time" {{ old('type') == 'part-time' ? 'selected' : '' }}>Part-time</option>
+                            </select>
+                        </div>
                     </div>
 
                     <!-- Status -->

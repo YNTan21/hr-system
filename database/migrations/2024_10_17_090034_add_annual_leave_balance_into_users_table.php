@@ -9,22 +9,21 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
+    public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->date('hire_date')->nullable()->change();
-            $table->string('position')->nullable();
-            $table->string('type')->nullable();
+            $table->integer('annual_leave_balance')->default(0); 
         });
     }
 
-    /**
-     * Reverse the migrations.
+    /*** Reverse the migrations.
+     *
+     * @return void
      */
-    public function down(): void
+    public function down()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn(['hire_date', 'position', 'type', 'status']);
+            $table->dropColumn('annual_leave_balance'); 
         });
     }
 };

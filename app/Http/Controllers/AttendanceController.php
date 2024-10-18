@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use DateTime;
-use App\User;
+// use App\User;
 use App\Latetime;
-use App\Attendance;
+// use App\Attendance;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\AttendanceEmp;
+use App\Models\Attendance;
+use App\Models\User;
 
 
 class AttendanceController extends Controller
@@ -17,9 +19,15 @@ class AttendanceController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+    // public function index()
+    // {
+    //     return view('admin.attendance')->with(['attendances'=> Attendance::all()]);
+    // }
+
     public function index()
     {
-        return view('admin.attendance')->with(['attendances'=> Attendance::all()]);
+        $attendances = Attendance::paginate(10);
+        return view('admin.attendance.index', compact('attendances'));
     }
 
     /**
@@ -86,8 +94,8 @@ class AttendanceController extends Controller
 
         $latetime = new Latetime;
         $latetime->user_id = $employee->id;
-        $latetime->duration   = $difference;
-        $latetime->latetime_date  = date("Y-m-d");
+        $latetime->duration = $difference;
+        $latetime->latetime_date = date("Y-m-d");
         $latetime->save();
 
     }

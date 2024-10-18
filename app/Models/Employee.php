@@ -28,6 +28,7 @@ class Employee extends Model
         'position', 
         'type',
         'status',
+        'annual_leave_balance',
     ];
 
     protected $casts = [
