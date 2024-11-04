@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\LeaveType;
 use App\Models\Leave;
 use App\Models\Employee;
+use App\Models\Position;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 
@@ -21,7 +22,8 @@ class EmployeeController extends Controller
             return redirect()->route('user.dashboard')->with('error', 'You do not have permission to edit employee profiles.');
         }
 
-        return view('admin.employee.edit', compact('employee'));
+        $positions = Position::all();
+        return view('admin.employee.edit', compact('employee','positions'));
     }
 
     public function update(Request $request, $id)
@@ -46,7 +48,7 @@ class EmployeeController extends Controller
             'bank_name' => 'required|string|max:255',
             'bank_account_number' => 'required|string|max:255',
             'hire_date' => 'required|date',
-            'position' => 'required|string|max:255',
+            'position_id' => 'required|exists:positions,id',
             'type' => 'required|string|in:full-time,part-time',
             'status' => 'required|string|in:active,inactive',
         ]);
@@ -79,6 +81,7 @@ class EmployeeController extends Controller
     public function index(Request $request)
     {
         $query = User::query();
+        $query = Employee::with('position'); 
 
         if ($request->has('search')) {
             $searchTerm = $request->search;
@@ -97,7 +100,8 @@ class EmployeeController extends Controller
         }
 
         $employees = Employee::all();
-        return view('admin.employee.create', compact('employees'));
+        $positions = Position::all();
+        return view('admin.employee.create', compact('employees','positions'));
     }
 
     public function store(Request $request)
@@ -109,7 +113,7 @@ class EmployeeController extends Controller
                 'username' => 'required|string|max:255',
                 'email' => 'required|string|email|max:255|unique:users',
                 'password' => 'required|string|min:8',
-                'position' => 'required|string|max:255',
+                'position_id' => 'required|exists:positions,id',
                 'type' => 'required|in:full-time,part-time',
                 'hire_date' => 'required|date',
                 'status' => 'required|in:active,inactive',
@@ -133,7 +137,7 @@ class EmployeeController extends Controller
                 'username' => $validatedData['username'],
                 'email' => $validatedData['email'],
                 'password' => Hash::make($validatedData['password']),
-                'position' => $validatedData['position'],
+                'position_id' => $validatedData['position_id'],
                 'type' => $validatedData['type'],
                 'hire_date' => $validatedData['hire_date'],
                 'status' => $validatedData['status'],

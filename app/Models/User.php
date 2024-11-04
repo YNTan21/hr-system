@@ -31,7 +31,7 @@ class User extends Authenticatable
         'bank_account_holder_name',
         'bank_account_number',
         'hire_date',
-        'position',
+        'position_id',
         'type',
         'status',
         'profile_picture',

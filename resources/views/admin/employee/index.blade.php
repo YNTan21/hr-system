@@ -4,6 +4,7 @@
         <div class="row">
             <x-sharedata.header></x-sharedata.header>
             </div>
+
             <!-- Main Content -->
 
             <div class="p-4 sm:ml-64">
@@ -52,7 +53,7 @@
                                 <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                                     <td class="py-4 px-6 w-1/7">{{ $employee->username }}</td>
                                     {{-- <td class="py-4 px-6 w-1/7">{{ $employee->department->name }}</td> --}}
-                                    <td class="py-4 px-6 w-1/7">{{ $employee->position }}</td>
+                                    <td class="py-4 px-6 w-1/7">{{ $employee->position ? $employee->position->position_name : 'N/A' }}</td>
                                     <td class="py-4 px-6 w-1/7">{{ ucfirst($employee->type) }}</td>
                                     <td class="py-4 px-6 w-1/7">{{ date('Y-m-d', strtotime($employee->hire_date)) }}</td>
                                     <td class="py-4 px-6 w-1/7">

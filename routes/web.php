@@ -8,6 +8,7 @@ use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\UserLeaveController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\PositionController;
 // home
 Route::view('/', 'home')->name('home');
 
@@ -53,6 +54,14 @@ Route::middleware('auth')->group(function(){
         Route::delete('/admin/employee/{id}', [EmployeeController::class, 'destroy'])->name('admin.employee.destroy');
         Route::get('/admin/employee/{employee}/edit-password', [EmployeeController::class, 'editPassword'])->name('admin.employee.edit-password');
         Route::put('/admin/employee/{employee}/update-password', [EmployeeController::class, 'updatePassword'])->name('admin.employee.update-password');
+
+        // position
+        Route::get('/admin/employee/positions/index', [PositionController::class, 'index'])->name('admin.employee.positions.index');
+        Route::get('/admin/employee/positions/create', [PositionController::class, 'create'])->name('admin.employee.positions.create');
+        Route::post('/admin/employee/positions', [PositionController::class, 'store'])->name('admin.employee.positions.store');
+        Route::get('/admin/employee/positions/{id}/edit', [PositionController::class, 'edit'])->name('admin.employee.positions.edit');
+        Route::put('/admin/employee/positions/{id}', [PositionController::class, 'update'])->name('admin.employee.positions.update');
+        Route::delete('/admin/employee/positions/{id}', [PositionController::class, 'destroy'])->name('admin.employee.positions.destroy');
 
         //attendance
         // Route to view the attendance page

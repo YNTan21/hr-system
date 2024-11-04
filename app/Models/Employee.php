@@ -25,7 +25,7 @@ class Employee extends Model
         'bank_name',
         'bank_account_number',
         'hire_date', 
-        'position', 
+        'position_id', 
         'type',
         'status',
         'annual_leave_balance',
@@ -38,6 +38,11 @@ class Employee extends Model
     public function user(): BelongsTo 
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function position():BelongsTo
+    {
+        return $this->belongsTo(Position::class);
     }
 
     // public function jobTitle(): BelongsTo
