@@ -9,6 +9,9 @@ use App\Http\Controllers\UserLeaveController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\PositionController;
+use App\Http\Controllers\KPIController;
+use App\Http\Controllers\GoalController;
+
 // home
 Route::view('/', 'home')->name('home');
 
@@ -72,6 +75,31 @@ Route::middleware('auth')->group(function(){
         Route::post('/attendance/assign', [AttendanceController::class, 'assign'])->name('attendance.assign');
         Route::get('/admin/attendance/create', [AttendanceController::class, 'create'])->name('admin.attendance.create');
         Route::post('/admin/attendance/store', [AttendanceController::class, 'store'])->name('admin.attendance.store');
+
+        // kpi
+        Route::get('/admin/kpi/index', [KPIController::class, 'index'])->name('admin.kpi.index');
+        Route::get('/admin/kpi/create/{position_id}', [KPIController::class, 'create'])->name('admin.kpi.create');
+        Route::post('/admin/kpi', [KPIController::class, 'store'])->name('admin.kpi.store');
+        // Route::get('/admin/kpi/{id}/edit', [KPIController::class, 'edit'])->name('admin.kpi.edit');
+        Route::put('/admin/kpi/{id}', [KPIController::class, 'update'])->name('admin.kpi.update');
+        // Route::delete('/admin/kpi/{id}', [KPIController::class, 'destroy'])->name('admin.kpi.destroy');
+        Route::get('/admin/kpi/manage/{position_id}', [KPIController::class, 'manage'])->name('admin.kpi.manage');
+
+        // Rating Category
+        Route::get('/admin/rating-category/index', [RatingCategoryController::class, 'index'])->name('admin.rating-category.index');
+
+        // Route to create a category under a specific KPI
+        // Route::post('/admin/kpi/{kpiId}/category/store', [CategoryController::class, 'store'])->name('category.store');
+
+        // Route to add a goal to a category under a specific KPI
+        // Route::post('/admin/kpi/{kpiId}/category/{categoryId}/goal/store', [GoalController::class, 'store'])->name('category.goal.store');
+
+        // Goal
+        Route::get('/admin/kpi/create/{position_id}', [GoalController::class, 'create'])->name('admin.kpi.create');
+        Route::post('/admin/kpi/{position_id}', [GoalController::class, 'store'])->name('admin.kpi.store');
+        Route::get('/admin/kpi/{position_id}/goal/{id}/edit', [GoalController::class, 'edit'])->name('admin.kpi.edit');
+        Route::put('/admin/kpi/{position_id}/goal/{id}', [GoalController::class, 'update'])->name('admin.kpi.update');
+        Route::delete('/admin/kpi/{goal_id}', [GoalController::class, 'destroy'])->name('admin.kpi.destroy');
 
     });
 

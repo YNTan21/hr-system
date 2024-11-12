@@ -21,4 +21,9 @@ class Position extends Model
     {
         return $this->hasMany(User::class);
     }
+
+    public function kpis()
+    {
+        return $this->hasMany(KPI::class); 
+    }
 }
