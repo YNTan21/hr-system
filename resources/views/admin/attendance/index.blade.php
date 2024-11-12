@@ -12,26 +12,24 @@
                 
 <div class="content-wrapper">
     <!-- Content Header (Page header) -->
-    <section class="content-header">
+    <!-- <section class="content-header">
         <h1>
             Attendance
         </h1>
-        <ol class="breadcrumb">
-            <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li class="active">Attendance</li>
-        </ol>
-    </section>
+    </section> -->
 
+    <div class="text-right mb-2">
+                    <a href="{{ route('admin.attendance.create')}}">
+                        <button type="button" class="text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-full text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700"><i class="fa fa-plus"></i> New Attendance</button>
+                    </a>
+                </div>
     <!-- Main content -->
     <section class="content">
         {{-- @include('includes.messages') --}}
-
+        
         <div class="row">
             <div class="col-xs-12">
                 <div class="box">
-                    <div class="box-header with-border">
-                        <a href="/attendance/assign" class="btn btn-primary btn-sm btn-flat"><i class="fa fa-plus"></i> New Attendance</a>
-                    </div>
                     <div class="box-body">
                         <table id="attendanceTable" class="w-full text-sm text-center text-black-500 dark:text-gray-400">
                             <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">

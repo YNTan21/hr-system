@@ -70,6 +70,8 @@ Route::middleware('auth')->group(function(){
         Route::get('/attendance/latetime', [AttendanceController::class, 'indexLatetime'])->name('attendance.latetime');
         // Route to assign attendance to an employee
         Route::post('/attendance/assign', [AttendanceController::class, 'assign'])->name('attendance.assign');
+        Route::get('/admin/attendance/create', [AttendanceController::class, 'create'])->name('admin.attendance.create');
+        Route::post('/admin/attendance/store', [AttendanceController::class, 'store'])->name('admin.attendance.store');
 
     });
 

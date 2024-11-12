@@ -19,6 +19,8 @@ class CreateAttendancesTable extends Migration
             $table->date('attendance_date');  // The date of the attendance
             $table->time('attendance_time');  // The time of the attendance
             $table->boolean('status');        // Whether the employee was on time (1 for on-time, 0 for late)
+            $table->timestamp('check_in')->nullable();
+            $table->timestamp('check_out')->nullable();
             $table->timestamps();
         });
     }

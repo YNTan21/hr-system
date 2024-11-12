@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\AttendanceEmp;
 use App\Models\Attendance;
 use App\Models\User;
+use App\Models\Employee;
+use Illuminate\Http\Request;
 
 
 class AttendanceController extends Controller
@@ -100,5 +102,31 @@ class AttendanceController extends Controller
 
     }
 
+    public function create()
+    {
+        $employees = Employee::all(); // Adjust based on your Employee model
+        return view('admin.attendance.create', compact('employees'));
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'employee_id' => 'required|exists:employees,id',
+            'date' => 'required|date',
+            'time' => 'required',
+            'type' => 'required|in:clock_in,clock_out',
+        ]);
+
+        $datetime = $request->date . ' ' . $request->time;
+
+        Attendance::create([
+            'employee_id' => $request->employee_id,
+            'datetime' => $datetime,
+            'type' => $request->type,
+        ]);
+
+        return redirect()->route('admin.attendance.index')
+            ->with('success', 'Attendance recorded successfully');
+    }
 
 }
