@@ -1,61 +1,78 @@
 <x-layout.master>
-    <div class="container-fluid flex items-center justify-center min-h-screen">
-        <div class="inline-flex rounded-md shadow-sm" role="group">
-            <button type="button" class="px-4 py-2 text-sm font-medium text-gray-900 bg-transparent border border-gray-900 rounded-s-lg hover:bg-gray-900 hover:text-white focus:z-10 focus:ring-2 focus:ring-gray-500 focus:bg-gray-900 focus:text-white dark:border-white dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:bg-gray-700">
-                Login
-            </button>
-            <a href="{{ route('auth.register')}}">
-                <button type="button" class="px-4 py-2 text-sm font-medium text-gray-900 bg-transparent border border-gray-900 rounded-e-lg hover:bg-gray-900 hover:text-white focus:z-10 focus:ring-2 focus:ring-gray-500 focus:bg-gray-900 focus:text-white dark:border-white dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:bg-gray-700">
-                    Register
-                </button>
-            </a>
-        </div>
-        <div class="col text-center">
-            <h3 class="mb-4 text-2xl font-bold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-6xl dark:text-white">
-                Login
-            </h3>
-        </div>
-        <div class="container">
-            <div class="register">
-                <div class="col-xl-4 mx-auto">
-                    <div class="relative z-0 w-full mb-5 group">
-                        <input type="email" name="floating_email" id="floating_email" class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=" " required />
-                        <label for="floating_email" class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Email address</label>
-                    </div>
-                    <form action="{{route('auth.login')}}" method="post">
-                        @csrf 
-                        @error('failed')
-                        <div class="col p-2">
-                            <p class="error">
-                                {{ $message }}
-                            </p>
-                        </div>
-                        @enderror
-                        <div class="col p-2">
-                            <label for="email" class="form-label">Email</label>
-                            <input type="email" class="form-control rounded-lg" value="{{old('email')}}" name="email">
-                            @error('email')
-                                <p class="error">
-                                    {{ $message }}
-                                </p>
-                            @enderror
-                        </div>
-                        <div class="col p-2">
-                            <label for="password" class="form-label">Password</label>
-                            <input type="password" class="form-control rounded-lg" name="password">
-                            @error('password')
-                                <p class="error">
-                                    {{ $message }}
-                                </p>
-                            @enderror
-                        </div>
-                        <div class="col text-center p-2">
-                            <button class="btn btn-dark">
-                                Login
-                            </button>
-                        </div>
-                    </form>
+    <div class="main-wrapper min-h-screen bg-gray-100 flex items-center">
+        <div class="container mx-auto">
+            <!-- Account Logo -->
+            <!-- <div class="text-center mb-8">
+                <a href="/">
+                    <img src="{{ asset('assets/img/logo2.png') }}" alt="Logo" class="mx-auto h-16">
+                </a>
+            </div> -->
+
+            <!-- Login Box -->
+            <div class="max-w-md mx-auto bg-white rounded-lg shadow-lg p-8">
+                <div class="text-center mb-8">
+                    <h3 class="text-2xl font-bold mb-2">Login</h3>
+                    <!-- <p class="text-gray-600">Access to our dashboard</p> -->
                 </div>
+
+                <!-- Login Form -->
+                <form action="{{ route('auth.login') }}" method="POST">
+                    @csrf
+
+                    @error('failed')
+                        <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+                            {{ $message }}
+                        </div>
+                    @enderror
+
+                    <!-- Email -->
+                    <div class="mb-6">
+                        <label for="email" class="block text-gray-700 text-sm font-bold mb-2">Email Address</label>
+                        <input type="email" 
+                               name="email" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 @error('email') border-red-500 @enderror" 
+                               value="{{ old('email') }}" 
+                               placeholder="Enter email">
+                        @error('email')
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Password -->
+                    <div class="mb-6">
+                        <div class="flex justify-between mb-2">
+                            <label for="password" class="block text-gray-700 text-sm font-bold">Password</label>
+                            {{-- Remove or update password reset link
+                            <a href="{{ route('password.request') }}" class="text-sm text-blue-600 hover:text-blue-800">
+                                Forgot password?
+                            </a> 
+                            --}}
+                        </div>
+                        <input type="password" 
+                               name="password" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 @error('password') border-red-500 @enderror" 
+                               placeholder="Enter Password">
+                        @error('password')
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="mb-6">
+                        <button type="submit" 
+                                class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
+                            Login
+                        </button>
+                    </div>
+
+                    <!-- Register Link -->
+                    <div class="text-center text-gray-600">
+                        Don't have an account yet? 
+                        <a href="{{ route('auth.register') }}" class="text-blue-600 hover:text-blue-800">
+                            Register
+                        </a>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
