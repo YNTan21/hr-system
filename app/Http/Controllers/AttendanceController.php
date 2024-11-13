@@ -21,15 +21,18 @@ class AttendanceController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    // public function index()
-    // {
-    //     return view('admin.attendance')->with(['attendances'=> Attendance::all()]);
-    // }
-
-    public function index()
+    public function index(Request $request)
     {
-        $attendances = Attendance::paginate(10);
-        return view('admin.attendance.index', compact('attendances'));
+        $users = User::all();
+        
+        $attendances = Attendance::with('user')
+            ->when($request->user_id, function($query) use ($request) {
+                return $query->where('user_id', $request->user_id);
+            })
+            ->latest('date')
+            ->paginate(10);
+        
+        return view('admin.attendance.index', compact('users', 'attendances'));
     }
 
     /**
@@ -104,29 +107,40 @@ class AttendanceController extends Controller
 
     public function create()
     {
-        $employees = Employee::all(); // Adjust based on your Employee model
-        return view('admin.attendance.create', compact('employees'));
+        $users = User::where('status', 'active')
+            ->orderBy('username')
+            ->get();
+        
+        return view('admin.attendance.create', compact('users'));
     }
 
     public function store(Request $request)
     {
-        $request->validate([
-            'employee_id' => 'required|exists:employees,id',
+        // dd($request->all());
+
+        $validated = $request->validate([
+            'user_id' => 'required|exists:users,id',
             'date' => 'required|date',
-            'time' => 'required',
-            'type' => 'required|in:clock_in,clock_out',
+            'clock_in_time' => 'nullable',
+            'clock_out_time' => 'nullable',
+            'status' => 'required|in:on_time,late'
         ]);
 
-        $datetime = $request->date . ' ' . $request->time;
+        try {
+            Attendance::create([
+                'user_id' => $validated['user_id'],
+                'date' => $validated['date'],
+                'clock_in_time' => $validated['clock_in_time'],
+                'clock_out_time' => $validated['clock_out_time'],
+                'status' => $validated['status']
+            ]);
 
-        Attendance::create([
-            'employee_id' => $request->employee_id,
-            'datetime' => $datetime,
-            'type' => $request->type,
-        ]);
-
-        return redirect()->route('admin.attendance.index')
-            ->with('success', 'Attendance recorded successfully');
+            return redirect()->route('admin.attendance.index')
+                ->with('success', 'Attendance recorded successfully');
+        } catch (\Exception $e) {
+            return back()->withInput()
+                ->withErrors(['error' => 'Failed to save attendance. ' . $e->getMessage()]);
+        }
     }
 
 }

@@ -11,21 +11,20 @@ class Attendance extends Model
 
     // Define which attributes can be mass assigned
     protected $fillable = [
-        'employee_id', 'datetime', 'type',
+        'user_id',
+        'date',
+        'clock_in_time',
+        'clock_out_time',
+        'status'
     ];
 
     protected $casts = [
-        'datetime' => 'datetime',
+        'date' => 'date',
     ];
 
     // Define the relationship to the User model
     public function user()
     {
         return $this->belongsTo(User::class);
-    }
-
-    public function employee()
-    {
-        return $this->belongsTo(Employee::class);
     }
 }

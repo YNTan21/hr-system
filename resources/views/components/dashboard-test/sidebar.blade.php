@@ -43,7 +43,7 @@
         </a>
     </div>
     <div class="col p-2">
-        <a class="sidebar-mainmenu-link text-dark text-decoration-none" data-bs-toggle="collapse" href="" role="button" aria-expanded="false" aria-controls="collapseExample">
+        <a class="sidebar-mainmenu-link text-dark text-decoration-none" data-bs-toggle="collapse" href="{{ route('admin.timetable.index') }}" role="button" aria-expanded="false" aria-controls="collapseExample">
             Timetable
         </a>
     </div>

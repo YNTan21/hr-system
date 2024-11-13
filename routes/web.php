@@ -9,10 +9,15 @@ use App\Http\Controllers\UserLeaveController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\PositionController;
+<<<<<<< Updated upstream
 use App\Http\Controllers\KPIController;
 use App\Http\Controllers\GoalController;
 use App\Http\Controllers\KPIEntryController;
 
+=======
+use App\Http\Controllers\TimetableController;
+use App\Http\Controllers\ShiftController;
+>>>>>>> Stashed changes
 // home
 Route::view('/', 'home')->name('home');
 
@@ -77,6 +82,7 @@ Route::middleware('auth')->group(function(){
         Route::get('/admin/attendance/create', [AttendanceController::class, 'create'])->name('admin.attendance.create');
         Route::post('/admin/attendance/store', [AttendanceController::class, 'store'])->name('admin.attendance.store');
 
+<<<<<<< Updated upstream
         // kpi
         Route::get('/admin/kpi/index', [KPIController::class, 'index'])->name('admin.kpi.index');
         Route::get('/admin/kpi/create/{position_id}', [KPIController::class, 'create'])->name('admin.kpi.create');
@@ -110,6 +116,12 @@ Route::middleware('auth')->group(function(){
         Route::get('/admin/kpi/kpiEntry/{id}', [KpiEntryController::class, 'show'])->name('admin.kpi.kpiEntry.show');
         Route::get('/admin/kpi/kpiEntry/{id}/edit', [KpiEntryController::class, 'edit'])->name('admin.kpi.kpiEntry.edit');
         Route::delete('/admin/kpi/kpiEntry/{id}', [KpiEntryController::class, 'destroy'])->name('admin.kpi.kpiEntry.destroy');
+=======
+        // timetable
+        Route::get('/admin/timetable/index', [TimetableController::class, 'index'])->name('admin.timetable.index');
+        Route::get('/form/shiftlist/page', [ShiftController::class, 'shiftList'])->name('form/shiftlist/page');
+        Route::post('/shifts/assign', [ShiftController::class, 'assign'])->name('shifts.assign');
+>>>>>>> Stashed changes
     });
 
     // leave
@@ -129,4 +141,9 @@ Route::middleware('guest')->group(function(){
     Route::view('/login', 'auth.login')->name('login');
     Route::post('/login', [AuthController::class, 'login'])->name('auth.login');
 });
+
+Route::get('/shift-list', [ShiftController::class, 'shiftList'])->name('shift.list');
+
+
+
 

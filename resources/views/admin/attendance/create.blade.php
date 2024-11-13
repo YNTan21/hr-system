@@ -18,51 +18,76 @@
 
                 <form action="{{ route('admin.attendance.store') }}" method="POST">
                     @csrf
+                    
+                    @if ($errors->any())
+                        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
+                            <ul>
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
                     <div class="space-y-4">
                         <!-- Employee Selection -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Employee</label>
-                            <select name="employee_id" id="employee_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
+                            <select name="user_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
                                 <option value="">Select Employee</option>
-                                @foreach($employees as $employee)
-                                    <option value="{{ $employee->id }}">{{ $employee->name }}</option>
+                                @foreach($users as $user)
+                                    <option value="{{ $user->id }}">{{ $user->username }}</option>
                                 @endforeach
                             </select>
                         </div>
 
-                        <!-- Date and Time -->
+                        <!-- Date -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Date</label>
-                            <input type="date" name="date" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
+                            <input type="date" 
+                                   name="date" 
+                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" 
+                                   value="{{ old('date', date('Y-m-d')) }}"
+                                   required>
                         </div>
 
+                        <!-- Clock In Time -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Time</label>
-                            <input type="time" name="time" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
+                            <label class="block text-sm font-medium text-gray-700">Clock In Time</label>
+                            <input type="time" 
+                                   name="clock_in_time" 
+                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" 
+                                   value="{{ old('clock_in_time') }}">
                         </div>
 
-                        <!-- Type Selection -->
+                        <!-- Clock Out Time -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Type</label>
-                            <select name="type" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
-                                <option value="clock_in">Clock In</option>
-                                <option value="clock_out">Clock Out</option>
+                            <label class="block text-sm font-medium text-gray-700">Clock Out Time</label>
+                            <input type="time" 
+                                   name="clock_out_time" 
+                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" 
+                                   value="{{ old('clock_out_time') }}">
+                        </div>
+
+                        <!-- Status -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Status</label>
+                            <select name="status" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
+                                <option value="on_time">On Time</option>
+                                <option value="late">Late</option>
                             </select>
                         </div>
 
-                        <div class="my-10"></div>
-
-                        <!-- Button Row -->
-                        <div class="flex justify-between items-center">
-                            <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                                Save Attendance
-                            </button>
-                            
-                            <a href="{{ route('admin.attendance.index') }}" class="text-gray-600 hover:text-gray-800">
-                                <button type="button" class="flex items-center text-white bg-gray-700 hover:bg-gray-800 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5">
-                                    <i class="fas fa-arrow-left mr-2"></i> Back
-                                </button>
+                        <!-- Buttons -->
+                        <div class="flex justify-between mt-4">
+                            <a href="{{ route('admin.attendance.index') }}" 
+                               class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+                                Back
                             </a>
+                            <button type="submit" 
+                                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                                Add Attendance
+                            </button>
                         </div>
                     </div>
                 </form>
@@ -106,3 +131,13 @@
         }
     }
 </script>
+
+@if ($errors->any())
+    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
