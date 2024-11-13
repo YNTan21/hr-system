@@ -8,10 +8,10 @@
         <div class="p-4 sm:ml-64">
             <div class="p-4 border-2 border-gray-200 rounded-lg dark:border-gray-700 mt-14">
 
-                <h2>Edit Goal for Position: {{ $positions->position_name }}</h2>
+                <h2>Edit Goal for Position: {{ $position->position_name }}</h2>
 
                 <!-- Goal Edit Form -->
-                <form action="{{ route('admin.kpi.update', ['goal_id' => $goal->id, 'position_id' => $positions->id]) }}" method="POST">
+                <form action="{{ route('admin.kpi.update', ['position_id' => $position->id, 'id' => $goal->id]) }}" method="POST">
                     @csrf
                     @method('PUT')
 

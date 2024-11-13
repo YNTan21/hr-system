@@ -22,9 +22,9 @@
                                 <tr>
                                     <th class="text-center">#</th>
                                     <th class="text-center">Goal Name</th>
-                                    <th class="text-center">Goal Type</th>
-                                    <th class="text-center">Goal Unit</th>
-                                    <th class="text-center">Goal Score</th>
+                                    <th class="text-center">Type</th>
+                                    <th class="text-center">Unit</th>
+                                    <th class="text-center">Score</th>
                                     <th class="text-center">Failed</th>
                                     <th class="text-center">Below Expectation</th>
                                     <th class="text-center">Threshold</th>
@@ -37,7 +37,7 @@
                                 @foreach ($goals as $index => $goal)
                                     <tr>
                                         <td class="text-center">{{ $index + 1 }}</td>
-                                        <td class="text-center">{{ $goal->goal_name }}</td>
+                                        <td class="">{{ $goal->goal_name }}</td>
                                         <td class="text-center">{{ ucfirst($goal->goal_type) }}</td>
                                         <td class="text-center">{{ $goal->goal_unit }}</td>
                                         <td class="text-center">{{ $goal->goal_score }}</td>
@@ -64,13 +64,13 @@
                                         </td>
                         
                                         <td class="text-center">
-                                            <a href="{{ route('admin.kpi.edit', ['goal_id' => $goal->id]) }}" class="btn btn-sm bg-yellow-100 text-yellow-500">
+                                            <a href="{{ route('admin.kpi.edit', ['position_id' => $positions->id, 'id' => $goal->id]) }}" class="btn btn-sm bg-yellow-100 text-yellow-500">
                                                 <i class="fa-solid fa-edit"></i>
                                             </a>
                                             <form action="{{ route('admin.kpi.destroy', ['goal_id' => $goal->id]) }}" method="POST" class="d-inline">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn btn-sm bg-red-100 text-red-500" onclick="return confirm('Are you sure you want to delete this employee?')">
+                                                <button type="submit" class="btn btn-sm bg-red-100 text-red-500" onclick="return confirm('Are you sure you want to delete this goal?')">
                                                     <i class="fa-solid fa-trash"></i>
                                                 </button>
                                             </form>

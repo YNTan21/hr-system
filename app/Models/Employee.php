@@ -45,8 +45,9 @@ class Employee extends Model
         return $this->belongsTo(Position::class);
     }
 
-    // public function jobTitle(): BelongsTo
-    // {
-    //     return $this->belongsTo(JobTitle::class);
-    // }
+    public function goals()
+    {
+        return $this->position->goals();
+    }
+
 }

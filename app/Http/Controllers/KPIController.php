@@ -99,4 +99,28 @@ class KpiController extends Controller
         
         return view('admin.kpi.manage', compact('positions', 'goals'));
     }
+
+    public function update(Request $request, $position_id, $id)
+    {
+        // Validate the incoming request data
+        $request->validate([
+            'goal' => 'required|string',
+            'score' => 'required|integer',
+            'goal_type' => 'required|in:monthly,yearly',
+        ]);
+
+        // Find the goal by ID
+        $goal = KPIGoal::findOrFail($id);
+
+        // Update the goal with the validated data
+        $goal->update([
+            'goal' => $request->input('goal'),
+            'score' => $request->input('score'),
+            'goal_type' => $request->input('goal_type'),
+        ]);
+
+        // Redirect back to the manage page with a success message
+        return redirect()->route('admin.kpi.manage', ['position_id' => $position_id])
+                         ->with('success', 'Goal updated successfully!');
+    }
 }

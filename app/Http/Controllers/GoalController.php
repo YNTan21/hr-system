@@ -67,17 +67,17 @@ class GoalController extends Controller
     public function edit($position_id, $id)
     {
         // Retrieve the position by ID
-        $positions = Position::findOrFail($position_id);
+        $position = Position::findOrFail($position_id);
         
-        $goals = KPIGoal::findOrFail($id);
-        return view('admin.kpi.edit', compact('positions','goals'));
+        $goal = KPIGoal::findOrFail($id);
+        return view('admin.kpi.edit', compact('position','goal'));
     }
 
-    public function update(Request $request, Goal $goal)
+    public function update(Request $request, $position_id, $id)
     {
         // Validate data, including goal_unit
         $request->validate([
-            'goal_name' => 'required|string',
+            'goal_name' => 'required|string|max:255',
             'goal_score' => 'required|integer',
             'goal_type' => 'required|in:monthly,yearly',
             'goal_unit' => 'required|string|max:255',
@@ -102,8 +102,11 @@ class GoalController extends Controller
             'category_5' => ['min' => $request->category_5_min, 'max' => $request->category_5_max],
         ];
 
+        // Find the goal by ID
+        $goal = KPIGoal::findOrFail($id);
+
         // Update the goal with new data
-        $goals->update([
+        $goal->update([
             'goal_name' => $request->goal_name,
             'goal_score' => $request->goal_score,
             'goal_type' => $request->goal_type,
@@ -111,7 +114,7 @@ class GoalController extends Controller
             'category_score_ranges' => json_encode($categoryScoreRanges),
         ]);
 
-        return redirect()->route('admin.kpi.manage', ['position_id' => $goal->position_id])
+        return redirect()->route('admin.kpi.manage', ['position_id' => $position_id])
             ->with('success', 'Goal updated successfully.');
     }
 }

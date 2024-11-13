@@ -11,6 +11,7 @@ use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\PositionController;
 use App\Http\Controllers\KPIController;
 use App\Http\Controllers\GoalController;
+use App\Http\Controllers\KPIEntryController;
 
 // home
 Route::view('/', 'home')->name('home');
@@ -101,6 +102,14 @@ Route::middleware('auth')->group(function(){
         Route::put('/admin/kpi/{position_id}/goal/{id}', [GoalController::class, 'update'])->name('admin.kpi.update');
         Route::delete('/admin/kpi/{goal_id}', [GoalController::class, 'destroy'])->name('admin.kpi.destroy');
 
+        // kpi entry
+        Route::get('/admin/kpi/kpiEntry/index', [KpiEntryController::class, 'index'])->name('admin.kpi.kpiEntry.index');
+        Route::post('/admin/kpi/kpiEntry/store', [KpiEntryController::class, 'store'])->name('admin.kpi.kpiEntry.store');
+        Route::get('/admin/kpi/kpiEntry/create', [KpiEntryController::class, 'create'])->name('admin.kpi.kpiEntry.create');
+        Route::put('/admin/kpi/kpiEntry/{id}', [KpiEntryController::class, 'update'])->name('admin.kpi.kpiEntry.update');
+        Route::get('/admin/kpi/kpiEntry/{id}', [KpiEntryController::class, 'show'])->name('admin.kpi.kpiEntry.show');
+        Route::get('/admin/kpi/kpiEntry/{id}/edit', [KpiEntryController::class, 'edit'])->name('admin.kpi.kpiEntry.edit');
+        Route::delete('/admin/kpi/kpiEntry/{id}', [KpiEntryController::class, 'destroy'])->name('admin.kpi.kpiEntry.destroy');
     });
 
     // leave

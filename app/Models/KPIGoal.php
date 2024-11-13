@@ -26,4 +26,19 @@ class KPIGoal extends Model
         return $this->belongsTo(Position::class);
     }
 
+    public function goal()
+    {
+        return $this->belongsTo(Goal::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function kpiEntries()
+    {
+        return $this->hasMany(KpiEntry::class, 'goals_id');
+    }
+
 }

@@ -19,11 +19,22 @@ class Position extends Model
     // If positions are linked to users, define the relationship
     public function users()
     {
-        return $this->hasMany(User::class);
+        return $this->hasMany(User::class, 'position_id');
     }
 
     public function kpis()
     {
         return $this->hasMany(KPI::class); 
     }
+
+    public function goals()
+    {
+        return $this->hasMany(Goal::class, 'position_id');
+    }
+
+    public function position()
+    {
+        return $this->belongsTo(Position::class);
+    }
+
 }

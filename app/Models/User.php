@@ -71,4 +71,14 @@ class User extends Authenticatable
     {
         return $this->hasMany(LeaveBalance::class);
     }
+
+    public function position()
+    {
+        return $this->belongsTo(Position::class, 'position_id');
+    }
+
+    public function kpiEntries()
+    {
+        return $this->hasMany(KpiEntry::class, 'users_id');
+    }
 }
