@@ -29,6 +29,9 @@ class AttendanceController extends Controller
             ->when($request->user_id, function($query) use ($request) {
                 return $query->where('user_id', $request->user_id);
             })
+            ->when($request->date, function($query) use ($request) {
+                return $query->whereDate('date', $request->date);
+            })
             ->latest('date')
             ->paginate(10);
         

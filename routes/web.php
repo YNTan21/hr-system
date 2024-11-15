@@ -116,6 +116,13 @@ Route::middleware('auth')->group(function(){
         Route::get('/admin/timetable/index', [TimetableController::class, 'index'])->name('admin.timetable.index');
         Route::get('/form/shiftlist/page', [ShiftController::class, 'shiftList'])->name('form/shiftlist/page');
         Route::post('/shifts/assign', [ShiftController::class, 'assign'])->name('shifts.assign');
+        Route::post('form/shift/save', [App\Http\Controllers\ShiftController::class, 'saveRecord'])->name('form/shift/save');
+        Route::get('/timetable', [App\Http\Controllers\TimetableController::class, 'index'])->name('timetable.index');
+    Route::get('/timetable/create', [App\Http\Controllers\TimetableController::class, 'create'])->name('timetable.create');
+    Route::post('/timetable', [App\Http\Controllers\TimetableController::class, 'store'])->name('timetable.store');
+    Route::get('/timetable/{timetable}/edit', [App\Http\Controllers\TimetableController::class, 'edit'])->name('timetable.edit');
+    Route::put('/timetable/{timetable}', [App\Http\Controllers\TimetableController::class, 'update'])->name('timetable.update');
+    Route::delete('/timetable/{timetable}', [App\Http\Controllers\TimetableController::class, 'destroy'])->name('timetable.destroy');
     });
 
     // leave
