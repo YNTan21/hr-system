@@ -68,9 +68,16 @@
                         <!-- Position -->
                         <div class="flex-1">
                             <label for="position" class="block text-sm font-medium text-gray-700">Position</label>
-                            <input type="text" name="position" id="position" value="{{ old('position') }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
+                            <select id="position" name="position_id" class="form-control mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
+                                <option value="{{ old('position_name') }}">Select Position</option>
+                                @foreach($positions as $position)
+                                    <option value="{{ $position->id }}">{{ $position->position_name }}</option>
+                                @endforeach
+                            </select>
+                            @error('position_id')
+                                <p class="error text-danger">{{ $message }}</p>
+                            @enderror
                         </div>
-
                         <!-- Type -->
                         <div class="flex-1">
                             <label for="type" class="block text-sm font-medium text-gray-700">Employment Type</label>

@@ -13,6 +13,7 @@
         <link rel="stylesheet" href="{{ asset('fontawesome/css/all.min.css') }}">
         <!-- Flatpickr CSS -->
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+        
         @vite(['resources/css/app.css','resources/js/app.js'])
     </head>
     <body>

@@ -11,12 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('goals', function (Blueprint $table) {
+        Schema::create('fingerprint_clocklogs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('category_id')->constrained()->onDelete('cascade'); 
-            $table->string('goal_name'); 
-            $table->integer('score'); // Weightage for the goal
-            $table->enum('goal_type', ['monthly', 'yearly']); 
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->enum('type', ['clock-in', 'clock-out']);
+            $table->timestamp('timestamp');
             $table->timestamps();
         });
     }
@@ -26,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('goals');
+        Schema::dropIfExists('fingerprint_clocklogs');
     }
 };

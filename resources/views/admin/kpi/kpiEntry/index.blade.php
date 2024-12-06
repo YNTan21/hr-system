@@ -91,10 +91,17 @@
                                 <td>
                                     @php
                                         $ranges = json_decode($goal->category_score_ranges, true);
+                                        $categoryNames = [
+                                            'category_1' => 'Failed (0)',
+                                            'category_2' => 'Below Expectation (1)',
+                                            'category_3' => 'Threshold (2)',
+                                            'category_4' => 'Meet Target (3)',
+                                            'category_5' => 'Excellence (4)'
+                                        ];
                                     @endphp
                                     @if($ranges)
                                         @foreach($ranges as $category => $range)
-                                            {{ ucfirst(str_replace('_', ' ', $category)) }}: 
+                                            {{ $categoryNames[$category] }}: 
                                             {{ $range['min'] }} - {{ $range['max'] }}<br>
                                         @endforeach
                                     @endif

@@ -10,11 +10,6 @@
 
                 <h2>KPI Management</h2>
 
-                <!-- Rating Category Button -->
-                <div class="mb-3">
-                    <a href="" class="btn btn-secondary">Rating Category</a>
-                </div>
-
                 <!-- Table for positions and actions -->
                 <table class="table table-striped">
                     <thead>

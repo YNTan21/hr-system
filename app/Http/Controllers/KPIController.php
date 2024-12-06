@@ -10,7 +10,7 @@ use App\Models\KPIGoalRatingCategory;
 use App\Models\KPIRatingThreshold;
 use Illuminate\Http\Request;
 
-class KpiController extends Controller
+class KPIController extends Controller
 {
 
     // Store the created KPI with categories, goals, and rating categories

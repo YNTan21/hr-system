@@ -9,6 +9,7 @@ use App\Models\LeaveType;
 use App\Models\Leave;
 use App\Models\Employee;
 use App\Models\Position;
+use App\Models\LeaveBalance;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 
@@ -18,28 +19,27 @@ class EmployeeController extends Controller
     {
         $employee = User::findOrFail($id);
 
-        if (!auth()->user()->is_admin) {
-            return redirect()->route('user.dashboard')->with('error', 'You do not have permission to edit employee profiles.');
+        if (!auth()->user()->is_admin && auth()->id() !== $employee->id) {
+            return redirect()->route('user.dashboard')->with('error', 'You do not have permission to edit this employee.');
         }
 
         $positions = Position::all();
-        return view('admin.employee.edit', compact('employee','positions'));
+        return view('admin.employee.edit', compact('employee', 'positions'));
     }
 
     public function update(Request $request, $id)
     {
-        // Fetch user instead of employee
-        $employee = User::findOrFail($id); 
+        $employee = User::findOrFail($id);
 
-        // Check if the authenticated user is the owner of the employee profile or an admin
         if ($employee->id !== auth()->id() && !auth()->user()->is_admin) {
             return redirect()->route('user.dashboard')->with('error', 'You do not have permission to update this employee.');
         }
 
         $validatedData = $request->validate([
+            'username' => 'required|string|max:255',
             'phone' => 'required|string|max:255',
             'address' => 'required|string',
-            'ic' => 'required|string|unique:users,ic,'.$employee->id,
+            'ic' => 'required|string|unique:users,ic,' . $employee->id,
             'dob' => 'required|date',
             'gender' => 'required|in:male,female,other',
             'marital_status' => 'required|in:single,married,divorced,widowed',
@@ -81,11 +81,13 @@ class EmployeeController extends Controller
     public function index(Request $request)
     {
         $query = User::query();
-        $query = Employee::with('position'); 
+        $query = User::with(['position']);
 
         if ($request->has('search')) {
             $searchTerm = $request->search;
-            $query->where('username', 'LIKE', "%{$searchTerm}%");
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('username', 'LIKE', "%{$searchTerm}%");
+            });
         }
 
         $employees = $query->paginate(10);
@@ -99,9 +101,8 @@ class EmployeeController extends Controller
             return redirect()->route('user.dashboard')->with('error', 'You do not have permission to create employee profiles.');
         }
 
-        $employees = Employee::all();
         $positions = Position::all();
-        return view('admin.employee.create', compact('employees','positions'));
+        return view('admin.employee.create', compact('positions'));
     }
 
     public function store(Request $request)
@@ -111,7 +112,7 @@ class EmployeeController extends Controller
         try {
             $validatedData = $request->validate([
                 'username' => 'required|string|max:255',
-                'email' => 'required|string|email|max:255|unique:users',
+                'email' => 'required|string|email|max:255|unique:users,email',
                 'password' => 'required|string|min:8',
                 'position_id' => 'required|exists:positions,id',
                 'type' => 'required|in:full-time,part-time',
@@ -133,7 +134,8 @@ class EmployeeController extends Controller
 
             Log::info('Validation passed', $validatedData);
 
-            $userData = [
+            // Create the user with all required fields
+            $user = User::create([
                 'username' => $validatedData['username'],
                 'email' => $validatedData['email'],
                 'password' => Hash::make($validatedData['password']),
@@ -141,26 +143,30 @@ class EmployeeController extends Controller
                 'type' => $validatedData['type'],
                 'hire_date' => $validatedData['hire_date'],
                 'status' => $validatedData['status'],
-            ];
+                'ic' => $validatedData['ic'] ?? null,
+                'dob' => $validatedData['dob'] ?? null,
+                'gender' => $validatedData['gender'] ?? null,
+                'phone' => $validatedData['phone'] ?? null,
+                'marital_status' => $validatedData['marital_status'] ?? null,
+                'nationality' => $validatedData['nationality'] ?? null,
+                'address' => $validatedData['address'] ?? null,
+                'bank_name' => $validatedData['bank_name'] ?? null,
+                'bank_account_holder_name' => $validatedData['bank_account_holder_name'] ?? null,
+                'bank_account_number' => $validatedData['bank_account_number'] ?? null,
+            ]);
 
-            // Add optional fields if they are present in the request
-            $optionalFields = ['ic', 'dob', 'gender', 'phone', 'marital_status', 'nationality', 'address', 'bank_name', 'bank_account_holder_name', 'bank_account_number'];
-            foreach ($optionalFields as $field) {
-                if (isset($validatedData[$field])) {
-                    $userData[$field] = $validatedData[$field];
-                }
-            }
-
+            // Handle profile picture if uploaded
             if ($request->hasFile('profile_picture')) {
                 $path = $request->file('profile_picture')->store('profile_pictures', 'public');
-                $userData['profile_picture'] = $path;
+                $user->profile_picture = $path;
+                $user->save();
             }
-
-            $user = User::create($userData);
 
             Log::info('User saved successfully', ['user_id' => $user->id]);
 
-            return redirect()->route('admin.employee.index')->with('success', 'Employee created successfully');
+            return redirect()->route('admin.employee.index')
+                ->with('success', 'Employee created successfully');
+
         } catch (\Illuminate\Validation\ValidationException $e) {
             Log::error('Validation failed', ['errors' => $e->errors()]);
             return redirect()->route('admin.employee.create')
@@ -197,7 +203,7 @@ class EmployeeController extends Controller
         }
 
         $employee = User::findOrFail($id);
-        
+
         // Delete associated records (if any)
         // For example, if you have leave balances:
         // $employee->leaveBalances()->delete();
@@ -214,8 +220,8 @@ class EmployeeController extends Controller
             return redirect()->route('user.dashboard')->with('error', 'You do not have permission to create employee profiles.');
         }
 
-        $employees = Employee::all();
-        return view('admin.employee.sCreate', compact('employees'));
+        $positions = Position::all();
+        return view('admin.employee.sCreate', compact('positions'));
     }
 
     public function editPassword(Employee $employee)
@@ -233,8 +239,6 @@ class EmployeeController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        return redirect()->route('admin.employee.edit', $employee->id)
-                        ->with('success', 'Password updated successfully');
-}
-
+        return redirect()->route('admin.employee.index')->with('success', 'Password updated successfully');
+    }
 }

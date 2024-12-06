@@ -10,7 +10,7 @@ use App\Models\Employee;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
-class KpiEntryController extends Controller
+class KPIEntryController extends Controller
 {
     public function index(Request $request)
     {
@@ -86,31 +86,34 @@ class KpiEntryController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'users_id' => 'required|exists:users,id',
-            'goals_id' => 'required|exists:goals,id',
-            'actual_result' => 'required|numeric',
-            'month' => 'required|integer|between:1,12',
-            'year' => 'required|integer',
+            'users_id' => 'required',
+            'goals_id' => 'required',
+            'actual_result' => 'required|numeric|between:0,999999.99',
+            'month' => 'required',
+            'year' => 'required',
         ]);
 
         $goal = KPIGoal::findOrFail($request->goals_id);
-        $scores = $this->calculateScores($request->actual_result, $goal);
+        $ranges = json_decode($goal->category_score_ranges, true);
+        
+        // Calculate the category score (0 for category 1, 1 for category 2, etc.)
+        $actual_score = $this->calculateCategoryScore($request->actual_result, $ranges);
+        
+        // Calculate final score: (actual_score / 4) * goal_score
+        $final_score = round(($actual_score / 4) * $goal->goal_score);
 
         KpiEntry::create([
             'users_id' => $request->users_id,
             'goals_id' => $request->goals_id,
             'actual_result' => $request->actual_result,
-            'actual_score' => $scores['actual_score'],
-            'final_score' => $scores['final_score'],
+            'actual_score' => (int)$actual_score,
+            'final_score' => (int)$final_score,
             'month' => $request->month,
             'year' => $request->year,
         ]);
 
-        return redirect()->route('admin.kpi.kpiEntry.index', [
-            'user_id' => $request->users_id,
-            'month' => $request->month,
-            'year' => $request->year,
-        ])->with('success', 'KPI entry created successfully');
+        return redirect()->route('admin.kpi.kpiEntry.index')
+            ->with('success', 'KPI Entry created successfully');
     }
 
     public function edit($id)
@@ -122,24 +125,29 @@ class KpiEntryController extends Controller
     public function update(Request $request, $id)
     {
         $validated = $request->validate([
-            'actual_result' => 'required|numeric',
+            'actual_result' => 'required|numeric|between:0,999999.99',
         ]);
 
-        $entry = KPIEntry::findOrFail($id);
+        $entry = KpiEntry::findOrFail($id);
         $goal = KPIGoal::findOrFail($entry->goals_id);
-        $scores = $this->calculateScores($request->actual_result, $goal);
+        $ranges = json_decode($goal->category_score_ranges, true);
+        
+        $actual_score = $this->calculateCategoryScore($request->actual_result, $ranges);
+        
+        // Calculate final score: (actual_score / 4) * goal_score
+        $final_score = round(($actual_score / 4) * $goal->goal_score);
 
         $entry->update([
             'actual_result' => $request->actual_result,
-            'actual_score' => $scores['actual_score'],
-            'final_score' => $scores['final_score'],
+            'actual_score' => (int)$actual_score,
+            'final_score' => (int)$final_score,
         ]);
 
         return redirect()->route('admin.kpi.kpiEntry.index', [
             'user_id' => $entry->users_id,
             'month' => $entry->month,
             'year' => $entry->year,
-        ])->with('success', 'KPI entry updated successfully');
+        ])->with('success', 'KPI Entry updated successfully');
     }
 
     public function destroy($id)
@@ -195,5 +203,24 @@ class KpiEntryController extends Controller
             'actual_score' => $actualScore,
             'final_score' => $finalScore,
         ];
+    }
+
+    private function calculateCategoryScore($actualResult, $ranges)
+    {
+        foreach ($ranges as $category => $range) {
+            if ($actualResult >= $range['min'] && $actualResult < $range['max']) {
+                // Extract the category number and subtract 1
+                // So category_1 becomes 0, category_2 becomes 1, etc.
+                return (int)substr($category, -1) - 1;
+            }
+        }
+        
+        // Check if it equals the highest maximum value
+        $lastRange = end($ranges);
+        if ($actualResult == $lastRange['max']) {
+            return count($ranges) - 1; // Return the highest category score (4 for 5 categories)
+        }
+        
+        return 0; // Default to lowest category if no range matches
     }
 }

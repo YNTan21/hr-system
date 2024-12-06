@@ -7,6 +7,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use App\Models\Schedule;
+use App\Models\Attendance;
+use App\Models\Fingerprint;
+use App\Models\FingerprintClocklogs;
+use App\Models\AttendanceSchedule;
 
 class User extends Authenticatable
 {
@@ -21,6 +25,11 @@ class User extends Authenticatable
         'username',
         'email',
         'password',
+        'fingerprint_id',
+        'position_id',
+        'type',
+        'hire_date', 
+        'status',
         'ic',
         'dob',
         'gender',
@@ -29,13 +38,13 @@ class User extends Authenticatable
         'nationality',
         'address',
         'bank_name',
-        'bank_account_holder_name',
+        'bank_account_holder_name', 
         'bank_account_number',
-        'hire_date',
-        'position_id',
-        'type',
-        'status',
+        'annual_leave_days',
         'profile_picture',
+        'profile_completed',
+        'is_malaysian',
+        'is_admin',
     ];
 
     /**
@@ -81,5 +90,20 @@ class User extends Authenticatable
     public function kpiEntries()
     {
         return $this->hasMany(KpiEntry::class, 'users_id');
+    }
+
+    public function attendances()
+    {
+        return $this->hasMany(Attendance::class);
+    }
+
+    public function fingerprintClocklogs()
+    {
+        return $this->hasMany(FingerprintClocklogs::class);
+    }
+
+    public function attendanceSchedules()
+    {
+        return $this->hasMany(AttendanceSchedule::class);
     }
 }

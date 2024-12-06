@@ -11,13 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('goals', function (Blueprint $table) {
+        Schema::create('schedules', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('category_id')->constrained()->onDelete('cascade'); 
-            $table->string('goal_name'); 
-            $table->integer('score'); // Weightage for the goal
-            $table->enum('goal_type', ['monthly', 'yearly']); 
+            $table->foreignId('user_id')
+                  ->constrained()
+                  ->onDelete('cascade');
+            $table->date('shift_date');
+            $table->time('start_time');
+            $table->time('end_time');
             $table->timestamps();
+
+            $table->index(['user_id', 'shift_date']);
         });
     }
 
@@ -26,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('goals');
+        Schema::dropIfExists('schedules');
     }
 };

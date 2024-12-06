@@ -28,6 +28,6 @@ class KPIEntry extends Model
 
     public function goal()
     {
-        return $this->belongsTo(Goal::class, 'goals_id');
+        return $this->belongsTo(KPIGoal::class, 'goals_id');
     }
 }

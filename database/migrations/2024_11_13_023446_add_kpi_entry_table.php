@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('users_id')->constrained()->onDelete('cascade');
             $table->foreignId('goals_id')->constrained()->onDelete('cascade');
             $table->decimal('actual_result', 8, 2);
-            $table->decimal('actual_score', 8, 2);
+            $table->integer('actual_score');
             $table->decimal('final_score', 8, 2);
             $table->timestamps();
         });
