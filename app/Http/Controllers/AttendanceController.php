@@ -12,6 +12,8 @@ use App\Models\Attendance;
 use App\Models\User;
 use App\Models\Employee;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\AttendanceExport;
 
 
 class AttendanceController extends Controller
@@ -144,6 +146,11 @@ class AttendanceController extends Controller
             return back()->withInput()
                 ->withErrors(['error' => 'Failed to save attendance. ' . $e->getMessage()]);
         }
+    }
+
+    public function export()
+    {
+        return Excel::download(new AttendanceExport, 'attendance.xlsx');
     }
 
 }

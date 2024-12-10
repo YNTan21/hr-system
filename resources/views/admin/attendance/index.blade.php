@@ -8,13 +8,19 @@
         <div class="p-4 sm:ml-64">
             <div class="p-4 border-2 border-gray-200 rounded-lg dark:border-gray-700 mt-14">
                 
-                <!-- Add Button -->
+                <!-- Add and Export Buttons -->
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-xl font-semibold">Attendance List</h2>
-                    <a href="{{ route('admin.attendance.create') }}" 
-                       class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                        <i class="fas fa-plus"></i> Add Attendance
-                    </a>
+                    <div class="flex space-x-2">
+                        <a href="{{ route('admin.attendance.create') }}" 
+                           class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                            <i class="fas fa-plus"></i> Add Attendance
+                        </a>
+                        <a href="{{ route('admin.attendance.export') }}" 
+                           class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                            <i class="fas fa-file-excel"></i> Export Excel
+                        </a>
+                    </div>
                 </div>
 
                 <!-- Success Message -->
@@ -75,6 +81,7 @@
                             <th scope="col" class="py-3 px-6">Status</th>
                             <th scope="col" class="py-3 px-6">Clock In</th>
                             <th scope="col" class="py-3 px-6">Clock Out</th>
+                            <th scope="col" class="py-3 px-6">Overtime</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200">

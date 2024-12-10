@@ -81,6 +81,7 @@ Route::middleware('auth')->group(function(){
         Route::post('/attendance/assign', [AttendanceController::class, 'assign'])->name('attendance.assign');
         Route::get('/admin/attendance/create', [AttendanceController::class, 'create'])->name('admin.attendance.create');
         Route::post('/admin/attendance/store', [AttendanceController::class, 'store'])->name('admin.attendance.store');
+        Route::get('/admin/attendance/export', [AttendanceController::class, 'export'])->name('admin.attendance.export');
 
         // kpi
         Route::get('/admin/kpi/index', [KPIController::class, 'index'])->name('admin.kpi.index');
