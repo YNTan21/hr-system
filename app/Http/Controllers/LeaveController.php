@@ -32,6 +32,13 @@ class LeaveController extends Controller
             'reason' => 'nullable|string|max:255',
         ]);
 
+        // Check annual leave balance
+        $annualLeaveBalance = AnnualLeaveBalance::where('user_id', $validatedData['user_id'])->first();
+        if ($annualLeaveBalance && $annualLeaveBalance->annual_leave_balance < $validatedData['number_of_days']) {
+            return redirect()->back()->with('error', 'Not enough annual leave balance to apply for this leave.');
+        }
+
+        // Create the leave request
         $leave = Leave::create([
             'user_id' => $validatedData['user_id'],
             'leave_type_id' => $validatedData['leave_type_id'],
@@ -42,7 +49,7 @@ class LeaveController extends Controller
             'status' => 'pending',
         ]);
 
-        return redirect()->route('admin.leave.index')->with('success', 'Leave created successfully.');
+        return redirect()->route('admin.leave.index')->with('success', 'Leave created successfully and is pending approval.');
     }
 
     public function index(Request $request)
@@ -163,12 +170,31 @@ class LeaveController extends Controller
 
     public function approve(Leave $leave)
     {
-        $annualLeaveBalance = AnnualLeaveBalance::where('user_id', $leave->user_id)->first();
-        if ($annualLeaveBalance && $annualLeaveBalance->deductLeaveDays($leave->number_of_days)) {
-            $leave->update(['status' => 'approved']);
-            return redirect()->back()->with('success', 'Leave approved and days deducted successfully.');
+        // Check the leave type
+        $leaveType = LeaveType::find($leave->leave_type_id);
+
+        // Check if the leave type is "ANNUAL LEAVE"
+        if ($leaveType && ($leaveType->leave_type === 'ANNUAL LEAVE' || $leaveType->leave_type === 'Annual Leave')) {
+            // Retrieve the user's annual leave balance
+            $annualLeaveBalance = AnnualLeaveBalance::where('user_id', $leave->user_id)->first();
+
+            // Log the current annual leave balance and the number of days to deduct
+            \Log::info('Annual Leave Balance Before Deduction: ' . ($annualLeaveBalance ? $annualLeaveBalance->annual_leave_balance : 'No balance found'));
+            \Log::info('Number of Days to Deduct: ' . $leave->number_of_days);
+
+            // Check if the annual leave balance exists and is sufficient
+            if ($annualLeaveBalance && $annualLeaveBalance->annual_leave_balance >= $leave->number_of_days) {
+                // Deduct leave days
+                $annualLeaveBalance->deductLeaveDays($leave->number_of_days);
+                $leave->update(['status' => 'approved']);
+                return redirect()->back()->with('success', 'Leave approved and days deducted successfully.');
+            } else {
+                return redirect()->back()->with('error', 'Not enough annual leave balance to approve this request.');
+            }
         } else {
-            return redirect()->back()->with('error', 'Not enough leave balance to approve this request.');
+            // If the leave type is not "ANNUAL LEAVE", just approve the leave without deduction
+            $leave->update(['status' => 'approved']);
+            return redirect()->back()->with('success', 'Leave approved successfully.');
         }
     }
 

@@ -23,7 +23,7 @@
                         <tbody>
                             @foreach($usedLeaves as $leave)
                                 <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                                    <td class="py-4 px-6">{{ $leave->leaveType->name }}</td>
+                                    <td class="py-4 px-6">{{ $leave->leaveType->leave_type }}</td>
                                     <td class="py-4 px-6">{{ $leave->from_date }}</td>
                                     <td class="py-4 px-6">{{ $leave->to_date }}</td>
                                     <td class="py-4 px-6">{{ $leave->number_of_days }}</td>

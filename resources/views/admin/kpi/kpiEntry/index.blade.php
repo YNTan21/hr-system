@@ -53,7 +53,7 @@
                 </form>
 
                 <!-- Add this section at the top of your content area for debugging -->
-                @if(config('app.debug'))
+                {{-- @if(config('app.debug'))
                     <div class="bg-gray-100 p-4 mb-4">
                         <h4>Debug Information:</h4>
                         <p>User ID: {{ $selectedUser->id }}</p>
@@ -66,7 +66,7 @@
                             @endforeach
                         </ul>
                     </div>
-                @endif
+                @endif --}}
 
                 <!-- KPI Table -->
                 <table class="table table-striped mt-3">

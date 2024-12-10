@@ -10,12 +10,17 @@
                 <h2>Annual Leave Balances</h2>
 
                 <!-- Filter Form -->
-                <form action="{{ route('admin.leave.index') }}" method="GET" class="mb-4">
+                <form action="{{ route('admin.annual-leave-balance.index') }}" method="GET" class="mb-4">
                     <div class="flex flex-wrap items-end justify-between">
                         <div class="flex flex-row space-x-4 flex-grow">
                             <!-- Name Filter -->
-                            <div class="flex-1">
-                                <input type="text" name="name" id="name" placeholder="Search by Name" class="form-input mt-1 block w-full border-gray-300 rounded-md shadow-sm" value="{{ request('name') }}">
+                            <div class="flex-1 flex">
+                                <input type="text" name="name" id="name" placeholder="Search by Name" class="form-input mt-1 block w-full border-gray-300 rounded-l-md shadow-sm" value="{{ request('name') }}">
+                                <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-r-md hover:bg-blue-600 transition-colors mt-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                                    </svg>
+                                </button>
                             </div>
 
                             <!-- Year Filter -->
@@ -30,8 +35,6 @@
                         </div>
 
                         <div class="flex justify-end space-x-4 ml-4">
-                            <!-- Submit Button -->
-                            <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors">Filter</button>
                             <!-- Reset Button -->
                             <a href="{{ route('admin.leave.index') }}" class="px-4 py-2 bg-gray-300 text-black rounded hover:bg-gray-400 transition-colors">Reset</a>
                         </div>

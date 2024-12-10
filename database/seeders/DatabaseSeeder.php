@@ -28,5 +28,13 @@ class DatabaseSeeder extends Seeder
             'created_at' => now(),
             'updated_at' => now(),
         ]);
+
+        DB::table('leave_type')->insert([
+            'leave_type' => 'ANNUAL LEAVE',
+            'code' => 'AL',
+            'status' => 'active',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
     }
 }

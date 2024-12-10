@@ -28,10 +28,9 @@ class AnnualLeaveBalance extends Model
     {
         if ($this->annual_leave_balance >= $days) {
             $this->annual_leave_balance -= $days;
-            $this->approved_leave_days += $days; // Track approved leave days
             $this->save();
             return true;
         }
-        return false; // Not enough leave balance
+        return false; // Not enough balance to deduct
     }
 }

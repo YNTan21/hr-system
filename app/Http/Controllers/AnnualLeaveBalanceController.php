@@ -38,22 +38,6 @@ class AnnualLeaveBalanceController extends Controller
         return view('admin.annual-leave-balance.index', compact('leaveBalances', 'users'));
     }
 
-    // Approve leave request
-    public function approveLeave(Request $request, $id)
-    {
-        $request->validate([
-            'days' => 'required|integer|min:1', // Validate the number of days
-        ]);
-
-        $leaveBalance = AnnualLeaveBalance::findOrFail($id);
-
-        if ($leaveBalance->deductLeaveDays($request->input('days'))) {
-            return redirect()->route('admin.leave.index')->with('success', 'Leave approved and days deducted successfully.');
-        } else {
-            return redirect()->back()->with('error', 'Not enough leave balance to approve this request.');
-        }
-    }
-
     // Display the form for creating a new annual leave balance
     public function create(Request $request)
     {

@@ -124,9 +124,43 @@
                             <label for="bank_name" class="block text-sm font-medium text-gray-700">Bank Name</label>
                             <select name="bank_name" id="bank_name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
                                 <option value="">Select a bank</option>
-                                <!-- Add all bank options here, with the selected attribute for the current bank -->
-                                <option value="Affin Bank Berhad" {{ old('bank_name', $employee->bank_name) == 'Affin Bank Berhad' ? 'selected' : '' }}>Affin Bank Berhad</option>
-                                <!-- ... other bank options ... -->
+                                @php
+                                    $banks = [
+                                        "Affin Bank Berhad",
+                                        "Affin Islamic Bank Berhad",
+                                        "Alliance Bank Malaysia Berhad",
+                                        "Alliance Islamic Bank Malaysia Berhad",
+                                        "Al Rajhi Banking & Investment Corporation (Malaysia) Berhad",
+                                        "AmBank (M) Berhad",
+                                        "Bank Islam Malaysia Berhad",
+                                        "Bank Kerjasama Rakyat Malaysia Berhad",
+                                        "Bank Muamalat Malaysia Berhad",
+                                        "Bank of China (Malaysia) Berhad",
+                                        "Bank Pertanian Malaysia Berhad (Agrobank)",
+                                        "Bank Simpanan Nasional",
+                                        "CIMB Bank Berhad",
+                                        "CIMB Islamic Bank Berhad",
+                                        "Citibank Berhad",
+                                        "Hong Leong Bank Berhad",
+                                        "Hong Leong Islamic Bank Berhad",
+                                        "HSBC Amanah Malaysia Berhad",
+                                        "HSBC Bank Malaysia Berhad",
+                                        "Industrial and Commercial Bank of China (Malaysia) Berhad",
+                                        "Kuwait Finance House",
+                                        "Malayan Banking Berhad",
+                                        "MBSB Bank Berhad",
+                                        "OCBC Bank (Malaysia) Berhad",
+                                        "Public Bank Berhad",
+                                        "RHB Bank Berhad",
+                                        "RHB Islamic Bank Berhad",
+                                        "Standard Chartered Bank Malaysia Berhad",
+                                        "Standard Chartered Saadiq Berhad",
+                                        "United Overseas Bank (Malaysia) Berhad"
+                                    ];
+                                @endphp
+                                @foreach($banks as $bank)
+                                    <option value="{{ $bank }}" {{ old('bank_name') == $bank ? 'selected' : '' }}>{{ $bank }}</option>
+                                @endforeach
                             </select>
                         </div>
 
