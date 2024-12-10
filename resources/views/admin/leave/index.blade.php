@@ -3,12 +3,19 @@
     <div class="container-fluid">
         <div class="row">
             <x-sharedata.header></x-sharedata.header>
-            </div>
-            <!-- Main Content -->
+        </div>
+        <!-- Main Content -->
 
-            <div class="p-4 sm:ml-64">
-                <div class="p-4 border-2 border-gray-200 rounded-lg dark:border-gray-700 mt-14">
+        <div class="p-4 sm:ml-64">
+            <div class="p-4 border-2 border-gray-200 rounded-lg dark:border-gray-700 mt-14">
                 
+                <!-- Button to go to Annual Leave Page -->
+                <div class="text-right mb-4">
+                    <a href="{{ route('admin.annual-leave-balance.index') }}">
+                        <button type="button" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors">Annual Leave</button>
+                    </a>
+                </div>
+
                 <form action="{{ route('admin.leave.index') }}" method="GET" class="mb-4">
                     <div class="flex flex-wrap items-end justify-between">
                         <div class="flex flex-row space-x-4 flex-grow">
@@ -59,7 +66,7 @@
                 </form>
 
                 <div class="text-right mb-2">
-                    <a href="{{ route('admin.leave.create')}}">
+                    <a href="{{ route('admin.leave.create') }}">
                         <button type="button" class="text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-full text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700">Add Leave</button>
                     </a>
                 </div>
@@ -141,7 +148,6 @@
                 </div>
                 <div class="d-flex justify-content-center">
                     {{ $leaves->links() }}
-                </div>
                 </div>
             </div>
         </div>

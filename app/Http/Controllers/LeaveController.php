@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Gate;
 use App\Models\User;
 use App\Models\LeaveType;
 use App\Models\Leave;
+use App\Models\AnnualLeaveBalance;
 
 class LeaveController extends Controller
 {
@@ -162,8 +163,13 @@ class LeaveController extends Controller
 
     public function approve(Leave $leave)
     {
-        $leave->update(['status' => 'approved']);
-        return redirect()->back()->with('success', 'Leave approved successfully.');
+        $annualLeaveBalance = AnnualLeaveBalance::where('user_id', $leave->user_id)->first();
+        if ($annualLeaveBalance && $annualLeaveBalance->deductLeaveDays($leave->number_of_days)) {
+            $leave->update(['status' => 'approved']);
+            return redirect()->back()->with('success', 'Leave approved and days deducted successfully.');
+        } else {
+            return redirect()->back()->with('error', 'Not enough leave balance to approve this request.');
+        }
     }
 
     public function reject(Leave $leave)

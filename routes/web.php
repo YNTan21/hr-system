@@ -17,6 +17,7 @@ use App\Http\Controllers\TimetableController;
 use App\Http\Controllers\ShiftController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\AttendanceScheduleController;
+use App\Http\Controllers\AnnualLeaveBalanceController;
 // home
 Route::view('/', 'home')->name('home');
 
@@ -154,6 +155,15 @@ Route::middleware('auth')->group(function(){
         Route::get('/admin/attendance-schedule/index', [AttendanceScheduleController::class, 'index'])->name('admin.attendance-schedule.index');
         Route::get('/admin/attendance-schedule/create', [AttendanceScheduleController::class, 'create'])->name('admin.attendance-schedule.create');
         Route::post('/admin/attendance-schedule', [AttendanceScheduleController::class, 'store'])->name('admin.attendance-schedule.store');
+
+        // annual leave balance
+        Route::get('/admin/annual-leave-balance/index', [AnnualLeaveBalanceController::class, 'index'])->name('admin.annual-leave-balance.index');
+        Route::get('/admin/annual-leave-balance/create', [AnnualLeaveBalanceController::class, 'create'])->name('admin.annual-leave-balance.create');
+        Route::post('/admin/annual-leave-balance', [AnnualLeaveBalanceController::class, 'store'])->name('admin.annual-leave-balance.store');
+        Route::get('/admin/annual-leave-balance/{id}/edit', [AnnualLeaveBalanceController::class, 'edit'])->name('admin.annual-leave-balance.edit');
+        Route::put('/admin/annual-leave-balance/{id}', [AnnualLeaveBalanceController::class, 'update'])->name('admin.annual-leave-balance.update');
+        Route::delete('/admin/annual-leave-balance/{id}', [AnnualLeaveBalanceController::class, 'destroy'])->name('admin.annual-leave-balance.destroy');
+        Route::get('/admin/annual-leave-balance/{userId}/used-leave', [AnnualLeaveBalanceController::class, 'showUsedLeave'])->name('admin.annual-leave-balance.showUsedLeave');
     });
 
     // leave

@@ -14,18 +14,24 @@
                     <div class="alert alert-success">{{ session('success') }}</div>
                 @endif
 
-                <!-- Filter Date Form -->
                 <form method="GET" action="{{ route('admin.attendance-schedule.index') }}">
                     <div class="row mb-3">
                         <div class="col-md-4">
                             <label for="filter_date" class="form-label">Select Date</label>
-                            <input type="date" class="form-control" name="filter_date" id="filter_date" value="{{ request('filter_date', now()->toDateString()) }}">
+                            <input 
+                                type="date" 
+                                class="form-control" 
+                                name="filter_date" 
+                                id="filter_date" 
+                                value="{{ $date }}"> 
                         </div>
                         <div class="col-md-2">
                             <button type="submit" class="btn btn-primary mt-4">Filter</button>
                         </div>
                     </div>
                 </form>
+                
+                
 
                 <table class="table">
                     <thead>

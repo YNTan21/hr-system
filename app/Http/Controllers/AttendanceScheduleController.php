@@ -13,43 +13,61 @@ use Carbon\Carbon;
 class AttendanceScheduleController extends Controller
 {
     // 显示当天的所有 Schedule 和 Attendance
-public function index(Request $request)
-{
-    $date = $request->input('filter_date', now()->toDateString());
+    public function index(Request $request)
+    {
+        // 获取日期：优先今天，其次用户选择
+        $date = now()->toDateString() ?: $request->input('filter_date');
 
-    // Fetch schedules
-    $schedules = Schedule::with(['user', 'attendanceSchedules' => function($query) use ($date) {
-        $query->where('date', $date);
-    }])
-    ->where('shift_date', $date)
-    ->get();
+        // 使用 dd 检查日期
+        // dd([
+        //     'filter_date_from_request' => $request->input('filter_date'),
+        //     'default_date' => $date,
+        // ]);
 
-    // Calculate status and overtime for each attendance
-    foreach ($schedules as $schedule) {
-        $attendance = $schedule->attendanceSchedules->first(); // Assuming one attendance per schedule
+        // dd($date);
 
-        if ($attendance) {
-            // Calculate status if clock_in exists
-            if ($attendance->clock_in) {
-                $attendance->status = $attendance->calculateStatus();
-            }
+        // // 获取当前日期和时间
+        // $currentDateTime = now();
 
-            // Calculate overtime if clock_out exists
-            if ($attendance->clock_out) {
-                $attendance->overtime_hour = $attendance->calculateOvertime();
-                // Update status if overtime is more than 0.5 hours
-                if ($attendance->overtime_hour > 0.5) {
-                    $attendance->status = 'overtime';
+        // // 使用 dd 检查当前日期和时间
+        // dd([
+        //     'current_date_time' => $currentDateTime,
+        //     'current_date' => $currentDateTime->toDateString(),
+        // ]);
+
+        // 处理调度计划和考勤数据
+        $schedules = Schedule::with(['user', 'attendanceSchedules' => function ($query) use ($date) {
+            $query->where('date', $date);
+        }])
+        ->where('shift_date', $date)
+        ->get();
+
+        // 为每个调度计划计算状态和加班时间
+        foreach ($schedules as $schedule) {
+            $attendance = $schedule->attendanceSchedules->first(); // 假设每个调度计划只有一个考勤记录
+    
+            if ($attendance) {
+                if ($attendance->clock_in) {
+                    $attendance->status = $attendance->calculateStatus();
                 }
+    
+                if ($attendance->clock_out) {
+                    $attendance->overtime_hour = $attendance->calculateOvertime();
+                    if ($attendance->overtime_hour > 0.5) {
+                        $attendance->status = 'overtime';
+                    }
+                }
+    
+                // 保存更新后的考勤数据
+                $attendance->save();
             }
-
-            // Save the updated attendance
-            $attendance->save();
         }
+    
+        // 返回视图并传递数据
+        return view('admin.attendance-schedule.index', compact('schedules', 'date'));
     }
-
-    return view('admin.attendance-schedule.index', compact('schedules', 'date'));
-}
+    
+    
 
     
 

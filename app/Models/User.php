@@ -106,4 +106,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(AttendanceSchedule::class);
     }
+
+    public function annualLeaveBalances()
+    {
+        return $this->hasMany(AnnualLeaveBalance::class);
+    }
 }

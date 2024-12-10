@@ -50,4 +50,9 @@ class Employee extends Model
         return $this->position->goals();
     }
 
+    public function annualLeaveBalances()
+    {
+        return $this->hasMany(AnnualLeaveBalance::class);
+    }
+
 }
