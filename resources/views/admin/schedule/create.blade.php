@@ -55,37 +55,24 @@
 
                     <!-- Schedule Details -->
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <!-- Shift Date -->
-                        <div>
-                            <label for="shift_date" class="block text-sm font-medium text-gray-700">Shift Date</label>
-                            <input type="date" 
-                                   name="shift_date" 
-                                   id="shift_date" 
-                                   value="{{ old('shift_date') }}"
-                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" 
-                                   required>
-                        </div>
-
-                        <!-- Start Time -->
-                        <div>
-                            <label for="start_time" class="block text-sm font-medium text-gray-700">Start Time</label>
-                            <input type="time" 
-                                   name="start_time" 
-                                   id="start_time" 
-                                   value="{{ old('start_time') }}"
-                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" 
-                                   required>
-                        </div>
-
-                        <!-- End Time -->
-                        <div>
-                            <label for="end_time" class="block text-sm font-medium text-gray-700">End Time</label>
-                            <input type="time" 
-                                   name="end_time" 
-                                   id="end_time" 
-                                   value="{{ old('end_time') }}"
-                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" 
-                                   required>
+                        <!-- Shift Selection -->
+                        <div class="col-span-3">
+                            <label for="shift_code" class="block text-sm font-medium text-gray-700">Select Shift</label>
+                            <select name="shift_code" 
+                                    id="shift_code" 
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" 
+                                    required>
+                                <option value="">Select a shift</option>
+                                <option value="M">M: 8.45am-6.15pm Rest 1.5H</option>
+                                <option value="A">A: 12.00pm - 9.00pm</option>
+                                <option value="M1">M1: 9.30am-12.30pm</option>
+                                <option value="F">F: 8.45am - 9.00pm</option>
+                                <option value="A2">A2: 6.00pm-9.00pm/5.45pm-9.00pm</option>
+                                <option value="RD">RD: Rest Day</option>
+                                <option value="TR">TR: Training</option>
+                                <option value="AL">AL: Annual Leave</option>
+                                <option value="PH">PH: Public Holiday</option>
+                            </select>
                         </div>
                     </div>
 

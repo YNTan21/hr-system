@@ -18,6 +18,7 @@ use App\Http\Controllers\ShiftController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\AttendanceScheduleController;
 use App\Http\Controllers\AnnualLeaveBalanceController;
+use App\Http\Controllers\FacialAttendanceController;
 // home
 Route::view('/', 'home')->name('home');
 
@@ -187,6 +188,10 @@ Route::middleware('guest')->group(function(){
 });
 
 Route::get('/shift-list', [ShiftController::class, 'shiftList'])->name('shift.list');
+
+// attendance
+Route::get('/attendance/facial-recognition', [FacialAttendanceController::class, 'index'])->name('attendance.facial-recognition');
+Route::post('/attendance/record', [FacialAttendanceController::class, 'recordAttendance'])->name('attendance.record');
 
 
 

@@ -25,7 +25,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @for ($hour = 7; $hour <= 23; $hour++)
+                            @for ($hour = 9; $hour <= 21; $hour++)
                                 <tr>
                                     <td class="border px-4 py-2 text-center font-medium bg-gray-50">{{ sprintf('%02d:00', $hour) }}</td>
                                     @for ($day = 0; $day < 7; $day++)
@@ -42,7 +42,8 @@
                                             @if ($matchingSchedules->isNotEmpty())
                                                 @foreach ($matchingSchedules as $schedule)
                                                     <div class="mb-1 px-2 py-1 bg-blue-200 text-blue-900 rounded">
-                                                        {{ $schedule->user ? $schedule->user->username : 'No user found' }}
+                                                        <!-- {{ $schedule->user ? $schedule->user->username : 'No user found' }} -->
+                                                        {{ $schedule->shift_code ?? 'No shift code' }}
                                                     </div>
                                                 @endforeach
                                             @endif

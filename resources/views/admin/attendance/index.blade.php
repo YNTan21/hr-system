@@ -4,6 +4,7 @@
         <div class="row">
             <x-sharedata.header></x-sharedata.header>
         </div>
+        
         <!-- Main Content -->
         <div class="p-4 sm:ml-64">
             <div class="p-4 border-2 border-gray-200 rounded-lg dark:border-gray-700 mt-14">
@@ -35,7 +36,6 @@
                     <div class="flex gap-4">
                         <!-- Employee Filter -->
                         <div class="flex-1">
-                            <!-- <label class="block text-sm font-medium text-gray-700 mb-1">Employee</label> -->
                             <select name="user_id" 
                                     class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200">
                                 <option value="">All Employees</option>
@@ -49,7 +49,6 @@
 
                         <!-- Date Filter -->
                         <div class="flex-1">
-                            <!-- <label class="block text-sm font-medium text-gray-700 mb-1">Date</label> -->
                             <input type="date" 
                                    name="date" 
                                    value="{{ request('date') }}" 
@@ -85,28 +84,75 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200">
-                        @forelse($attendances as $attendance)
-                            <tr class="{{ $loop->even ? 'bg-gray-50' : 'bg-white' }} hover:bg-gray-100">
-                                <td class="py-4 px-6">{{ date('Y-m-d', strtotime($attendance->date)) }}</td>
-                                <td class="py-4 px-6">{{ $attendance->user_id }}</td>
-                                <td class="py-4 px-6">{{ $attendance->user->username }}</td>
-                                <td class="py-4 px-6">
-                                    @if($attendance->status == 'on_time')
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                            On Time
-                                        </span>
-                                    @else
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                                            Late
-                                        </span>
-                                    @endif
+                        @php
+                            $currentDate = '';
+                            $currentEmployee = '';
+                        @endphp
+                        
+                        @forelse($attendances->groupBy(function($item) {
+                            return $item->date . '-' . $item->user_id;
+                        }) as $groupKey => $groupedAttendances)
+                            @php
+                                $firstAttendance = $groupedAttendances->first();
+                                $totalWorkMinutes = 0;
+                                
+                                // Calculate total working minutes for all records of the day
+                                foreach($groupedAttendances as $attendance) {
+                                    if ($attendance->clock_in_time && $attendance->clock_out_time) {
+                                        $clockIn = \Carbon\Carbon::parse($attendance->date)->setTimeFromTimeString($attendance->clock_in_time);
+                                        $clockOut = \Carbon\Carbon::parse($attendance->date)->setTimeFromTimeString($attendance->clock_out_time);
+                                        
+                                        if ($clockOut->gt($clockIn)) {
+                                            $minutesDiff = $clockOut->diffInMinutes($clockIn);
+                                            $totalWorkMinutes += $minutesDiff;
+                                        }
+                                    }
+                                }
+                                
+                                // Calculate overtime (if total minutes > 9 hours)
+                                $regularMinutes = 9 * 60; // 9 hours in minutes = 540 minutes
+                                $overtimeMinutes = max(0, $totalWorkMinutes - $regularMinutes);
+                                $overtimeFormatted = $overtimeMinutes > 0 
+                                    ? sprintf("%02d:%02d", floor($overtimeMinutes / 60), $overtimeMinutes % 60)
+                                    : "00:00";
+                            @endphp
+                            <tr class="bg-white hover:bg-gray-100">
+                                <td class="py-4 px-6" rowspan="{{ $groupedAttendances->count() }}">
+                                    {{ date('Y-m-d', strtotime($firstAttendance->date)) }}
                                 </td>
-                                <td class="py-4 px-6">{{ $attendance->clock_in_time }}</td>
-                                <td class="py-4 px-6">{{ $attendance->clock_out_time }}</td>
+                                <td class="py-4 px-6" rowspan="{{ $groupedAttendances->count() }}">
+                                    {{ $firstAttendance->user_id }}
+                                </td>
+                                <td class="py-4 px-6" rowspan="{{ $groupedAttendances->count() }}">
+                                    {{ $firstAttendance->user->username }}
+                                </td>
+                                @foreach($groupedAttendances as $index => $attendance)
+                                    @if($index > 0)
+                                        </tr><tr class="bg-white hover:bg-gray-100">
+                                    @endif
+                                    <td class="py-4 px-6">
+                                        @if($attendance->status == 'on_time')
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                                On Time
+                                            </span>
+                                        @else
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                                Late
+                                            </span>
+                                        @endif
+                                    </td>
+                                    <td class="py-4 px-6">{{ $attendance->clock_in_time }}</td>
+                                    <td class="py-4 px-6">{{ $attendance->clock_out_time }}</td>
+                                    @if($index === 0)
+                                        <td class="py-4 px-6" rowspan="{{ $groupedAttendances->count() }}">
+                                            {{ $overtimeFormatted }}
+                                        </td>
+                                    @endif
+                                @endforeach
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="py-4 text-center text-gray-500 bg-white">
+                                <td colspan="7" class="py-4 text-center text-gray-500 bg-white">
                                     No records found
                                 </td>
                             </tr>
