@@ -193,6 +193,17 @@ Route::get('/shift-list', [ShiftController::class, 'shiftList'])->name('shift.li
 Route::get('/attendance/facial-recognition', [FacialAttendanceController::class, 'index'])->name('attendance.facial-recognition');
 Route::post('/attendance/record', [FacialAttendanceController::class, 'recordAttendance'])->name('attendance.record');
 
+// Face Recognition Routes
+Route::get('/attendance/verify-face', [FacialAttendanceController::class, 'verifyFaceView'])->name('attendance.verify-face');
+Route::get('/attendance/facial-recognition', [FacialAttendanceController::class, 'index'])->name('attendance.facial-recognition');
+
+// API Routes for Face Registration and Verification
+Route::post('/attendance/register', [FacialAttendanceController::class, 'registerFace'])->name('attendance.register');
+Route::post('/attendance/record', [FacialAttendanceController::class, 'recordAttendance'])->name('attendance.record');
+
+Route::post('/attendance/verify-face', [FacialAttendanceController::class, 'verifyFace'])
+    ->name('attendance.verify-face');
+
 
 
 

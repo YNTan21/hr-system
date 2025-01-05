@@ -45,6 +45,7 @@ class User extends Authenticatable
         'profile_completed',
         'is_malaysian',
         'is_admin',
+        'face_descriptor',
     ];
 
     /**
