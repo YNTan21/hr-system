@@ -81,6 +81,7 @@
                             <th scope="col" class="py-3 px-6">Clock In</th>
                             <th scope="col" class="py-3 px-6">Clock Out</th>
                             <th scope="col" class="py-3 px-6">Overtime</th>
+                            <th scope="col" class="py-3 px-6">Actions</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200">
@@ -148,11 +149,30 @@
                                             {{ $overtimeFormatted }}
                                         </td>
                                     @endif
+                                    <td class="py-4 px-6">
+                                        <div class="flex space-x-2">
+                                            <a href="{{ route('admin.attendance.edit', $attendance->id) }}" 
+                                               class="text-blue-600 hover:text-blue-900">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <form action="{{ route('admin.attendance.destroy', $attendance->id) }}" 
+                                                  method="POST" 
+                                                  class="inline-block"
+                                                  onsubmit="return confirm('Are you sure you want to delete this record?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" 
+                                                        class="text-red-600 hover:text-red-900">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
                                 @endforeach
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="py-4 text-center text-gray-500 bg-white">
+                                <td colspan="8" class="py-4 text-center text-gray-500 bg-white">
                                     No records found
                                 </td>
                             </tr>

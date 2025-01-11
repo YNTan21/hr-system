@@ -83,6 +83,8 @@ Route::middleware('auth')->group(function(){
         Route::get('/admin/attendance/create', [AttendanceController::class, 'create'])->name('admin.attendance.create');
         Route::post('/admin/attendance/store', [AttendanceController::class, 'store'])->name('admin.attendance.store');
         Route::get('/admin/attendance/export', [AttendanceController::class, 'export'])->name('admin.attendance.export');
+        Route::get('/admin/attendance/{attendance}/edit', [AttendanceController::class, 'edit'])->name('admin.attendance.edit');
+        Route::delete('/admin/attendance/{attendance}', [AttendanceController::class, 'destroy'])->name('admin.attendance.destroy');
 
         // kpi
         Route::get('/admin/kpi/index', [KPIController::class, 'index'])->name('admin.kpi.index');
@@ -201,8 +203,20 @@ Route::get('/attendance/facial-recognition', [FacialAttendanceController::class,
 Route::post('/attendance/register', [FacialAttendanceController::class, 'registerFace'])->name('attendance.register');
 Route::post('/attendance/record', [FacialAttendanceController::class, 'recordAttendance'])->name('attendance.record');
 
-Route::post('/attendance/verify-face', [FacialAttendanceController::class, 'verifyFace'])
-    ->name('attendance.verify-face');
+Route::middleware(['web'])->group(function () {
+    Route::get('/attendance/facial-recognition', [FacialAttendanceController::class, 'index'])
+        ->name('attendance.facial-recognition');
+    
+    Route::post('/attendance/verify-face', [FacialAttendanceController::class, 'verifyFace'])
+        ->name('attendance.verify-face');
+    
+    Route::post('/attendance/record', [FacialAttendanceController::class, 'recordAttendance'])
+        ->name('attendance.record');
+
+    Route::get('/attendance/last-status/{username}', [FacialAttendanceController::class, 'getLastStatus']);
+});
+
+
 
 
 

@@ -14,6 +14,16 @@
         <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-6">
             <h1 class="text-2xl font-bold text-center mb-6">Register Your Face</h1>
 
+<div class="text-center space-y-4">
+    <div class="mb-4">
+        <select id="userSelect" class="w-64 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="">Select Employee</option>
+            @foreach($users as $user)
+                <option value="{{ $user->username }}">{{ $user->username }}</option>
+            @endforeach
+        </select>
+    </div>
+
             <div id="videoFeed" class="w-full aspect-video bg-gray-200 mb-4 relative">
                 <video id="video" width="720" height="560" autoplay muted></video>
                 <canvas id="canvas" class="absolute top-0 left-0" width="720" height="560"></canvas>
@@ -23,7 +33,6 @@
                 Position your face in the camera. Click "Register Face" to proceed.
             </div>
 
-            <div class="text-center">
                 <button id="registerFaceButton" 
                         class="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
                     Register Face
@@ -42,7 +51,7 @@
         // Add debug status display
         function updateStatus(message) {
             status.textContent = message;
-            console.log(message);
+            console.log('Status updated:', message);
         }
 
         // Modified loadModels function with better error handling
@@ -119,22 +128,17 @@
                     return;
                 }
 
-                // Get username with validation
-                const username = prompt("Please enter your Username:");
+                // Get username from dropdown
+                const username = document.getElementById('userSelect').value;
                 if (!username) {
-                    updateStatus('Registration cancelled - Username is required.');
-                    return;
-                }
-
-                if (username.trim() === '') {
-                    updateStatus('Username cannot be empty.');
+                    updateStatus('Please select a user first.');
                     return;
                 }
 
                 updateStatus('Processing registration...');
                 const faceDescriptor = Array.from(detections.descriptor);
 
-                // Send data to server with username instead of id
+                // Send data to server
                 const response = await fetch('/attendance/register', {
                     method: 'POST',
                     headers: {
@@ -148,9 +152,10 @@
                 });
 
                 const data = await response.json();
+                console.log('Registration response:', data);
                 
                 if (data.success) {
-                    updateStatus('Face registered successfully!');
+                    updateStatus(`Face registered successfully! (${data.descriptorCount}/${data.maxDescriptors} registrations used)`);
                 } else {
                     updateStatus(data.message || 'Registration failed. Please try again.');
                 }

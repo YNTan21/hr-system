@@ -11,6 +11,7 @@ use App\Models\Attendance;
 use App\Models\Fingerprint;
 use App\Models\FingerprintClocklogs;
 use App\Models\AttendanceSchedule;
+use App\Models\FaceDescriptor;
 
 class User extends Authenticatable
 {
@@ -111,5 +112,10 @@ class User extends Authenticatable
     public function annualLeaveBalances()
     {
         return $this->hasMany(AnnualLeaveBalance::class);
+    }
+
+    public function faceDescriptors()
+    {
+        return $this->hasMany(FaceDescriptor::class);
     }
 }
