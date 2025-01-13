@@ -33,17 +33,31 @@
                                             $currentDate = $currentWeekStart->copy()->addDays($day)->format('Y-m-d');
                                             $matchingSchedules = $schedules->filter(function ($schedule) use ($currentDate, $hour) {
                                                 $scheduleDate = \Carbon\Carbon::parse($schedule->shift_date)->format('Y-m-d');
-                                                $scheduleStartHour = \Carbon\Carbon::parse($schedule->start_time)->hour;
-                                                $scheduleEndHour = \Carbon\Carbon::parse($schedule->end_time)->hour;
-                                                return $scheduleDate === $currentDate && $hour >= $scheduleStartHour && $hour < $scheduleEndHour;
+                                                
+                                                // 根据shift_code获取对应的时间
+                                                $times = [
+                                                    'M' => ['start' => 8.75, 'end' => 18.25], // 8:45 - 18:15
+                                                    'A' => ['start' => 12, 'end' => 21],      // 12:00 - 21:00
+                                                    'M1' => ['start' => 9.5, 'end' => 12.5],  // 9:30 - 12:30
+                                                    'F' => ['start' => 8.75, 'end' => 21],    // 8:45 - 21:00
+                                                    'A2' => ['start' => 18, 'end' => 21],     // 18:00 - 21:00
+                                                ];
+                                                
+                                                $shiftTimes = $times[$schedule->shift_code] ?? null;
+                                                if (!$shiftTimes) return false;
+                                                
+                                                return $scheduleDate === $currentDate && 
+                                                       $hour >= floor($shiftTimes['start']) && 
+                                                       $hour < ceil($shiftTimes['end']);
                                             });
                                         @endphp
                                         <td class="border px-4 py-2 text-center">
                                             @if ($matchingSchedules->isNotEmpty())
                                                 @foreach ($matchingSchedules as $schedule)
                                                     <div class="mb-1 px-2 py-1 bg-blue-200 text-blue-900 rounded">
-                                                        <!-- {{ $schedule->user ? $schedule->user->username : 'No user found' }} -->
-                                                        {{ $schedule->shift_code ?? 'No shift code' }}
+                                                        {{ $schedule->user ? $schedule->user->username : 'No user found' }}
+                                                        <br>
+                                                        <span class="text-sm text-blue-700">{{ $schedule->shift_code }}</span>
                                                     </div>
                                                 @endforeach
                                             @endif

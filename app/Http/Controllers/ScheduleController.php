@@ -12,26 +12,25 @@ class ScheduleController extends Controller
 {
     public function index(Request $request)
     {
-        // Get the selected week's start date from the request, or use current date
-        $selectedDate = $request->get('week_start') 
-            ? Carbon::parse($request->get('week_start'))
-            : now();
-        
-        $currentWeekStart = $selectedDate->startOfWeek();
+        $currentWeekStart = $request->query('week_start') 
+            ? Carbon::parse($request->query('week_start'))
+            : Carbon::now()->startOfDay();
+
+        $currentWeekEnd = $currentWeekStart->copy()->addDays(6);
+
         $employees = User::all();
-        
-        \Log::info('Current week start: ' . $currentWeekStart);
-        
-        $schedules = Schedule::query()
-            ->whereBetween('shift_date', [
-                $currentWeekStart->format('Y-m-d'),
-                $currentWeekStart->copy()->addDays(6)->format('Y-m-d')
-            ])
-            ->with('user')
-            ->get();
-        
-        \Log::info('Schedules found: ' . $schedules->count());
-        
+        $schedules = Schedule::whereBetween('shift_date', [
+            $currentWeekStart->format('Y-m-d'),
+            $currentWeekEnd->format('Y-m-d')
+        ])->get();
+
+        \Log::info('Schedule Query', [
+            'week_start' => $currentWeekStart->format('Y-m-d'),
+            'week_end' => $currentWeekEnd->format('Y-m-d'),
+            'schedules_count' => $schedules->count(),
+            'schedules' => $schedules->toArray()
+        ]);
+
         return view('admin.schedule.index', compact('employees', 'schedules', 'currentWeekStart'));
     }
 
@@ -47,6 +46,7 @@ class ScheduleController extends Controller
             'user_ids' => 'required|array',
             'user_ids.*' => 'exists:users,id',
             'shift_date' => 'required|date',
+            'shift_code' => 'required|string',
             'start_time' => 'required|date_format:H:i',
             'end_time' => 'required|date_format:H:i|after:start_time',
         ]);
@@ -60,6 +60,7 @@ class ScheduleController extends Controller
                 Schedule::create([
                     'user_id' => $userId,
                     'shift_date' => $request->shift_date,
+                    'shift_code' => $request->shift_code,
                     'start_time' => $request->start_time,
                     'end_time' => $request->end_time,
                 ]);

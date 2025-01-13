@@ -9,6 +9,7 @@ class Schedule extends Model
     protected $fillable = [
         'user_id',
         'shift_date',
+        'shift_code',
         'start_time',
         'end_time'
     ];

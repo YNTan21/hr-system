@@ -153,4 +153,30 @@ class AttendanceController extends Controller
         return Excel::download(new AttendanceExport, 'attendance.xlsx');
     }
 
+    public function edit(Attendance $attendance)
+    {
+        // 获取所有用户，用于下拉选择
+        $users = User::all();
+        
+        return view('admin.attendance.create', [
+            'users' => $users,
+            'attendance' => $attendance,
+            'isEditing' => true
+        ]);
+    }
+
+    public function destroy(Attendance $attendance)
+    {
+        try {
+            $attendance->delete();
+            return redirect()
+                ->route('admin.attendance.index')
+                ->with('success', 'Attendance record deleted successfully');
+        } catch (\Exception $e) {
+            return redirect()
+                ->route('admin.attendance.index')
+                ->with('error', 'Error deleting attendance record');
+        }
+    }
+
 }
