@@ -85,6 +85,8 @@ Route::middleware('auth')->group(function(){
         Route::get('/admin/attendance/export', [AttendanceController::class, 'export'])->name('admin.attendance.export');
         Route::get('/admin/attendance/{attendance}/edit', [AttendanceController::class, 'edit'])->name('admin.attendance.edit');
         Route::delete('/admin/attendance/{attendance}', [AttendanceController::class, 'destroy'])->name('admin.attendance.destroy');
+        Route::put('/admin/attendance/{attendance}', [AttendanceController::class, 'update'])->name('admin.attendance.update');
+
 
         // kpi
         Route::get('/admin/kpi/index', [KPIController::class, 'index'])->name('admin.kpi.index');
@@ -215,6 +217,8 @@ Route::middleware(['web'])->group(function () {
 
     Route::get('/attendance/last-status/{username}', [FacialAttendanceController::class, 'getLastStatus']);
 });
+
+
 
 
 

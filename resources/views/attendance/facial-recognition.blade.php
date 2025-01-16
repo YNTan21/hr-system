@@ -149,26 +149,28 @@
                     return;
                 }
 
+                const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+                
+                // 格式化当前时间为 HH:mm:ss 格式
                 const now = new Date();
-                const localTime = now.toLocaleTimeString('en-US', { 
-                    hour12: false,
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit'
-                });
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                const seconds = String(now.getSeconds()).padStart(2, '0');
+                const formattedTime = `${hours}:${minutes}:${seconds}`;
 
-                console.log('Sending attendance request:', { type, username, local_time: localTime });
+                console.log('Sending attendance request:', { type, username, local_time: formattedTime });
 
                 const response = await fetch('/attendance/record', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': getCsrfToken()
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json'
                     },
                     body: JSON.stringify({
                         type: type,
                         username: username,
-                        local_time: localTime
+                        local_time: formattedTime
                     })
                 });
 
@@ -177,8 +179,8 @@
                 
                 if (data.success) {
                     const message = type === 'in' 
-                        ? `Clock in successful at ${localTime}`
-                        : `Clock out successful at ${localTime}`;
+                        ? `Clock in successful at ${formattedTime}`
+                        : `Clock out successful at ${formattedTime}`;
                         
                     showNotification(message, 'success');
                     

@@ -2,13 +2,34 @@
 
 namespace App\Exports;
 
-use App\Models\Attendance;
-use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\FromArray;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 
-class AttendanceExport implements FromCollection
+class AttendanceExport implements FromArray, WithHeadings, ShouldAutoSize
 {
-    public function collection()
+    protected $attendances;
+
+    public function __construct(array $attendances)
     {
-        return Attendance::all(); // Adjust this query to fit your data needs
+        $this->attendances = $attendances;
+    }
+
+    public function array(): array
+    {
+        return $this->attendances;
+    }
+
+    public function headings(): array
+    {
+        return [
+            'Date',
+            'Employee ID',
+            'Name',
+            'Status',
+            'Clock In',
+            'Clock Out',
+            'Overtime'
+        ];
     }
 }

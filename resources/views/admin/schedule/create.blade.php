@@ -62,7 +62,7 @@
                                    name="shift_date" 
                                    id="shift_date" 
                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                                   value="{{ request('date') ?? now()->format('Y-m-d') }}"
+                                   value="{{ request('date', now('Asia/Kuala_Lumpur')->format('Y-m-d')) }}"
                                    required>
                         </div>
 

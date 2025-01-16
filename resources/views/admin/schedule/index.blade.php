@@ -93,10 +93,10 @@
                                                     @endforeach
                                                 @else
                                                     <div class="h-full min-h-[40px] relative">
-                                                        <button onclick="addShift({{ $employee->id }}, '{{ $currentDateString }}')" 
-                                                                class="absolute inset-0 w-full h-full flex items-center justify-center">
+                                                        <a href="{{ route('admin.schedule.create', ['date' => $currentDateString]) }}" 
+                                                           class="absolute inset-0 w-full h-full flex items-center justify-center">
                                                             <span class="text-gray-300 hover:text-gray-600 text-xl transition-colors duration-200">+</span>
-                                                        </button>
+                                                        </a>
                                                     </div>
                                                 @endif
                                             </div>

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class Schedule extends Model
 {
@@ -16,9 +17,21 @@ class Schedule extends Model
 
     protected $casts = [
         'shift_date' => 'date',
-        'start_time' => 'datetime:H:i',
-        'end_time' => 'datetime:H:i'
+        'start_time' => 'datetime',
+        'end_time' => 'datetime'
     ];
+
+    // 获取格式化的开始时间
+    public function getStartTimeAttribute($value)
+    {
+        return $value ? Carbon::parse($value)->format('H:i:s') : null;
+    }
+
+    // 获取格式化的结束时间
+    public function getEndTimeAttribute($value)
+    {
+        return $value ? Carbon::parse($value)->format('H:i:s') : null;
+    }
 
     public function user()
     {

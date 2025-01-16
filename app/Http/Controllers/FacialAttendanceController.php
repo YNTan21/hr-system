@@ -9,21 +9,27 @@ use App\Models\LeaveType;
 use App\Models\Leave;
 use App\Models\Employee;
 use App\Models\Position;
+use App\Models\Schedule;
 use App\Models\LeaveBalance;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use App\Models\Attendance;
+use Carbon\Carbon;
 
-class FacialAttendanceController
+class FacialAttendanceController extends Controller
 {
     public function recordAttendance(Request $request)
     {
         try {
             $request->validate([
                 'type' => 'required|in:in,out',
-                'username' => 'required|string',
-                'local_time' => 'required|string'
+                'username' => 'required|string'
             ]);
+
+            // 设置马来西亚时区
+            date_default_timezone_set('Asia/Kuala_Lumpur');
+            $serverTime = Carbon::now('Asia/Kuala_Lumpur');
+            $today = $serverTime->toDateString();
 
             $user = User::where('username', $request->username)->first();
             if (!$user) {
@@ -33,79 +39,89 @@ class FacialAttendanceController
                 ], 404);
             }
 
-            $today = now()->toDateString();
-            $currentTime = $request->local_time;
-
-            // 检查最近的打卡记录
+            // 检查最近的考勤记录
             $lastAttendance = Attendance::where('user_id', $user->id)
-                ->where('date', $today)
-                ->orderBy('created_at', 'desc')
+                ->whereDate('date', $today)
+                ->latest()
                 ->first();
 
             if ($request->type === 'in') {
-                // 检查是否有未配对的打卡进记录
+                // 如果最后一条记录是 clock in 且还没有 clock out
                 if ($lastAttendance && $lastAttendance->clock_in_time && !$lastAttendance->clock_out_time) {
                     return response()->json([
                         'success' => false,
-                        'message' => 'Please clock out first',
-                        'lastClockIn' => $lastAttendance->clock_in_time
-                    ]);
+                        'message' => 'You have already clocked in. Please clock out first.',
+                        'last_clock_in' => $lastAttendance->clock_in_time->format('Y-m-d H:i:s'),
+                        'server_time' => $serverTime->format('Y-m-d H:i:s')  // 添加服务器时间
+                    ], 400);
                 }
 
-                // 创建新的打卡记录
-                $lateThreshold = '09:00:00';
-                $status = $currentTime > $lateThreshold ? 'late' : 'on_time';
+                $schedule = Schedule::where('user_id', $user->id)
+                    ->whereDate('shift_date', $today)
+                    ->first();
 
-                $attendance = new Attendance([
+                if (!$schedule) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'No schedule found for today',
+                        'server_time' => $serverTime->format('Y-m-d H:i:s')  // 添加服务器时间
+                    ], 404);
+                }
+
+                $scheduledStart = Carbon::parse($today . ' ' . $schedule->start_time);
+                $lateThreshold = $scheduledStart->copy()->addMinutes(15);
+                
+                $status = $serverTime->lt($lateThreshold) ? 'on_time' : 'late';
+
+                $attendance = Attendance::create([
                     'user_id' => $user->id,
                     'date' => $today,
-                    'clock_in_time' => $currentTime,
+                    'clock_in_time' => $serverTime,
                     'status' => $status
                 ]);
 
-            } else { // clock out
-                if (!$lastAttendance || !$lastAttendance->clock_in_time || $lastAttendance->clock_out_time) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Successfully clocked in',
+                    'data' => [
+                        'server_time' => $serverTime->format('Y-m-d H:i:s'),
+                        'status' => $status
+                    ]
+                ]);
+            } 
+            else if ($request->type === 'out') {
+                // 如果没有未完成的 clock in 记录
+                if (!$lastAttendance || $lastAttendance->clock_out_time) {
                     return response()->json([
                         'success' => false,
-                        'message' => 'Please clock in first'
-                    ]);
+                        'message' => 'Please clock in first before clocking out.',
+                        'server_time' => $serverTime->format('Y-m-d H:i:s')  // 添加服务器时间
+                    ], 400);
                 }
 
-                // 更新最后的打卡记录
-                $attendance = $lastAttendance;
-                $attendance->clock_out_time = $currentTime;
+                $lastAttendance->clock_out_time = $serverTime;
+                $lastAttendance->save();
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Successfully clocked out',
+                    'data' => [
+                        'server_time' => $serverTime->format('Y-m-d H:i:s')
+                    ]
+                ]);
             }
 
-            $attendance->save();
-
-            // 获取今天的所有打卡记录
-            $todayRecords = Attendance::where('user_id', $user->id)
-                ->where('date', $today)
-                ->orderBy('created_at', 'desc')
-                ->get();
-
-            return response()->json([
-                'success' => true,
-                'message' => "Successfully clocked {$request->type}",
-                'data' => [
-                    'date' => $today,
-                    'time' => $currentTime,
-                    'status' => $attendance->status,
-                    'todayRecords' => $todayRecords,
-                    'canClockIn' => $request->type === 'out',
-                    'canClockOut' => $request->type === 'in'
-                ]
-            ]);
-
         } catch (\Exception $e) {
-            \Log::error('Attendance recording error', [
+            \Log::error('Attendance Error', [
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
+                'server_time' => $serverTime->format('Y-m-d H:i:s')  // 添加服务器时间到错误日志
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'Error recording attendance: ' . $e->getMessage()
+                'message' => 'Error recording attendance: ' . $e->getMessage(),
+                'server_time' => $serverTime->format('Y-m-d H:i:s')  // 添加服务器时间
             ], 500);
         }
     }

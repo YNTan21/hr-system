@@ -51,18 +51,20 @@ class ScheduleController extends Controller
             'end_time' => 'required|date_format:H:i|after:start_time',
         ]);
 
+        // 设置马来西亚时区
+        date_default_timezone_set('Asia/Kuala_Lumpur');
+        
         $created = 0;
         $errors = [];
 
-        // Create a schedule for each selected user
         foreach ($request->user_ids as $userId) {
             try {
                 Schedule::create([
                     'user_id' => $userId,
                     'shift_date' => $request->shift_date,
                     'shift_code' => $request->shift_code,
-                    'start_time' => $request->start_time,
-                    'end_time' => $request->end_time,
+                    'start_time' => Carbon::parse($request->start_time, 'Asia/Kuala_Lumpur')->format('H:i:s'),
+                    'end_time' => Carbon::parse($request->end_time, 'Asia/Kuala_Lumpur')->format('H:i:s'),
                 ]);
                 $created++;
             } catch (\Exception $e) {

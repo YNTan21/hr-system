@@ -144,11 +144,9 @@
                                     </td>
                                     <td class="py-4 px-6">{{ $attendance->clock_in_time }}</td>
                                     <td class="py-4 px-6">{{ $attendance->clock_out_time }}</td>
-                                    @if($index === 0)
-                                        <td class="py-4 px-6" rowspan="{{ $groupedAttendances->count() }}">
-                                            {{ $overtimeFormatted }}
-                                        </td>
-                                    @endif
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        {{ $attendance->overtime ?: '00:00' }}
+                                    </td>
                                     <td class="py-4 px-6">
                                         <div class="flex space-x-2">
                                             <a href="{{ route('admin.attendance.edit', $attendance->id) }}" 
