@@ -76,4 +76,89 @@
             </div>
         </div>
     </div>
+
+    <!-- PIN Modal -->
+    <div id="pinModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex items-center justify-center">
+        <div class="bg-white p-8 rounded-lg shadow-xl">
+            <h2 class="text-xl font-bold mb-4">Security Check</h2>
+            <p class="mb-4">Please enter PIN number to access the system:</p>
+            
+            <div class="flex justify-center space-x-2 mb-4">
+                <input type="password" maxlength="1" class="w-10 h-10 text-center border rounded text-xl" data-pin-index="0">
+                <input type="password" maxlength="1" class="w-10 h-10 text-center border rounded text-xl" data-pin-index="1">
+                <input type="password" maxlength="1" class="w-10 h-10 text-center border rounded text-xl" data-pin-index="2">
+                <input type="password" maxlength="1" class="w-10 h-10 text-center border rounded text-xl" data-pin-index="3">
+                <input type="password" maxlength="1" class="w-10 h-10 text-center border rounded text-xl" data-pin-index="4">
+                <input type="password" maxlength="1" class="w-10 h-10 text-center border rounded text-xl" data-pin-index="5">
+            </div>
+            
+            <div class="flex justify-end space-x-2">
+                <button onclick="checkPin()" 
+                        class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                    Submit
+                </button>
+                <button onclick="closePinModal()" 
+                        class="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('pinModal').classList.remove('hidden');
+        setupPinInputs();
+    });
+
+    function setupPinInputs() {
+        const inputs = document.querySelectorAll('[data-pin-index]');
+        
+        inputs.forEach((input, index) => {
+            // 自动聚焦到下一个输入框
+            input.addEventListener('input', function() {
+                if (this.value.length === 1) {
+                    const nextInput = inputs[index + 1];
+                    if (nextInput) nextInput.focus();
+                }
+            });
+
+            // 处理退格键
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Backspace' && !this.value) {
+                    const prevInput = inputs[index - 1];
+                    if (prevInput) {
+                        prevInput.focus();
+                        prevInput.value = '';
+                    }
+                }
+            });
+        });
+    }
+
+    function checkPin() {
+        const inputs = document.querySelectorAll('[data-pin-index]');
+        const pin = Array.from(inputs).map(input => input.value).join('');
+        
+        if (pin === '000000') {
+            document.getElementById('pinModal').classList.add('hidden');
+        } else {
+            alert('Invalid PIN number');
+            inputs.forEach(input => input.value = '');
+            inputs[0].focus();
+        }
+    }
+
+    function closePinModal() {
+        window.location.href = '/';
+    }
+
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const pinModal = document.getElementById('pinModal');
+        if (!pinModal.classList.contains('hidden')) {
+            e.preventDefault();
+            alert('Please enter PIN number first');
+        }
+    });
+    </script>
 </x-layout.master>

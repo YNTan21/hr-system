@@ -27,19 +27,44 @@ class AttendanceController extends Controller
      */
     public function index(Request $request)
     {
+        $query = Attendance::with('user')->select('attendances.*');
+
+        // 用户筛选
+        if ($request->filled('user_id')) {
+            $query->where('user_id', $request->user_id);
+        }
+
+        // 日期筛选
+        if ($request->filled('date')) {
+            $query->whereDate('date', $request->date);
+        }
+
+        // 月份筛选
+        if ($request->filled('month')) {
+            $month = $request->month;
+            $query->whereYear('date', substr($month, 0, 4))
+                  ->whereMonth('date', substr($month, 5, 2));
+        }
+
+        // 周筛选
+        if ($request->filled('week')) {
+            $week = $request->week;
+            $year = substr($week, 0, 4);
+            $weekNumber = substr($week, 6);
+            
+            $startDate = Carbon::now()
+                ->setISODate($year, $weekNumber)
+                ->startOfWeek();
+            $endDate = $startDate->copy()->endOfWeek();
+
+            $query->whereBetween('date', [$startDate, $endDate]);
+        }
+
+        // 改用 paginate 而不是 get
+        $attendances = $query->orderBy('date', 'desc')->paginate(10);
         $users = User::all();
-        
-        $attendances = Attendance::with('user')
-            ->when($request->user_id, function($query) use ($request) {
-                return $query->where('user_id', $request->user_id);
-            })
-            ->when($request->date, function($query) use ($request) {
-                return $query->whereDate('date', $request->date);
-            })
-            ->latest('date')
-            ->paginate(10);
-        
-        return view('admin.attendance.index', compact('users', 'attendances'));
+
+        return view('admin.attendance.index', compact('attendances', 'users'));
     }
 
     /**

@@ -47,6 +47,22 @@
                             </select>
                         </div>
 
+                        <!-- Month Filter -->
+                        <div class="flex-1">
+                            <input type="month" 
+                                   name="month" 
+                                   value="{{ request('month') }}" 
+                                   class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200">
+                        </div>
+
+                        <!-- Week Filter -->
+                        <div class="flex-1">
+                            <input type="week" 
+                                   name="week" 
+                                   value="{{ request('week') }}" 
+                                   class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200">
+                        </div>
+
                         <!-- Date Filter -->
                         <div class="flex-1">
                             <input type="date" 
