@@ -27,7 +27,10 @@ class AttendanceController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Attendance::with('user')->select('attendances.*');
+        $query = Attendance::with('user')
+            ->select('attendances.*')
+            ->orderBy('date', 'desc')  // 首先按日期降序
+            ->orderBy('clock_in_time', 'desc');  // 然后按打卡时间降序
 
         // 用户筛选
         if ($request->filled('user_id')) {
@@ -60,8 +63,12 @@ class AttendanceController extends Controller
             $query->whereBetween('date', [$startDate, $endDate]);
         }
 
-        // 改用 paginate 而不是 get
-        $attendances = $query->orderBy('date', 'desc')->paginate(10);
+        // 禁用查询缓存，确保获取最新数据
+        $attendances = $query->orderBy('date', 'desc')
+            ->orderBy('clock_in_time', 'desc')
+            ->paginate(10)
+            ->withQueryString();  // 保持筛选参数
+
         $users = User::all();
 
         return view('admin.attendance.index', compact('attendances', 'users'));
@@ -157,8 +164,13 @@ class AttendanceController extends Controller
         ]);
 
         try {
+            // 设置马来西亚时区
             date_default_timezone_set('Asia/Kuala_Lumpur');
             
+            // 固定使用提交的日期，而不是当前日期
+            $attendanceDate = Carbon::parse($validated['date']);
+            
+            // 将时间与日期组合，创建完整的时间戳
             $clockInTime = $validated['clock_in_time'] ? 
                 Carbon::parse($validated['date'] . ' ' . $validated['clock_in_time'])->format('Y-m-d H:i:s') : 
                 null;
@@ -167,35 +179,49 @@ class AttendanceController extends Controller
                 Carbon::parse($validated['date'] . ' ' . $validated['clock_out_time'])->format('Y-m-d H:i:s') : 
                 null;
 
+            // 获取用户当天的排班
             $schedule = Schedule::where('user_id', $validated['user_id'])
                 ->whereDate('shift_date', $validated['date'])
                 ->first();
 
+            // 计算加班时间
             $overtime = '00:00';
-
             if ($schedule && $clockOutTime) {
+                // 转换时间为 Carbon 实例
                 $scheduleEndTime = Carbon::parse($validated['date'] . ' ' . $schedule->end_time);
                 $actualEndTime = Carbon::parse($clockOutTime);
 
-                // 计算时间差（不考虑正负）
-                $diffInMinutes = abs($actualEndTime->diffInMinutes($scheduleEndTime));
-                
-                if ($diffInMinutes > 0) {
-                    $hours = floor($diffInMinutes / 60);
-                    $minutes = $diffInMinutes % 60;
-                    $overtime = sprintf('%02d:%02d', $hours, $minutes);
-                    
-                    \Log::info('Overtime Debug', [
-                        'schedule_end' => $scheduleEndTime->format('Y-m-d H:i:s'),
-                        'actual_end' => $actualEndTime->format('Y-m-d H:i:s'),
-                        'diff_minutes' => $diffInMinutes,
-                        'hours' => $hours,
-                        'minutes' => $minutes,
+                // 记录调试信息
+                \Log::info('Overtime Calculation', [
+                    'schedule_end' => $scheduleEndTime->format('Y-m-d H:i:s'),
+                    'actual_end' => $actualEndTime->format('Y-m-d H:i:s'),
+                    'is_after' => $actualEndTime->gt($scheduleEndTime)
+                ]);
+
+                if ($actualEndTime->gt($scheduleEndTime)) {
+                    $overtimeMinutes = $actualEndTime->diffInMinutes($scheduleEndTime);
+                    $overtimeHours = floor($overtimeMinutes / 60);
+                    $remainingMinutes = $overtimeMinutes % 60;
+                    $overtime = sprintf('%02d:%02d', $overtimeHours, $remainingMinutes);
+
+                    // 记录计算结果
+                    \Log::info('Overtime Result', [
+                        'minutes' => $overtimeMinutes,
+                        'hours' => $overtimeHours,
+                        'remaining_minutes' => $remainingMinutes,
                         'overtime' => $overtime
                     ]);
                 }
+            } else {
+                \Log::warning('Overtime Not Calculated', [
+                    'has_schedule' => !!$schedule,
+                    'has_clock_out' => !!$clockOutTime,
+                    'schedule' => $schedule,
+                    'clock_out' => $clockOutTime
+                ]);
             }
 
+            // 创建考勤记录
             $attendance = Attendance::create([
                 'user_id' => $validated['user_id'],
                 'date' => $validated['date'],
@@ -210,7 +236,8 @@ class AttendanceController extends Controller
         } catch (\Exception $e) {
             \Log::error('Attendance Error', [
                 'error' => $e->getMessage(),
-                'data' => $request->all()
+                'data' => $request->all(),
+                'schedule' => $schedule ?? null
             ]);
 
             return back()->withInput()
@@ -330,38 +357,57 @@ class AttendanceController extends Controller
         ]);
 
         try {
+            // 获取新的日期
+            $newDate = $validated['date'];
+
+            // 更新 clock_in_time
+            if ($validated['clock_in_time']) {
+                // 获取时间部分 (HH:mm:ss)
+                $timeOnly = Carbon::parse($validated['clock_in_time'])->format('H:i:s');
+                // 将新日期与时间部分结合，更新 clock_in_time
+                $clockInTime = $newDate . ' ' . $timeOnly;
+            } else {
+                $clockInTime = null;
+            }
+
+            // 更新 clock_out_time
+            if ($validated['clock_out_time']) {
+                // 获取时间部分 (HH:mm:ss)
+                $timeOnly = Carbon::parse($validated['clock_out_time'])->format('H:i:s');
+                // 将新日期与时间部分结合，更新 clock_out_time
+                $clockOutTime = $newDate . ' ' . $timeOnly;
+            } else {
+                $clockOutTime = null;
+            }
+
             // 获取用户当天的排班
             $schedule = Schedule::where('user_id', $validated['user_id'])
-                ->whereDate('shift_date', $validated['date'])
+                ->whereDate('shift_date', $newDate)
                 ->first();
 
-            if ($schedule && $validated['clock_out_time']) {
-                // 转换时间为 Carbon 实例以便计算
-                $scheduleEndTime = Carbon::parse($validated['date'] . ' ' . $schedule->end_time);
-                $clockOutTime = Carbon::parse($validated['date'] . ' ' . $validated['clock_out_time']);
+            $overtime = '00:00';
+            if ($schedule && $clockOutTime) {
+                $scheduleEndTime = Carbon::parse($newDate . ' ' . $schedule->end_time);
+                $actualEndTime = Carbon::parse($clockOutTime);
 
-                // 计算加班时间（分钟）
                 $overtimeMinutes = 0;
-                if ($clockOutTime->gt($scheduleEndTime)) {
-                    $overtimeMinutes = $clockOutTime->diffInMinutes($scheduleEndTime);
+                if ($actualEndTime->gt($scheduleEndTime)) {
+                    $overtimeMinutes = $actualEndTime->diffInMinutes($scheduleEndTime);
                 }
 
-                // 转换分钟为小时和分钟格式 (例如: 2:30)
                 $overtimeHours = floor($overtimeMinutes / 60);
                 $remainingMinutes = $overtimeMinutes % 60;
                 $overtime = sprintf('%02d:%02d', $overtimeHours, $remainingMinutes);
-            } else {
-                $overtime = '00:00';
             }
 
             // 更新考勤记录
             $attendance->update([
                 'user_id' => $validated['user_id'],
-                'date' => $validated['date'],
-                'clock_in_time' => $validated['clock_in_time'],
-                'clock_out_time' => $validated['clock_out_time'],
+                'date' => $newDate,
+                'clock_in_time' => $clockInTime,
+                'clock_out_time' => $clockOutTime,
                 'status' => $validated['status'],
-                'overtime' => $overtime  // 保存加班时间
+                'overtime' => $overtime
             ]);
 
             return redirect()->route('admin.attendance.index')

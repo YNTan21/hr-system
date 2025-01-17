@@ -23,7 +23,8 @@ class FacialAttendanceController extends Controller
         try {
             $request->validate([
                 'type' => 'required|in:in,out',
-                'username' => 'required|string'
+                'username' => 'required|string',
+                'local_time' => 'required|string'
             ]);
 
             // 设置马来西亚时区
@@ -73,19 +74,29 @@ class FacialAttendanceController extends Controller
                 
                 $status = $serverTime->lt($lateThreshold) ? 'on_time' : 'late';
 
+                \Log::info('Attendance Time Check', [
+                    'device_time' => $request->local_time,
+                    'server_time' => $serverTime->format('Y-m-d H:i:s'),
+                    'scheduled_start' => $scheduledStart->format('Y-m-d H:i:s'),
+                    'late_threshold' => $lateThreshold->format('Y-m-d H:i:s'),
+                    'status' => $status
+                ]);
+
                 $attendance = Attendance::create([
                     'user_id' => $user->id,
                     'date' => $today,
                     'clock_in_time' => $serverTime,
-                    'status' => $status
+                    'status' => $status,
+                    'device_time' => $request->local_time
                 ]);
 
                 return response()->json([
                     'success' => true,
-                    'message' => 'Successfully clocked in',
+                    'message' => "Successfully clocked {$request->type}",
                     'data' => [
                         'server_time' => $serverTime->format('Y-m-d H:i:s'),
-                        'status' => $status
+                        'status' => $status,
+                        'attendance_id' => $attendance->id
                     ]
                 ]);
             } 

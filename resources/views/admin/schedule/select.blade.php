@@ -42,8 +42,14 @@
                         </select>
                     </div>
 
-                    <div class="text-center">
-                        <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors">View Timesheet</button>
+                    <div class="flex justify-center gap-4 mt-4">
+                        <a href="{{ route('admin.schedule.index') }}" 
+                           class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+                            Back
+                        </a>
+                        <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                            View Timesheet
+                        </button>
                     </div>
                 </form>
             </div>

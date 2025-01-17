@@ -68,6 +68,14 @@
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Back Button -->
+                <div class="flex justify-center mt-4">
+                    <a href="{{ route('admin.schedule.index') }}" 
+                       class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+                        Back
+                    </a>
+                </div>
             </div>
         </div>
     </div>

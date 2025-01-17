@@ -19,6 +19,7 @@ use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\AttendanceScheduleController;
 use App\Http\Controllers\AnnualLeaveBalanceController;
 use App\Http\Controllers\FacialAttendanceController;
+use App\Http\Controllers\Auth\DashboardController;
 // home
 Route::view('/', 'home')->name('home');
 
@@ -27,13 +28,15 @@ Route::middleware('auth')->group(function(){
     Route::post('/logout', [AuthController::class, 'logout'])->name('auth.logout');
     
     // admin dashboard
-    Route::get('/admin/dashboard', [PageController::class, 'dashboard'])->name('admin.dashboard.index');
+    Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
+    Route::get('/overtime-data/{month}', [DashboardController::class, 'getOvertimeData']);
 
-    // admin dashboard
+    // user dashboard
     Route::get('/user/dashboard', [PageController::class, 'user_dashboard'])->name('user.dashboard');
 
     Route::middleware('is-admin')->group(function()
-    {   // leaveType 
+    {   
+        // leaveType 
         Route::get('/admin/leaveType/create', [PageController::class, 'leaveType_create'])->name('admin.leaveType.create');
         Route::post('/admin/leaveType', [LeaveTypeController::class, 'store'])->name('admin.leaveType.store');
         Route::get('/admin/leaveType/index', [LeaveTypeController::class, 'index'])->name('admin.leaveType.index');
@@ -217,6 +220,8 @@ Route::middleware(['web'])->group(function () {
 
     Route::get('/attendance/last-status/{username}', [FacialAttendanceController::class, 'getLastStatus']);
 });
+
+
 
 
 
