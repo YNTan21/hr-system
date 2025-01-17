@@ -20,6 +20,7 @@ use App\Http\Controllers\AttendanceScheduleController;
 use App\Http\Controllers\AnnualLeaveBalanceController;
 use App\Http\Controllers\FacialAttendanceController;
 use App\Http\Controllers\Auth\DashboardController;
+use App\Http\Controllers\ProfileController;
 // home
 Route::view('/', 'home')->name('home');
 
@@ -182,6 +183,8 @@ Route::middleware('auth')->group(function(){
     Route::get('/user/leave/{id}/edit', [UserLeaveController::class, 'edit'])->name('user.leave.edit');
     Route::put('/user/leave/{id}', [UserLeaveController::class, 'update'])->name('user.leave.update');
 
+    Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
 });
 
 Route::middleware('guest')->group(function(){

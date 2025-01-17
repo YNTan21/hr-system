@@ -9,8 +9,8 @@
                 <path clip-rule="evenodd" fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"></path>
             </svg>
         </button>
-        <a href="https://flowbite.com" class="flex ms-2 md:me-24">
-            <img src="https://flowbite.com/docs/images/logo.svg" class="h-8 me-3" alt="FlowBite Logo" />
+        <a class="flex ms-2 md:me-24">
+            <img src="{{ asset('images/hr-logo.png') }}" class="h-10 me-2" alt="HR System Logo" />
             <span class="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white">HR SYSTEM</span>
         </a>
         </div>
@@ -19,21 +19,29 @@
             <div class="px-3">
                 <button type="button" class="flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600" aria-expanded="false" data-dropdown-toggle="dropdown-user">
                 <span class="sr-only">Open user menu</span>
-                <img class="w-8 h-8 rounded-full" src="https://flowbite.com/docs/images/people/profile-picture-5.jpg" alt="user photo">
+                <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">                    
+                    <!-- head -->
+                    <path d="M12 4.5C9.5 4.5 8 6.5 8 8.5C8 10.5 9.5 12 12 12C14.5 12 16 10.5 16 8.5C16 6.5 14.5 4.5 12 4.5Z" 
+                          class="fill-current text-white dark:text-white"/>
+                    
+                    <!-- body -->
+                    <path d="M19 20V17.5C19 15.0147 15.866 13 12 13C8.13401 13 5 15.0147 5 17.5V20C5 20.5523 5.44772 21 6 21H18C18.5523 21 19 20.5523 19 20Z" 
+                          class="fill-current text-white dark:text-white"/>
+                </svg>
                 </button>
             </div>
-            <div class="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded shadow dark:bg-gray-700 dark:divide-gray-600" id="dropdown-user">
+            <div class="z-50 hidden my-1 text-base list-none bg-white divide-y divide-gray-100 rounded shadow dark:bg-gray-700 dark:divide-gray-600" id="dropdown-user">
                 <div class="px-4 py-3" role="none">
                 <p class="text-sm text-gray-900 dark:text-white" role="none">
                     {{ Auth::user()->username }}
                 </p>
-                <p class="text-sm font-medium text-gray-900 truncate dark:text-gray-300" role="none">
+                <!-- <p class="text-sm font-medium text-gray-900 truncate dark:text-gray-300" role="none">
                     {{ Auth::user()->email }}
-                </p>
+                </p> -->
                 </div>
                 <ul class="py-1" role="none">
                 <li>
-                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white" role="menuitem">Profile</a>
+                    <a href="{{ route('profile.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white" role="menuitem">Profile</a>
                 </li>
                 <li>
                     <form action="{{ route('auth.logout') }}" method="post">
@@ -202,7 +210,7 @@
                 </svg>
                 <span class="flex-1 ms-3 whitespace-nowrap">Timesheet</span>
             </a>
-        </li> -->
+        </li>
         <!-- <li>
             <a href="{{ route('admin.attendance-schedule.index') }}" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
                 <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 20">
