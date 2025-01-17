@@ -14,7 +14,7 @@
                     </div>
                 @endif
 
-                <h1 class="text-2xl font-bold text-gray-900 dark:text-white pb-4 text-center">Weekly Schedule</h1>
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white pb-4 text-center">Schedule</h1>
 
                 <!-- Button to Display Current Week Schedule -->
                 <div class="text-center mb-4">

@@ -13,6 +13,42 @@
                     <span class="text-lg font-medium">{{ $currentWeekStart->format('d M Y') }} - {{ $currentWeekEnd->format('d M Y') }}</span>
                 </div>
 
+                @php
+                    // 定义一组预设的颜色类
+                    $colors = [
+                        'bg-blue-200 text-blue-900',
+                        'bg-green-200 text-green-900',
+                        'bg-purple-200 text-purple-900',
+                        'bg-yellow-200 text-yellow-900',
+                        'bg-pink-200 text-pink-900',
+                        'bg-indigo-200 text-indigo-900',
+                        'bg-red-200 text-red-900',
+                        'bg-orange-200 text-orange-900',
+                        'bg-teal-200 text-teal-900',
+                        'bg-cyan-200 text-cyan-900',
+                        'bg-blue-300 text-blue-900',
+                        'bg-green-300 text-green-900',
+                        'bg-purple-300 text-purple-900',
+                        'bg-yellow-300 text-yellow-900',
+                        'bg-pink-300 text-pink-900',
+                        'bg-indigo-300 text-indigo-900',
+                        'bg-red-300 text-red-900',
+                        'bg-orange-300 text-orange-900',
+                        'bg-teal-300 text-teal-900',
+                        'bg-cyan-300 text-cyan-900',
+                        'bg-blue-100 text-blue-900',
+                        'bg-green-100 text-green-900',
+                        'bg-purple-100 text-purple-900',
+                        'bg-yellow-100 text-yellow-900',
+                        'bg-pink-100 text-pink-900',
+                        'bg-indigo-100 text-indigo-900',
+                        'bg-red-100 text-red-900',
+                        'bg-orange-100 text-orange-900',
+                        'bg-teal-100 text-teal-900',
+                        'bg-cyan-100 text-cyan-900'
+                    ];
+                @endphp
+
                 <!-- Timesheet Table -->
                 <div class="overflow-x-auto mb-8">
                     <table class="w-full table-auto">
@@ -54,10 +90,10 @@
                                         <td class="border px-4 py-2 text-center">
                                             @if ($matchingSchedules->isNotEmpty())
                                                 @foreach ($matchingSchedules as $schedule)
-                                                    <div class="mb-1 px-2 py-1 bg-blue-200 text-blue-900 rounded">
+                                                    <div class="mb-1 px-2 py-1 rounded {{ $colors[$loop->index % count($colors)] }}">
                                                         {{ $schedule->user ? $schedule->user->username : 'No user found' }}
                                                         <br>
-                                                        <span class="text-sm text-blue-700">{{ $schedule->shift_code }}</span>
+                                                        <span class="text-sm">{{ $schedule->shift_code }}</span>
                                                     </div>
                                                 @endforeach
                                             @endif

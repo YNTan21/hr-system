@@ -92,8 +92,12 @@
                     </div>
 
                     <!-- Submit Button -->
-                    <div class="col text-center p-2 px-5 mt-4">
-                        <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors disabled:opacity-50" id="submit-button">
+                    <div class="flex justify-center gap-4 mt-4">
+                        <a href="{{ route('admin.schedule.index') }}" 
+                           class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+                            Back
+                        </a>
+                        <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" id="submit-button">
                             Create Schedule
                         </button>
                     </div>

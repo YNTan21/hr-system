@@ -116,33 +116,29 @@ class ScheduleController extends Controller
 
     public function timesheet(Request $request)
     {
-        // Get the start date for the selected week or use the current date if not provided
-        $selectedDate = $request->get('week_start') 
-            ? Carbon::parse($request->get('week_start')) 
-            : now();
+        // If a week is selected, parse it correctly
+        if ($request->filled('week')) {
+            // Convert the HTML week input format (e.g., "2024-W10") to a date
+            $yearWeek = explode('-W', $request->week);
+            $year = $yearWeek[0];
+            $week = $yearWeek[1];
+            $date = Carbon::now()->setISODate($year, $week);
+        } else {
+            $date = Carbon::now();
+        }
 
-        // Get the start of the week for the selected date
-        $currentWeekStart = $selectedDate->startOfWeek();
-        $currentWeekEnd = $currentWeekStart->copy()->endOfWeek();
+        // Get the start and end of the week
+        $currentWeekStart = $date->copy()->startOfWeek();
+        $currentWeekEnd = $date->copy()->endOfWeek();
 
-        // Fetch employees (if needed for other logic)
-        $employees = User::all();
+        $schedules = Schedule::whereBetween('shift_date', [
+            $currentWeekStart->format('Y-m-d'),
+            $currentWeekEnd->format('Y-m-d')
+        ])
+        ->with('user')
+        ->get();
 
-        // Fetch schedules for the selected week
-        $schedules = Schedule::query()
-            ->whereBetween('shift_date', [
-                $currentWeekStart->format('Y-m-d'),
-                $currentWeekEnd->format('Y-m-d')
-            ])
-            ->with('user')  // Assuming you want to include user data
-            ->get();
-
-        // Log information for debugging
-        \Log::info('Week start: ' . $currentWeekStart->format('Y-m-d'));
-        \Log::info('Date Range: ' . $currentWeekStart->format('Y-m-d') . ' to ' . $currentWeekEnd->format('Y-m-d'));
-
-        // Return the view with schedules and employees data
-        return view('admin.schedule.timesheet', compact('employees', 'schedules', 'currentWeekStart', 'currentWeekEnd'));
+        return view('admin.schedule.timesheet', compact('schedules', 'currentWeekStart', 'currentWeekEnd'));
     }
 
 
