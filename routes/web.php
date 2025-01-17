@@ -176,6 +176,9 @@ Route::middleware('auth')->group(function(){
         Route::get('/admin/annual-leave-balance/{userId}/used-leave', [AnnualLeaveBalanceController::class, 'showUsedLeave'])->name('admin.annual-leave-balance.showUsedLeave');
     });
 
+    // attendance
+    Route::get('/user/attendance/index', [App\Http\Controllers\User\UserAttendanceController::class, 'index'])->name('user.attendance.index');
+
     // leave
     Route::get('/user/leave/create', [UserLeaveController::class, 'create'])->name('user.leave.create');
     Route::post('/user/leave', [UserLeaveController::class, 'store'])->name('user.leave.store');
@@ -199,7 +202,7 @@ Route::middleware('guest')->group(function(){
 
 Route::get('/shift-list', [ShiftController::class, 'shiftList'])->name('shift.list');
 
-// attendance
+// face attendance
 Route::get('/attendance/facial-recognition', [FacialAttendanceController::class, 'index'])->name('attendance.facial-recognition');
 Route::post('/attendance/record', [FacialAttendanceController::class, 'recordAttendance'])->name('attendance.record');
 
