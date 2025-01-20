@@ -1,4 +1,4 @@
-@section('site-title', 'Dashboard')
+@section('site-title', 'Attendance')
 <x-layout.master>
     <div class="container-fluid">
         <div class="row">
@@ -158,8 +158,8 @@
                                             </span>
                                         @endif
                                     </td>
-                                    <td class="py-4 px-6">{{ $attendance->clock_in_time }}</td>
-                                    <td class="py-4 px-6">{{ $attendance->clock_out_time }}</td>
+                                    <td class="py-4 px-6">{{ \Carbon\Carbon::parse($attendance->clock_in_time)->format('H:i') }}</td>
+                                    <td class="py-4 px-6">{{ \Carbon\Carbon::parse($attendance->clock_out_time)->format('H:i') }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         {{ $attendance->overtime ?: '00:00' }}
                                     </td>

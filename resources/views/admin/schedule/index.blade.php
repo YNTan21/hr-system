@@ -72,11 +72,9 @@
                                         <td class="border px-4 py-2 relative group schedule-cell">
                                             <div class="text-center">
                                                 @php
-                                                    // 获取当前列的日期
                                                     $currentDate = $currentWeekStart->copy()->addDays($i);
                                                     $currentDateString = $currentDate->format('Y-m-d');
                                                     
-                                                    // 根据具体日期和员工ID过滤排班
                                                     $shifts = $schedules->filter(function($schedule) use ($employee, $currentDateString) {
                                                         return $schedule->user_id === $employee->id && 
                                                                $schedule->shift_date->format('Y-m-d') === $currentDateString;
@@ -123,13 +121,17 @@ document.addEventListener('DOMContentLoaded', () => {
     if (weekStartParam) {
         currentWeekStart = new Date(weekStartParam);
     } else {
-        currentWeekStart = getWeekStart(currentDate);
+        // 如果没有 URL 参数，使用本周日作为起始日
+        currentWeekStart = getWeekStart(new Date());
     }
     updateWeekDisplay();
 });
 
 function getWeekStart(date) {
     const newDate = new Date(date);
+    // 确保总是从周日开始
+    const day = newDate.getDay();
+    newDate.setDate(newDate.getDate() - day); // 将日期设置为本周的周日
     return new Date(newDate.setHours(0, 0, 0, 0));
 }
 
@@ -172,49 +174,32 @@ function updateWeekDisplay() {
 }
 
 async function updateScheduleDisplay() {
-    const params = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams();
     params.set('week_start', currentWeekStart.toISOString().split('T')[0]);
-
-    // 添加加载状态
-    document.querySelectorAll('.schedule-item').forEach(item => {
-        item.classList.add('fade-out');
-    });
 
     try {
         const response = await fetch(`${window.location.pathname}?${params.toString()}`);
-        const html = await response.text();
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, 'text/html');
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
         
-        // 平滑更新表格内容
-        const cells = document.querySelectorAll('.schedule-cell');
-        const newCells = doc.querySelectorAll('.schedule-cell');
-        
-        cells.forEach((cell, index) => {
-            setTimeout(() => {
-                const newContent = newCells[index].innerHTML;
-                cell.innerHTML = newContent;
-                cell.querySelectorAll('.schedule-item').forEach(item => {
-                    item.classList.add('fade-in');
-                });
-            }, index * 50); // 添加微小延迟使更新看起来更平滑
-        });
-
-        // 更新 URL 但不刷新页面
-        history.pushState({}, '', `${window.location.pathname}?${params.toString()}`);
+        // 完全重新加载页面来确保数据同步
+        window.location.href = `${window.location.pathname}?${params.toString()}`;
     } catch (error) {
         console.error('Failed to update schedule:', error);
     }
 }
 
 function previousWeek() {
-    currentWeekStart.setDate(currentWeekStart.getDate() - 1);
+    // 确保移动整整一周（7天）并从周日开始
+    currentWeekStart.setDate(currentWeekStart.getDate() - 7);
     updateWeekDisplay();
     updateScheduleDisplay();
 }
 
 function nextWeek() {
-    currentWeekStart.setDate(currentWeekStart.getDate() + 1);
+    // 确保移动整整一周（7天）并从周日开始
+    currentWeekStart.setDate(currentWeekStart.getDate() + 7);
     updateWeekDisplay();
     updateScheduleDisplay();
 }

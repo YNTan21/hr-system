@@ -128,14 +128,14 @@
                     <li>
                         <a href="{{ route('admin.leave.process') }}" class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Approve/Reject Leave</a>
                     </li>
+                    <li>
+                        <a href="{{ route('admin.leave.index') }}" class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Leave List</a>
+                    </li>
                 @else
                     <li>
                         <a href="{{ route('user.leave.index') }}" class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Leave List</a>
                     </li>
                 @endif
-                <li>
-                    <a href="{{ route('admin.leave.index') }}" class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Leave List</a>
-                </li>
             </ul>
         </li>
         <li>

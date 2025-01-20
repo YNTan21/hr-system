@@ -14,8 +14,9 @@ class ScheduleController extends Controller
     {
         $currentWeekStart = $request->query('week_start') 
             ? Carbon::parse($request->query('week_start'))
-            : Carbon::now()->startOfDay();
+            : Carbon::now()->startOfWeek(Carbon::SUNDAY);
 
+        $currentWeekStart->setTimezone('Asia/Kuala_Lumpur');
         $currentWeekEnd = $currentWeekStart->copy()->addDays(6);
 
         $employees = User::all();
@@ -23,13 +24,6 @@ class ScheduleController extends Controller
             $currentWeekStart->format('Y-m-d'),
             $currentWeekEnd->format('Y-m-d')
         ])->get();
-
-        \Log::info('Schedule Query', [
-            'week_start' => $currentWeekStart->format('Y-m-d'),
-            'week_end' => $currentWeekEnd->format('Y-m-d'),
-            'schedules_count' => $schedules->count(),
-            'schedules' => $schedules->toArray()
-        ]);
 
         return view('admin.schedule.index', compact('employees', 'schedules', 'currentWeekStart'));
     }
@@ -76,9 +70,13 @@ class ScheduleController extends Controller
             $message = "Successfully created $created schedule(s)";
             if (count($errors) > 0) {
                 $message .= ", but encountered some errors: " . implode(', ', $errors);
-                return redirect()->route('admin.schedule.index')->with('warning', $message);
+                return redirect()->route('admin.schedule.index', [
+                    'week_start' => Carbon::parse($request->shift_date)->startOfWeek()->format('Y-m-d')
+                ])->with('warning', $message);
             }
-            return redirect()->route('admin.schedule.index')->with('success', $message);
+            return redirect()->route('admin.schedule.index', [
+                'week_start' => Carbon::parse($request->shift_date)->startOfWeek()->format('Y-m-d')
+            ])->with('success', $message);
         }
 
         return redirect()->route('admin.schedule.create')
@@ -172,12 +170,16 @@ class ScheduleController extends Controller
 
     public function currentWeek()
     {
-        $currentWeekStart = Carbon::now()->startOfWeek();
+        // 明确设置时区为吉隆坡时间
+        $currentWeekStart = Carbon::now('Asia/Kuala_Lumpur')->startOfWeek();
         $currentWeekEnd = $currentWeekStart->copy()->endOfWeek();
 
-        // Fetch schedules for the current week
+        // 获取本周的所有排班记录
         $schedules = Schedule::query()
-            ->whereBetween('shift_date', [$currentWeekStart->format('Y-m-d'), $currentWeekEnd->format('Y-m-d')])
+            ->whereBetween('shift_date', [
+                $currentWeekStart->format('Y-m-d'),
+                $currentWeekEnd->format('Y-m-d')
+            ])
             ->with('user')
             ->get();
 

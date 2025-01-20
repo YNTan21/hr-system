@@ -29,9 +29,18 @@ class UserAttendanceController extends Controller
                   ->whereMonth('date', substr($month, 5, 2));
         }
 
-        $attendances = $query->paginate(10)
-            ->withQueryString();
+        // 禁用查询缓存，确保获取最新数据
+        $attendances = $query
+            ->orderBy('date', 'desc')
+            ->orderBy('clock_in_time', 'desc')
+            ->paginate(10)
+            ->withQueryString();  // 保持筛选参数
 
-        return view('user.attendance.index', compact('attendances'));
+        return view('user.attendance.index', compact('attendances'))
+            ->withHeaders([
+                'Cache-Control' => 'no-cache, no-store, must-revalidate',
+                'Pragma' => 'no-cache',
+                'Expires' => '0'
+            ]);
     }
 }
