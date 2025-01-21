@@ -10,7 +10,7 @@
 </head>
 <body class="bg-gray-100 min-h-screen">
     <!-- PIN Modal -->
-    <div id="pinModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex items-center justify-center">
+    <!-- <div id="pinModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex items-center justify-center">
         <div class="bg-white p-8 rounded-lg shadow-xl">
             <h2 class="text-xl font-bold mb-4">Security Check</h2>
             <p class="mb-4">Please enter PIN number to access the system:</p>
@@ -35,10 +35,10 @@
                 </button>
             </div>
         </div>
-    </div>
+    </div> -->
 
     <!-- Main Content (Initially Hidden) -->
-    <div id="mainContent" class="hidden">
+    <div id="mainContent" class="">
         <div class="container mx-auto px-4 py-8">
             <div class="max-w-5xl mx-auto bg-white rounded-lg shadow-md p-8">
                 <!-- Add Home Button -->
@@ -149,15 +149,15 @@
 
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        document.getElementById('pinModal').classList.remove('hidden');
-        setupPinInputs();
+        // document.getElementById('pinModal').classList.remove('hidden');
+        // setupPinInputs();
+        startTimeUpdate(); // Start time update immediately
     });
 
-    function setupPinInputs() {
+    /* function setupPinInputs() {
         const inputs = document.querySelectorAll('[data-pin-index]');
         
         inputs.forEach((input, index) => {
-            // 自动聚焦到下一个输入框
             input.addEventListener('input', function() {
                 if (this.value.length === 1) {
                     const nextInput = inputs[index + 1];
@@ -165,7 +165,6 @@
                 }
             });
 
-            // 处理退格键
             input.addEventListener('keydown', function(e) {
                 if (e.key === 'Backspace' && !this.value) {
                     const prevInput = inputs[index - 1];
@@ -177,7 +176,6 @@
             });
         });
 
-        // Focus first input on load
         inputs[0].focus();
     }
 
@@ -188,7 +186,7 @@
         if (pin === '000000') {
             document.getElementById('pinModal').classList.add('hidden');
             document.getElementById('mainContent').classList.remove('hidden');
-            startTimeUpdate(); // Keep this as it's specific to verify.blade.php
+            startTimeUpdate();
         } else {
             alert('Invalid PIN number');
             inputs.forEach(input => input.value = '');
@@ -198,7 +196,7 @@
 
     function closePinModal() {
         window.location.href = '{{ route("fingerprint.index") }}';
-    }
+    } */
 
     document.querySelector('form').addEventListener('submit', function(e) {
         const pinModal = document.getElementById('pinModal');

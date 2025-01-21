@@ -1,12 +1,22 @@
 <x-layout.master>
     <div class="main-wrapper min-h-screen bg-gray-100 flex items-center">
         <div class="container mx-auto">
-            <!-- Account Logo -->
-            <!-- <div class="text-center mb-8">
-                <a href="/">
-                    <img src="{{ asset('assets/img/logo2.png') }}" alt="Logo" class="mx-auto h-16">
-                </a>
-            </div> -->
+            <!-- Biometric Options -->
+            <div class="max-w-md mx-auto mb-6">
+                <h3 class="text-2xl font-bold text-center mb-4">Clock In and Clock Out</h3>
+                <div class="flex gap-4">
+                    <a href="{{ route('attendance.facial-recognition') }}" 
+                       class="flex-1 flex items-center justify-center gap-2 bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-camera text-xl"></i>
+                        <span>Face</span>
+                    </a>
+                    <a href="{{ route('verify.page') }}" 
+                       class="flex-1 flex items-center justify-center gap-2 bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 transition-colors">
+                        <i class="fas fa-fingerprint text-xl"></i>
+                        <span>Fingerprint</span>
+                    </a>
+                </div>
+            </div>
 
             <!-- Login Box -->
             <div class="max-w-md mx-auto bg-white rounded-lg shadow-lg p-8">
@@ -66,12 +76,12 @@
                     </div>
 
                     <!-- Register Link -->
-                    <div class="text-center text-gray-600">
+                    {{-- <div class="text-center text-gray-600">
                         Don't have an account yet? 
                         <a href="{{ route('auth.register') }}" class="text-blue-600 hover:text-blue-800">
                             Register
                         </a>
-                    </div>
+                    </div> --}}
                 </form>
             </div>
         </div>

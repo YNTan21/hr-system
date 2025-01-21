@@ -4,11 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Facial Recognition Attendance</title>
+    <title>Facial Recognition</title>
     @vite(['resources/css/app.css'])
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
-<body class="bg-gray-100">
-    <div id="pinModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex items-center justify-center">
+<body class="bg-gray-100 min-h-screen">
+    <!-- PIN Modal -->
+    <!-- <div id="pinModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center">
         <div class="bg-white p-8 rounded-lg shadow-xl">
             <h2 class="text-xl font-bold mb-4">Security Check</h2>
             <p class="mb-4">Please enter PIN number to access the system:</p>
@@ -33,46 +35,80 @@
                 </button>
             </div>
         </div>
-    </div>
+    </div> -->
 
-    <div id="mainContent" class="hidden">
+    <!-- Main Content -->
+    <div id="mainContent" class="">
         <div class="container mx-auto px-4 py-8">
-            <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-6">
-                <h1 class="text-2xl font-bold text-center mb-6">Facial Recognition Attendance</h1>
-                
+            <div class="max-w-5xl mx-auto bg-white rounded-lg shadow-md p-8">
+                <!-- Add Home Button -->
                 <div class="mb-4">
-                    <select id="userSelect" class="w-64 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mx-auto block">
-                        <option value="">Select Employee</option>
-                        @foreach($users as $user)
-                            <option value="{{ $user->username }}">{{ $user->username }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                
-                <div id="videoFeed" class="w-full aspect-video bg-gray-200 mb-4 relative">
-                    <video id="video" width="720" height="560" autoplay muted></video>
-                    <canvas id="canvas" class="absolute top-0 left-0" width="720" height="560"></canvas>
+                    <a href="{{ route('admin.attendance.index') }}" 
+                       class="inline-flex items-center justify-center w-10 h-10 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
+                        <i class="fas fa-home"></i>
+                    </a>
                 </div>
 
-                <div id="status" class="text-center text-lg mb-4 p-2">
-                    Loading model...
-                </div>
+                <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Facial Recognition Attendance</h1>
 
-                <div class="text-center space-x-4">
-                    <button id="clockInButton" 
-                            class="px-6 py-2 bg-green-500 text-white rounded hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50"
-                            disabled>
-                        Clock In
-                    </button>
-                    <button id="clockOutButton" 
-                            class="px-6 py-2 bg-red-500 text-white rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50"
-                            disabled>
-                        Clock Out
-                    </button>
-                </div>
+                <div class="flex gap-8">
+                    <!-- Left Column - Employee Info -->
+                    <div class="flex-1 space-y-6">
+                        <!-- Employee Selection -->
+                        <div class="mb-6">
+                            <label for="userSelect" class="block text-sm font-semibold text-gray-700 mb-2">Employee Name</label>
+                            <select id="userSelect" 
+                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white shadow-sm">
+                                <option value="">Choose an employee</option>
+                                @foreach($users as $user)
+                                    <option value="{{ $user->username }}">{{ $user->username }}</option>
+                                @endforeach
+                            </select>
+                        </div>
 
-                <div id="lastAction" class="mt-4 text-center text-sm text-gray-600">
-                    <!-- Last action will be displayed here -->
+                        <!-- Clock Type Selection -->
+                        <div class="mb-6">
+                            <label class="block text-sm font-semibold text-gray-700 mb-3">Action</label>
+                            <div class="space-y-2">
+                                <button id="clockInButton" 
+                                        class="w-full flex items-center p-4 bg-white rounded-lg border-2 border-green-500 cursor-pointer hover:bg-green-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                        disabled>
+                                    <span class="ml-2 text-green-700 font-medium">Clock In</span>
+                                </button>
+                                <button id="clockOutButton"
+                                        class="w-full flex items-center p-4 bg-white rounded-lg border-2 border-red-500 cursor-pointer hover:bg-red-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                        disabled>
+                                    <span class="ml-2 text-red-700 font-medium">Clock Out</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Current Time Display -->
+                        <div class="bg-gray-50 p-6 rounded-lg">
+                            <div class="text-4xl font-bold text-gray-800 mb-2" id="currentTime">00:00:00</div>
+                            <div class="text-gray-500" id="currentDate"></div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column - Video Feed -->
+                    <div class="flex-1">
+                        <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 h-full transition-all hover:border-blue-500">
+                            <div class="flex flex-col items-center space-y-4 h-full">
+                                <div id="videoFeed" class="w-full h-64 bg-gray-50 rounded-lg flex items-center justify-center border border-gray-200 mb-4 overflow-hidden">
+                                    <video id="video" class="w-full h-full object-cover" autoplay muted></video>
+                                    <canvas id="canvas" class="absolute hidden"></canvas>
+                                </div>
+
+                                <div id="status" class="text-center text-sm text-gray-500">
+                                    Loading model...
+                                </div>
+
+                                <div id="lastAction" class="text-center text-sm text-gray-600">
+                                    <!-- Last action will be displayed here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -480,11 +516,12 @@
         });
 
         document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('pinModal').classList.remove('hidden');
-            setupPinInputs();
+            // document.getElementById('pinModal').classList.remove('hidden');
+            // setupPinInputs();
+            startTimeUpdate(); // Added this to ensure time updates start immediately
         });
 
-        function setupPinInputs() {
+        /* function setupPinInputs() {
             const inputs = document.querySelectorAll('[data-pin-index]');
             
             inputs.forEach((input, index) => {
@@ -514,6 +551,7 @@
             if (pin === '000000') {
                 document.getElementById('pinModal').classList.add('hidden');
                 document.getElementById('mainContent').classList.remove('hidden');
+                startTimeUpdate();
             } else {
                 alert('Invalid PIN number');
                 inputs.forEach(input => input.value = '');
@@ -523,6 +561,30 @@
 
         function closePinModal() {
             window.location.href = '/';
+        } */
+
+        function startTimeUpdate() {
+            updateTime();
+            setInterval(updateTime, 1000);
+        }
+
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', { 
+                hour12: false, 
+                hour: '2-digit', 
+                minute: '2-digit', 
+                second: '2-digit' 
+            });
+            const dateString = now.toLocaleDateString('en-US', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+            
+            document.getElementById('currentTime').textContent = timeString;
+            document.getElementById('currentDate').textContent = dateString;
         }
     </script>
 </body>

@@ -23,6 +23,7 @@ use App\Http\Controllers\Auth\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\FingerprintController;
 use App\Http\Controllers\AdminSettingsController;
+use App\Http\Controllers\User\UserKpiController;
 
 // home
 Route::view('/', 'home')->name('home');
@@ -136,7 +137,7 @@ Route::middleware('auth')->group(function(){
         Route::get('/admin/kpi/kpiEntry/{id}/edit', [KpiEntryController::class, 'edit'])->name('admin.kpi.kpiEntry.edit');
         Route::delete('/admin/kpi/kpiEntry/{id}', [KpiEntryController::class, 'destroy'])->name('admin.kpi.kpiEntry.destroy');
         Route::get('/admin/kpi/kpiEntry/export', [KpiEntryController::class, 'export'])->name('admin.kpi.kpiEntry.export');
-        
+
 
         // timetable
         Route::get('/admin/timetable/index', [TimetableController::class, 'index'])->name('admin.timetable.index');
@@ -217,6 +218,7 @@ Route::middleware('auth')->group(function(){
     Route::get('/user/kpi/kpiEntry/{id}/edit', [UserKpiEntryController::class, 'edit'])->name('user.kpi.kpiEntry.edit');
     Route::put('/user/kpi/kpiEntry/{id}', [UserKpiEntryController::class, 'update'])->name('user.kpi.kpiEntry.update');
     Route::get('/user/kpi/kpiEntry/export', [UserKpiEntryController::class, 'export'])->name('user.kpi.kpiEntry.export');
+    Route::get('/kpi/manage/{month}/{year}', [UserKpiController::class, 'manage'])->name('user.kpi.manage');
 
     // schedule
     Route::get('/user/schedule/index', [UserScheduleController::class, 'index'])->name('user.schedule.index');
@@ -224,6 +226,9 @@ Route::middleware('auth')->group(function(){
 
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+
+    // kpi
+    Route::get('/user/kpi/index', [UserKpiController::class, 'index'])->name('user.kpi.index');
 });
 
 Route::middleware('guest')->group(function(){
@@ -276,12 +281,4 @@ Route::post('/fingerprint/verify', [FingerprintController::class, 'verifyFingerp
     ->name('verify.fingerprint');
 Route::get('/fingerprint/{id}/remove', [FingerprintController::class, 'removeFingerprint'])
     ->name('remove.fingerprint');
-
-
-
-
-
-
-
-
 
