@@ -23,11 +23,11 @@ class KPIController extends Controller
             'categories.*.name' => 'required|string',
             'categories.*.goals' => 'required|array',
             'categories.*.goals.*.goal' => 'required|string',
-            'categories.*.goals.*.score' => 'required|integer',
+            'categories.*.goals.*.score' => 'required|numeric',
             'categories.*.goals.*.goal_type' => 'required|in:monthly,yearly',
             'categories.*.rating_categories' => 'required|array',
-            'categories.*.rating_categories.*.min_score' => 'required|integer',
-            'categories.*.rating_categories.*.max_score' => 'required|integer',
+            'categories.*.rating_categories.*.min_score' => 'required|numeric',
+            'categories.*.rating_categories.*.max_score' => 'required|numeric',
         ]);
 
         // Create the KPI (linked to a Position)
@@ -75,9 +75,23 @@ class KPIController extends Controller
 
     public function index()
     {
-        $positions = Position::all();
-        // Fetch all positions with their associated KPIs
-        $positions = Position::with('kpis')->get(); // Assuming the relationship is defined in the Position model
+        // Fetch positions with their KPIs and goals
+        $positions = Position::with(['kpis', 'goals'])
+            ->when(request('position_id'), function($query, $positionId) {
+                return $query->where('id', $positionId);
+            })
+            ->get();
+
+        // Transform the data to include goal counts
+        $positions->each(function ($position) {
+            // Count goals directly associated with this position
+            $goalsCount = $position->goals()->count();
+            $position->goals_count = $goalsCount;
+            
+            // Set KPI status based on goals existence
+            $position->has_kpi = $goalsCount > 0;
+        });
+
         return view('admin.kpi.index', compact('positions'));
     }
 
@@ -105,7 +119,7 @@ class KPIController extends Controller
         // Validate the incoming request data
         $request->validate([
             'goal' => 'required|string',
-            'score' => 'required|integer',
+            'score' => 'required|numeric',
             'goal_type' => 'required|in:monthly,yearly',
         ]);
 
@@ -122,5 +136,133 @@ class KPIController extends Controller
         // Redirect back to the manage page with a success message
         return redirect()->route('admin.kpi.manage', ['position_id' => $position_id])
                          ->with('success', 'Goal updated successfully!');
+    }
+
+    public function export()
+    {
+        try {
+            $positions = Position::with('kpis')->get();
+
+            $headers = [
+                'Content-Type' => 'text/csv',
+                'Content-Disposition' => 'attachment; filename=kpi_records.csv',
+                'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+                'Pragma' => 'public'
+            ];
+
+            $output = fopen('php://output', 'w');
+            fputs($output, chr(0xEF) . chr(0xBB) . chr(0xBF)); // Add BOM for Excel
+
+            // Write headers
+            fputcsv($output, [
+                'Position Name',
+                'Goal Name',
+                'Goal Score',
+                'Goal Type',
+                'Goal Unit',
+                'Category Ranges',
+                'Created Date'
+            ]);
+
+            // Write data
+            foreach ($positions as $position) {
+                foreach ($position->kpis as $kpi) {
+                    $goals = KPIGoal::where('position_id', $position->id)->get();
+                    foreach ($goals as $goal) {
+                        fputcsv($output, [
+                            $position->position_name,
+                            $goal->goal_name,
+                            $goal->goal_score,
+                            $goal->goal_type,
+                            $goal->goal_unit,
+                            json_encode($goal->category_score_ranges),
+                            date('d/m/Y', strtotime($goal->created_at))
+                        ]);
+                    }
+                }
+            }
+
+            fclose($output);
+
+            return response()->stream(
+                function() {
+                    // Data has already been written to output
+                },
+                200,
+                $headers
+            );
+
+        } catch (\Exception $e) {
+            \Log::error('Export Error', [
+                'error' => $e->getMessage()
+            ]);
+            return back()->withErrors(['error' => 'Failed to export data']);
+        }
+    }
+
+    public function exportManage($position_id)
+    {
+        try {
+            $position = Position::findOrFail($position_id);
+            $goals = KPIGoal::where('position_id', $position_id)->get();
+
+            $headers = [
+                'Content-Type' => 'text/csv',
+                'Content-Disposition' => 'attachment; filename=kpi_goals_' . $position->position_name . '.csv',
+                'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+                'Pragma' => 'public'
+            ];
+
+            $output = fopen('php://output', 'w');
+            fputs($output, chr(0xEF) . chr(0xBB) . chr(0xBF)); // Add BOM for Excel
+
+            // Write headers
+            fputcsv($output, [
+                'Goal Name',
+                'Type',
+                'Unit',
+                'Score',
+                'Failed Range',
+                'Below Expectation Range',
+                'Threshold Range',
+                'Meet Target Range',
+                'Excellence Range',
+                'Created Date'
+            ]);
+
+            // Write data
+            foreach ($goals as $goal) {
+                $categoryScoreRanges = json_decode($goal->category_score_ranges, true);
+                
+                fputcsv($output, [
+                    $goal->goal_name,
+                    ucfirst($goal->goal_type),
+                    $goal->goal_unit,
+                    $goal->goal_score,
+                    ($categoryScoreRanges['category_1']['min'] ?? 'N/A') . ' - ' . ($categoryScoreRanges['category_1']['max'] ?? 'N/A'),
+                    ($categoryScoreRanges['category_2']['min'] ?? 'N/A') . ' - ' . ($categoryScoreRanges['category_2']['max'] ?? 'N/A'),
+                    ($categoryScoreRanges['category_3']['min'] ?? 'N/A') . ' - ' . ($categoryScoreRanges['category_3']['max'] ?? 'N/A'),
+                    ($categoryScoreRanges['category_4']['min'] ?? 'N/A') . ' - ' . ($categoryScoreRanges['category_4']['max'] ?? 'N/A'),
+                    ($categoryScoreRanges['category_5']['min'] ?? 'N/A') . ' - ' . ($categoryScoreRanges['category_5']['max'] ?? 'N/A'),
+                    date('d/m/Y', strtotime($goal->created_at))
+                ]);
+            }
+
+            fclose($output);
+
+            return response()->stream(
+                function() {
+                    // Data has already been written to output
+                },
+                200,
+                $headers
+            );
+
+        } catch (\Exception $e) {
+            \Log::error('Export Error', [
+                'error' => $e->getMessage()
+            ]);
+            return back()->withErrors(['error' => 'Failed to export data']);
+        }
     }
 }

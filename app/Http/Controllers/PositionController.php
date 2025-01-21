@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Models\Position;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Response;
 
 class PositionController extends Controller
 {
@@ -66,5 +67,36 @@ class PositionController extends Controller
         $position->delete();
 
         return redirect()->route('admin.employee.positions.index')->with('success', 'Position deleted successfully.');
+    }
+
+    public function export()
+    {
+        $positions = Position::all();
+        
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="positions.csv"',
+        ];
+        
+        $callback = function() use ($positions) {
+            $file = fopen('php://output', 'w');
+            
+            // Add CSV headers
+            fputcsv($file, ['Position ID', 'Position Name', 'Status', 'Created At']);
+            
+            // Add data rows
+            foreach ($positions as $position) {
+                fputcsv($file, [
+                    $position->id,
+                    $position->position_name,
+                    $position->status,
+                    $position->created_at
+                ]);
+            }
+            
+            fclose($file);
+        };
+        
+        return Response::stream($callback, 200, $headers);
     }
 }

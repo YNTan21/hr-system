@@ -24,19 +24,19 @@ class GoalController extends Controller
         // Validate the form input
         $request->validate([
             'goal_name' => 'required|string|max:255',
-            'goal_score' => 'required|integer',
+            'goal_score' => 'required|numeric',
             'goal_type' => 'required|in:monthly,yearly',
             'goal_unit' => 'required|string|max:255',
-            'category_1_min' => 'nullable|integer',
-            'category_1_max' => 'required|integer',
-            'category_2_min' => 'required|integer',
-            'category_2_max' => 'required|integer',
-            'category_3_min' => 'required|integer',
-            'category_3_max' => 'required|integer',
-            'category_4_min' => 'required|integer',
-            'category_4_max' => 'required|integer',
-            'category_5_min' => 'required|integer',
-            'category_5_max' => 'nullable|integer',
+            'category_1_min' => 'nullable|numeric',
+            'category_1_max' => 'required|numeric',
+            'category_2_min' => 'required|numeric',
+            'category_2_max' => 'required|numeric',
+            'category_3_min' => 'required|numeric',
+            'category_3_max' => 'required|numeric',
+            'category_4_min' => 'required|numeric',
+            'category_4_max' => 'required|numeric',
+            'category_5_min' => 'required|numeric',
+            'category_5_max' => 'nullable|numeric',
         ]);
 
         // Prepare category score ranges as an array
@@ -78,19 +78,19 @@ class GoalController extends Controller
         // Validate data, including goal_unit
         $request->validate([
             'goal_name' => 'required|string|max:255',
-            'goal_score' => 'required|integer',
+            'goal_score' => 'required|numeric',
             'goal_type' => 'required|in:monthly,yearly',
             'goal_unit' => 'required|string|max:255',
-            'category_1_min' => 'nullable|integer',
-            'category_1_max' => 'required|integer',
-            'category_2_min' => 'required|integer',
-            'category_2_max' => 'required|integer',
-            'category_3_min' => 'required|integer',
-            'category_3_max' => 'required|integer',
-            'category_4_min' => 'required|integer',
-            'category_4_max' => 'required|integer',
-            'category_5_min' => 'required|integer',
-            'category_5_max' => 'nullable|integer',
+            'category_1_min' => 'nullable|numeric',
+            'category_1_max' => 'required|numeric',
+            'category_2_min' => 'required|numeric',
+            'category_2_max' => 'required|numeric',
+            'category_3_min' => 'required|numeric',
+            'category_3_max' => 'required|numeric',
+            'category_4_min' => 'required|numeric',
+            'category_4_max' => 'required|numeric',
+            'category_5_min' => 'required|numeric',
+            'category_5_max' => 'nullable|numeric',
         ]);
 
         // Prepare category score ranges as an array

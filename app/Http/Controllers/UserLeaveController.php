@@ -98,4 +98,75 @@ class UserLeaveController extends Controller
 
         return redirect()->route('user.leave.index')->with('success', 'Leave request updated successfully.');
     }
+
+    public function export()
+    {
+        try {
+            $leaves = Leave::where('user_id', auth()->id())
+                ->with(['leaveType'])
+                ->get();
+
+            $headers = [
+                'Content-Type' => 'text/csv',
+                'Content-Disposition' => 'attachment; filename=my_leave_history.csv',
+                'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+                'Pragma' => 'public'
+            ];
+
+            $output = fopen('php://output', 'w');
+            fputs($output, chr(0xEF) . chr(0xBB) . chr(0xBF)); // Add BOM for Excel
+
+            // Write headers
+            fputcsv($output, [
+                'Leave Type',
+                'From Date',
+                'To Date',
+                'Number of Days',
+                'Reason',
+                'Status',
+                'Applied Date'
+            ]);
+
+            // Write data
+            foreach ($leaves as $leave) {
+                fputcsv($output, [
+                    $leave->leaveType->leave_type,
+                    date('d/m/Y', strtotime($leave->from_date)),
+                    date('d/m/Y', strtotime($leave->to_date)),
+                    $leave->number_of_days,
+                    $leave->reason,
+                    ucfirst($leave->status),
+                    date('d/m/Y', strtotime($leave->created_at))
+                ]);
+            }
+
+            fclose($output);
+
+            return response()->stream(
+                function() {
+                    // Data has already been written to output
+                },
+                200,
+                $headers
+            );
+
+        } catch (\Exception $e) {
+            \Log::error('Export Error', [
+                'error' => $e->getMessage()
+            ]);
+            return back()->withErrors(['error' => 'Failed to export data']);
+        }
+    }
+
+    public function destroy($id)
+    {
+        $leave = Leave::where('user_id', auth()->id())
+            ->where('status', 'pending')
+            ->findOrFail($id);
+
+        $leave->delete();
+
+        return redirect()->route('user.leave.index')
+            ->with('success', 'Leave request deleted successfully.');
+    }
 }

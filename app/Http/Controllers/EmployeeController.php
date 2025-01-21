@@ -12,6 +12,7 @@ use App\Models\Position;
 use App\Models\LeaveBalance;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class EmployeeController extends Controller
 {
@@ -240,5 +241,68 @@ class EmployeeController extends Controller
         ]);
 
         return redirect()->route('admin.employee.index')->with('success', 'Password updated successfully');
+    }
+
+    public function export()
+    {
+        try {
+            $employees = User::with('position')->get();
+
+            $headers = [
+                'Content-Type' => 'text/csv',
+                'Content-Disposition' => 'attachment; filename=employees_report.csv',
+                'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+                'Pragma' => 'public'
+            ];
+
+            $output = fopen('php://output', 'w');
+            fputs($output, chr(0xEF) . chr(0xBB) . chr(0xBF)); // Add BOM for Excel
+
+            // Write headers
+            fputcsv($output, [
+                'Employee ID',
+                'Name',
+                'Email',
+                'Position',
+                'Type',
+                'Hire Date',
+                'Status',
+                'Phone',
+                'Address'
+            ]);
+
+            // Write data
+            foreach ($employees as $employee) {
+                $hireDate = Carbon::parse($employee->hire_date)->format('d/m/Y');
+
+                fputcsv($output, [
+                    "=\"{$employee->id}\"",
+                    $employee->username,
+                    $employee->email,
+                    $employee->position ? $employee->position->position_name : 'N/A',
+                    ucfirst($employee->type),
+                    "=\"$hireDate\"",
+                    ucfirst($employee->status),
+                    $employee->phone,
+                    $employee->address
+                ]);
+            }
+
+            fclose($output);
+
+            return response()->stream(
+                function() {
+                    // Data has already been written to output
+                },
+                200,
+                $headers
+            );
+
+        } catch (\Exception $e) {
+            \Log::error('Export Error', [
+                'error' => $e->getMessage()
+            ]);
+            return back()->withErrors(['error' => 'Failed to export data']);
+        }
     }
 }

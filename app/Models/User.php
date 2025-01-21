@@ -118,4 +118,17 @@ class User extends Authenticatable
     {
         return $this->hasMany(FaceDescriptor::class);
     }
+
+    public function fingerprints()
+    {
+        return $this->hasMany(Fingerprint::class, 'employee_id');
+    }
+
+    /**
+     * Get the fingerprint records for the user.
+     */
+    public function fingerprint()
+    {
+        return $this->hasMany(Fingerprint::class);
+    }
 }

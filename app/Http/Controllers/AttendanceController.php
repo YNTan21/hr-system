@@ -27,10 +27,12 @@ class AttendanceController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Attendance::with('user')
+        $query = Attendance::with(['user' => function($query) {
+                $query->select('id', 'username');
+            }])
             ->select('attendances.*')
-            ->orderBy('date', 'desc')  // 首先按日期降序
-            ->orderBy('clock_in_time', 'desc');  // 然后按打卡时间降序
+            ->orderBy('date', 'desc')
+            ->orderBy('clock_in_time', 'desc');
 
         // 用户筛选
         if ($request->filled('user_id')) {
@@ -63,11 +65,20 @@ class AttendanceController extends Controller
             $query->whereBetween('date', [$startDate, $endDate]);
         }
 
-        // 禁用查询缓存，确保获取最新数据
-        $attendances = $query->orderBy('date', 'desc')
-            ->orderBy('clock_in_time', 'desc')
-            ->paginate(10)
-            ->withQueryString();  // 保持筛选参数
+        $attendances = $query->paginate(10)
+            ->through(function ($attendance) {
+                // Format clock in time
+                $attendance->formatted_clock_in = $attendance->clock_in_time 
+                    ? Carbon::parse($attendance->clock_in_time)->format('H:i:s')
+                    : '-';
+                
+                // Format clock out time
+                $attendance->formatted_clock_out = $attendance->clock_out_time 
+                    ? Carbon::parse($attendance->clock_out_time)->format('H:i:s')
+                    : '-';
+                
+                return $attendance;
+            });
 
         $users = User::all();
 

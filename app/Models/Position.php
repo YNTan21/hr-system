@@ -29,7 +29,7 @@ class Position extends Model
 
     public function goals()
     {
-        return $this->hasMany(Goal::class, 'position_id');
+        return $this->hasMany(KPIGoal::class, 'position_id');
     }
 
     public function position()

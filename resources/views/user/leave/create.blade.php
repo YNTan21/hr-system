@@ -1,105 +1,80 @@
-@section('site-title', 'Dashboard')
+@section('site-title', 'Create Leave')
 <x-layout.master>
     <div class="container-fluid">
         <div class="row">
             <x-sharedata.header></x-sharedata.header>
-            </div>
-            <!-- Main Content -->
-
-            <div class="p-4 sm:ml-64">
-                <div class="p-4 border-2 border-gray-200 rounded-lg dark:border-gray-700 mt-14">
-                
-                {{-- Success Message --}}
-                @if (session('success'))
-                <div class="alert alert-success text-center">
-                    {{ session('success') }}
+        </div>
+        <!-- Main Content -->
+        <div class="p-4 sm:ml-64">
+            <div class="p-4 border-2 border-gray-200 rounded-lg dark:border-gray-700 mt-14">
+                <!-- Title -->
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold mb-4 text-center text-gray-800 dark:text-white">Create Leave</h2>
                 </div>
-                @endif
 
-                <form action="{{route('user.leave.store')}}" method="post">
+                <!-- Leave Creation Form -->
+                <form action="{{ route('user.leave.store') }}" method="POST" class="max-w-3xl mx-auto">
                     @csrf
-                    <div class="col px-5 pb-2">
-                        <h3 class="title text-center">
-                            Apply for Leave
-                        </h3>
-                    </div>
 
-                    {{-- User name --}}
-                    <div class="form-group">
-                        <label for="user_id">Employee Name</label>
-                        <input type="text" id="user_id" class="rounded-md border-gray-300 shadow-sm form-control bg-gray-200" value="{{ auth()->user()->username }}" readonly>
-                        <input type="hidden" name="user_id" value="{{ auth()->user()->id }}">
-                        @error('user_id')
-                            <p class="error">
-                                {{ $message }}
-                            </p>
-                        @enderror 
-                    </div>
-
-                    {{-- Leave Type dropdown --}}
-                    <div class="form-group">
-                        <label for="leave_type_id">Leave Type</label>
-                        <select name="leave_type_id" id="leave_type_id" class="form-control" required>
-                            <option value="" disabled selected>Select a leave type</option>
-                            @foreach ($leaveTypes as $leaveType)
-                                <option value="{{ $leaveType->id }}">{{ $leaveType->leave_type }}</option>
-                            @endforeach
-                        </select>
-                        @error('leave_type_id')
-                            <p class="error">
-                                {{ $message }}
-                            </p>
-                        @enderror 
-                    </div>
-
-                    <div class="flex space-x-4">
-                        <!-- From Date -->
-                        <div class="flex-1">
-                            <label for="from_date" class="block text-sm font-medium text-gray-700">From Date</label>
-                            <input type="date" name="from_date" id="from_date" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" min="{{ \Carbon\Carbon::today()->toDateString() }}" required>
-                            @error('from_date')
-                                <p class="error">
-                                    {{ $message }}
-                                </p>
-                            @enderror 
+                    <!-- Basic Information -->
+                    <div class="grid grid-cols-1 gap-6 mb-6">
+                        <!-- Leave Type -->
+                        <div>
+                            <label for="leave_type_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Leave Type:</label>
+                            <select name="leave_type_id" id="leave_type_id" 
+                                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-300" 
+                                    required>
+                                <option value="">Select Leave Type</option>
+                                @foreach($leaveTypes as $leaveType)
+                                    <option value="{{ $leaveType->id }}" {{ old('leave_type_id') == $leaveType->id ? 'selected' : '' }}>
+                                        {{ $leaveType->leave_type }}
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
-                    
-                        <!-- To Date -->
-                        <div class="flex-1">
-                            <label for="to_date" class="block text-sm font-medium text-gray-700">To Date</label>
-                            <input type="date" name="to_date" id="to_date" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" min="{{ \Carbon\Carbon::today()->toDateString() }}" required>
-                            @error('to_date')
-                                <p class="error">
-                                    {{ $message }}
-                                </p>
-                            @enderror 
+
+                        <!-- Date Range -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <!-- From Date -->
+                            <div>
+                                <label for="from_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">From Date:</label>
+                                <input type="date" name="from_date" id="from_date" 
+                                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white" 
+                                       value="{{ old('from_date') }}" 
+                                       required>
+                            </div>
+
+                            <!-- To Date -->
+                            <div>
+                                <label for="to_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">To Date:</label>
+                                <input type="date" name="to_date" id="to_date" 
+                                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white" 
+                                       value="{{ old('to_date') }}" 
+                                       required>
+                            </div>
+                        </div>
+
+                        <!-- Reason -->
+                        <div>
+                            <label for="reason" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Reason:</label>
+                            <textarea name="reason" id="reason" rows="2" 
+                                      class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white" 
+                                      required>{{ old('reason') }}</textarea>
                         </div>
                     </div>
-                    
-                    <!-- Number of Days (Auto-calculated based on date selection, can be handled via JavaScript) -->
-                    <div class="form-group">
-                        <label for="number_of_days">Number of Days</label>
-                        <input type="number" name="number_of_days" id="number_of_days" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" readonly>
-                    </div>
 
-                    <!-- Reason Text Area -->
-                    <div class="form-group">
-                        <label for="reason">Reason</label>
-                        <textarea name="reason" id="reason" class="form-control" required></textarea>
-                        @error('reason')
-                            <p class="error">
-                                {{ $message }}
-                            </p>
-                        @enderror 
+                    <!-- Buttons -->
+                    <div class="flex justify-center gap-4 mt-6">
+                        <a href="{{ route('user.leave.index') }}" 
+                           class="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+                            <i class="fas fa-arrow-left mr-2"></i>Back
+                        </a>
+                        <button type="submit" 
+                                class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                            <i class="fas fa-save mr-2"></i>Save Leave
+                        </button>
                     </div>
-
-                    <!-- Add submit button -->
-                    <div class="col text-center p-2 px-5">
-                        <button type="submit" class="btn btn-dark">Submit</button>
-                    </div>
-
                 </form>
-                </div>
             </div>
         </div>
     </div>

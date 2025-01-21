@@ -21,6 +21,9 @@ use App\Http\Controllers\AnnualLeaveBalanceController;
 use App\Http\Controllers\FacialAttendanceController;
 use App\Http\Controllers\Auth\DashboardController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\FingerprintController;
+use App\Http\Controllers\AdminSettingsController;
+
 // home
 Route::view('/', 'home')->name('home');
 
@@ -44,6 +47,7 @@ Route::middleware('auth')->group(function(){
         Route::get('/admin/leaveType/{id}/edit', [LeaveTypeController::class, 'edit'])->name('admin.leaveType.edit');
         Route::put('/admin/leaveType/{id}', [LeaveTypeController::class, 'update'])->name('admin.leaveType.update');
         Route::delete('/admin/leaveType/{id}', [LeaveTypeController::class, 'destroy'])->name('admin.leaveType.destroy');
+        Route::get('/admin/leaveType/export', [LeaveTypeController::class, 'export'])->name('admin.leaveType.export');
 
         // leave
         Route::get('/admin/leave/create', [LeaveController::class, 'create'])->name('admin.leave.create');
@@ -56,6 +60,10 @@ Route::middleware('auth')->group(function(){
         Route::put('/admin/leave/{leave}/approve', [LeaveController::class, 'approve'])->name('admin.leave.approve');
         Route::put('/admin/leave/{leave}/reject', [LeaveController::class, 'reject'])->name('admin.leave.reject');  
         Route::get('/admin/leave/{leave}', [LeaveController::class, 'show'])->name('admin.leave.show');
+        Route::get('/admin/leave/export', [LeaveController::class, 'export'])->name('admin.leave.export');
+        Route::get('/admin/leave/{id}/edit', [LeaveController::class, 'edit'])->name('admin.leave.edit');
+        Route::put('/admin/leave/{id}', [LeaveController::class, 'update'])->name('admin.leave.update');
+        Route::delete('/admin/leave/{id}', [LeaveController::class, 'destroy'])->name('admin.leave.destroy');
 
         // employee
         Route::get('/admin/employee/index', [EmployeeController::class, 'index'])->name('admin.employee.index');
@@ -68,6 +76,7 @@ Route::middleware('auth')->group(function(){
         Route::delete('/admin/employee/{id}', [EmployeeController::class, 'destroy'])->name('admin.employee.destroy');
         Route::get('/admin/employee/{employee}/edit-password', [EmployeeController::class, 'editPassword'])->name('admin.employee.edit-password');
         Route::put('/admin/employee/{employee}/update-password', [EmployeeController::class, 'updatePassword'])->name('admin.employee.update-password');
+        Route::get('/admin/employee/export', [EmployeeController::class, 'export'])->name('admin.employee.export');
 
         // position
         Route::get('/admin/employee/positions/index', [PositionController::class, 'index'])->name('admin.employee.positions.index');
@@ -76,6 +85,7 @@ Route::middleware('auth')->group(function(){
         Route::get('/admin/employee/positions/{id}/edit', [PositionController::class, 'edit'])->name('admin.employee.positions.edit');
         Route::put('/admin/employee/positions/{id}', [PositionController::class, 'update'])->name('admin.employee.positions.update');
         Route::delete('/admin/employee/positions/{id}', [PositionController::class, 'destroy'])->name('admin.employee.positions.destroy');
+        Route::get('/admin/employee/positions/export', [PositionController::class, 'export'])->name('admin.employee.positions.export');
 
         //attendance
         // Route to view the attendance page
@@ -100,6 +110,8 @@ Route::middleware('auth')->group(function(){
         Route::put('/admin/kpi/{id}', [KPIController::class, 'update'])->name('admin.kpi.update');
         // Route::delete('/admin/kpi/{id}', [KPIController::class, 'destroy'])->name('admin.kpi.destroy');
         Route::get('/admin/kpi/manage/{position_id}', [KPIController::class, 'manage'])->name('admin.kpi.manage');
+        Route::get('/admin/kpi/export', [KPIController::class, 'export'])->name('admin.kpi.export');
+        Route::get('/admin/kpi/manage/export/{position_id}', [KPIController::class, 'exportManage'])->name('admin.kpi.manage.export');
 
         // Route to create a category under a specific KPI
         // Route::post('/admin/kpi/{kpiId}/category/store', [CategoryController::class, 'store'])->name('category.store');
@@ -113,6 +125,7 @@ Route::middleware('auth')->group(function(){
         Route::get('/admin/kpi/{position_id}/goal/{id}/edit', [GoalController::class, 'edit'])->name('admin.kpi.edit');
         Route::put('/admin/kpi/{position_id}/goal/{id}', [GoalController::class, 'update'])->name('admin.kpi.update');
         Route::delete('/admin/kpi/{goal_id}', [GoalController::class, 'destroy'])->name('admin.kpi.destroy');
+        Route::get('/admin/kpi/manage/export/{position_id}', [KPIController::class, 'exportManage'])->name('admin.kpi.manage.export');
 
         // kpi entry
         Route::get('/admin/kpi/kpiEntry/index', [KpiEntryController::class, 'index'])->name('admin.kpi.kpiEntry.index');
@@ -122,6 +135,9 @@ Route::middleware('auth')->group(function(){
         Route::get('/admin/kpi/kpiEntry/{id}', [KpiEntryController::class, 'show'])->name('admin.kpi.kpiEntry.show');
         Route::get('/admin/kpi/kpiEntry/{id}/edit', [KpiEntryController::class, 'edit'])->name('admin.kpi.kpiEntry.edit');
         Route::delete('/admin/kpi/kpiEntry/{id}', [KpiEntryController::class, 'destroy'])->name('admin.kpi.kpiEntry.destroy');
+        Route::get('/admin/kpi/kpiEntry/export', [KpiEntryController::class, 'export'])->name('admin.kpi.kpiEntry.export');
+        
+
         // timetable
         Route::get('/admin/timetable/index', [TimetableController::class, 'index'])->name('admin.timetable.index');
         Route::get('/form/shiftlist/page', [ShiftController::class, 'shiftList'])->name('form/shiftlist/page');
@@ -174,6 +190,12 @@ Route::middleware('auth')->group(function(){
         Route::put('/admin/annual-leave-balance/{id}', [AnnualLeaveBalanceController::class, 'update'])->name('admin.annual-leave-balance.update');
         Route::delete('/admin/annual-leave-balance/{id}', [AnnualLeaveBalanceController::class, 'destroy'])->name('admin.annual-leave-balance.destroy');
         Route::get('/admin/annual-leave-balance/{userId}/used-leave', [AnnualLeaveBalanceController::class, 'showUsedLeave'])->name('admin.annual-leave-balance.showUsedLeave');
+        Route::get('/admin/annual-leave-balance/export', [AnnualLeaveBalanceController::class, 'export'])->name('admin.annual-leave-balance.export');
+        Route::get('/admin/annual-leave-balance/export-used-leave/{userId}', [AnnualLeaveBalanceController::class, 'exportUsedLeave'])->name('admin.annual-leave-balance.export-used-leave');
+
+        // settings
+        Route::get('/admin/settings/pin', [AdminSettingsController::class, 'showPinSettings'])->name('admin.settings.pin');
+        Route::post('/admin/settings/pin', [AdminSettingsController::class, 'updatePin'])->name('admin.settings.pin.update');
     });
 
     // attendance
@@ -185,6 +207,20 @@ Route::middleware('auth')->group(function(){
     Route::get('/user/leave/index', [UserLeaveController::class, 'index'])->name('user.leave.index');
     Route::get('/user/leave/{id}/edit', [UserLeaveController::class, 'edit'])->name('user.leave.edit');
     Route::put('/user/leave/{id}', [UserLeaveController::class, 'update'])->name('user.leave.update');
+    Route::get('/user/leave/export', [UserLeaveController::class, 'export'])->name('user.leave.export');
+    Route::delete('/user/leave/{id}', [UserLeaveController::class, 'destroy'])->name('user.leave.destroy');
+
+    // kpi entry
+    Route::get('/user/kpi/kpiEntry/index', [UserKpiEntryController::class, 'index'])->name('user.kpi.kpiEntry.index');
+    Route::get('/user/kpi/kpiEntry/create', [UserKpiEntryController::class, 'create'])->name('user.kpi.kpiEntry.create');
+    Route::post('/user/kpi/kpiEntry', [UserKpiEntryController::class, 'store'])->name('user.kpi.kpiEntry.store');
+    Route::get('/user/kpi/kpiEntry/{id}/edit', [UserKpiEntryController::class, 'edit'])->name('user.kpi.kpiEntry.edit');
+    Route::put('/user/kpi/kpiEntry/{id}', [UserKpiEntryController::class, 'update'])->name('user.kpi.kpiEntry.update');
+    Route::get('/user/kpi/kpiEntry/export', [UserKpiEntryController::class, 'export'])->name('user.kpi.kpiEntry.export');
+
+    // schedule
+    Route::get('/user/schedule/index', [UserScheduleController::class, 'index'])->name('user.schedule.index');
+    Route::get('/user/schedule/timesheet', [UserScheduleController::class, 'timesheet'])->name('user.schedule.timesheet');
 
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -227,6 +263,19 @@ Route::middleware(['web'])->group(function () {
     Route::get('/attendance/last-status/{username}', [FacialAttendanceController::class, 'getLastStatus']);
 });
 
+// Fingerprint routes
+Route::get('/fingerprint', [FingerprintController::class, 'index'])
+    ->name('fingerprint.index');
+Route::get('/fingerprint/enroll/{id}', [FingerprintController::class, 'enrollPage'])
+    ->name('enroll.page');
+Route::post('/fingerprint/enroll', [FingerprintController::class, 'enrollFingerprint'])
+    ->name('enroll.fingerprint');
+Route::get('/fingerprint/verify', [FingerprintController::class, 'verifyPage'])
+    ->name('verify.page');
+Route::post('/fingerprint/verify', [FingerprintController::class, 'verifyFingerprint'])
+    ->name('verify.fingerprint');
+Route::get('/fingerprint/{id}/remove', [FingerprintController::class, 'removeFingerprint'])
+    ->name('remove.fingerprint');
 
 
 

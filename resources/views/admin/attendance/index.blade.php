@@ -159,7 +159,7 @@
                                         @endif
                                     </td>
                                     <td class="py-4 px-6">{{ \Carbon\Carbon::parse($attendance->clock_in_time)->format('H:i') }}</td>
-                                    <td class="py-4 px-6">{{ \Carbon\Carbon::parse($attendance->clock_out_time)->format('H:i') }}</td>
+                                    <td class="py-4 px-6">{{ $attendance->clock_out_time ? \Carbon\Carbon::parse($attendance->clock_out_time)->format('H:i') : '-' }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         {{ $attendance->overtime ?: '00:00' }}
                                     </td>

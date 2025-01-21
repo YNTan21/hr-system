@@ -112,8 +112,11 @@ class KPIEntryController extends Controller
             'year' => $request->year,
         ]);
 
-        return redirect()->route('admin.kpi.kpiEntry.index')
-            ->with('success', 'KPI Entry created successfully');
+        return redirect()->route('admin.kpi.kpiEntry.index', [
+            'user_id' => $request->users_id,
+            'month' => $request->month,
+            'year' => $request->year
+        ])->with('success', 'KPI Entry created successfully');
     }
 
     public function edit($id)
@@ -152,13 +155,25 @@ class KPIEntryController extends Controller
 
     public function destroy($id)
     {
-        $entry = KpiEntry::findOrFail($id);
-        $entry->delete();
+        try {
+            $entry = KpiEntry::findOrFail($id);
+            $userId = $entry->users_id;
+            $month = $entry->month;
+            $year = $entry->year;
+            
+            $entry->delete();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'KPI entry deleted successfully'
-        ]);
+            return redirect()->route('admin.kpi.kpiEntry.index', [
+                'user_id' => $userId,
+                'month' => $month,
+                'year' => $year
+            ])->with('success', 'KPI entry deleted successfully');
+        } catch (\Exception $e) {
+            \Log::error('Delete Error', [
+                'error' => $e->getMessage()
+            ]);
+            return back()->withErrors(['error' => 'Failed to delete entry']);
+        }
     }
 
     public function getEntry($id)
@@ -222,5 +237,81 @@ class KPIEntryController extends Controller
         }
         
         return 0; // Default to lowest category if no range matches
+    }
+
+    public function export(Request $request)
+    {
+        try {
+            $user = User::findOrFail($request->user_id);
+            $month = $request->month;
+            $year = $request->year;
+
+            $goals = KPIGoal::where('position_id', $user->position_id)->get();
+            $entries = KpiEntry::where('users_id', $user->id)
+                ->where('month', $month)
+                ->where('year', $year)
+                ->get()
+                ->keyBy('goals_id');
+
+            $headers = [
+                'Content-Type' => 'text/csv',
+                'Content-Disposition' => "attachment; filename=kpi_entries_{$user->username}_{$month}_{$year}.csv",
+                'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+                'Pragma' => 'public'
+            ];
+
+            $output = fopen('php://output', 'w');
+            fputs($output, chr(0xEF) . chr(0xBB) . chr(0xBF)); // Add BOM for Excel
+
+            // Write headers
+            fputcsv($output, [
+                'Goal Name',
+                'Goal Score',
+                'Category Ranges',
+                'Actual Result',
+                'Actual Score',
+                'Final Score',
+                'Month',
+                'Year'
+            ]);
+
+            // Write data
+            foreach ($goals as $goal) {
+                $entry = $entries[$goal->id] ?? null;
+                $ranges = json_decode($goal->category_score_ranges, true);
+                $rangeText = '';
+                
+                foreach ($ranges as $category => $range) {
+                    $rangeText .= "$category: {$range['min']}-{$range['max']}, ";
+                }
+                
+                fputcsv($output, [
+                    $goal->goal_name,
+                    $goal->goal_score,
+                    rtrim($rangeText, ', '),
+                    $entry ? $entry->actual_result : 'N/A',
+                    $entry ? $entry->actual_score : 'N/A',
+                    $entry ? $entry->final_score : 'N/A',
+                    $month,
+                    $year
+                ]);
+            }
+
+            fclose($output);
+
+            return response()->stream(
+                function() {
+                    // Data has already been written to output
+                },
+                200,
+                $headers
+            );
+
+        } catch (\Exception $e) {
+            \Log::error('Export Error', [
+                'error' => $e->getMessage()
+            ]);
+            return back()->withErrors(['error' => 'Failed to export data']);
+        }
     }
 }

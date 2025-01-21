@@ -18,100 +18,84 @@
 
                 <form action="{{route('admin.leave.store')}}" method="post">
                     @csrf
-                    <div class="col px-5 pb-2">
-                        <h3 class="title text-center">
+                    <div class="col px-5 pb-4">
+                        <h3 class="text-2xl font-bold text-center text-gray-900 dark:text-white">
                             Create Leave
                         </h3>
                     </div>
 
-                    {{-- Employee dropdown --}}
-                    <div class="form-group">
-                        <label for="user_id">Employee Name</label>
-                        <select name="user_id" id="user_id" class="form-control" required>
+                    <div class="mb-6 px-5">
+                        <label for="user_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Employee Name</label>
+                        <select name="user_id" id="user_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" required>
                             <option value="" disabled selected>Select an employee</option>
                             @foreach ($users as $user)
                                 <option value="{{ $user->id }}">{{ $user->username }}</option>
                             @endforeach
                         </select>
                         @error('user_id')
-                            <p class="error">
-                                {{ $message }}
-                            </p>
-                        @enderror 
+                            <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ $message }}</p>
+                        @enderror
                     </div>
 
-                    {{-- Leave Type dropdown --}}
-                    <div class="form-group">
-                        <label for="leave_type_id">Leave Type</label>
-                        <select name="leave_type_id" id="leave_type_id" class="form-control" required>
+                    <div class="mb-6 px-5">
+                        <label for="leave_type_id" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Leave Type</label>
+                        <select name="leave_type_id" id="leave_type_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" required>
                             <option value="" disabled selected>Select a leave type</option>
                             @foreach ($leaveTypes as $leaveType)
                                 <option value="{{ $leaveType->id }}">{{ $leaveType->leave_type }}</option>
                             @endforeach
                         </select>
                         @error('leave_type_id')
-                            <p class="error">
-                                {{ $message }}
-                            </p>
-                        @enderror 
+                            <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ $message }}</p>
+                        @enderror
                     </div>
 
-                    <div class="flex space-x-4">
-                        <!-- From Date -->
+                    <div class="flex gap-4 px-5 mb-6">
                         <div class="flex-1">
-                            <label for="from_date" class="block text-sm font-medium text-gray-700">From Date</label>
-                            <input type="date" name="from_date" id="from_date" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" min="{{ \Carbon\Carbon::today()->toDateString() }}" required>
+                            <label for="from_date" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">From Date</label>
+                            <input type="date" name="from_date" id="from_date" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" min="{{ \Carbon\Carbon::today()->toDateString() }}" required>
                             @error('from_date')
-                                <p class="error">
-                                    {{ $message }}
-                                </p>
-                            @enderror 
+                                <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ $message }}</p>
+                            @enderror
                         </div>
-                    
-                        <!-- To Date -->
                         <div class="flex-1">
-                            <label for="to_date" class="block text-sm font-medium text-gray-700">To Date</label>
-                            <input type="date" name="to_date" id="to_date" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" min="{{ \Carbon\Carbon::today()->toDateString() }}" required>
-                            @error('user_id')
-                                <p class="to_date">
-                                    {{ $message }}
-                                </p>
-                            @enderror 
+                            <label for="to_date" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">To Date</label>
+                            <input type="date" name="to_date" id="to_date" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" min="{{ \Carbon\Carbon::today()->toDateString() }}" required>
+                            @error('to_date')
+                                <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ $message }}</p>
+                            @enderror
+                        </div>
+                        <div class="flex-1">
+                            <label for="number_of_days" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Number of Days</label>
+                            <input type="number" name="number_of_days" id="number_of_days" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" readonly>
                         </div>
                     </div>
-                    
-                    <!-- Number of Days (Auto-calculated based on date selection, can be handled via JavaScript) -->
-                    <div class="form-group">
-                        <label for="number_of_days">Number of Days</label>
-                        <input type="number" name="number_of_days" id="number_of_days" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" readonly>
-                    </div>
 
-                    <!-- Reason Text Area -->
-                    <div class="form-group">
-                        <label for="reason">Reason</label>
-                        <textarea name="reason" id="reason" class="form-control" required></textarea>
+                    <div class="mb-6 px-5">
+                        <label for="reason" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Reason</label>
+                        <textarea name="reason" id="reason" rows="2" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" required></textarea>
                         @error('reason')
-                            <p class="error">
-                                {{ $message }}
-                            </p>
-                        @enderror 
+                            <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ $message }}</p>
+                        @enderror
                     </div>
 
-                    {{-- Status --}}
-                    <div class="form-group">
-                        <label for="status">Status</label>
-                        <select name="status" id="status" class="form-control">
+                    <div class="mb-6 px-5">
+                        <label for="status" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Status</label>
+                        <select name="status" id="status" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                             <option value="pending" selected>Pending</option>
                             <option value="approved">Approved</option>
                             <option value="rejected">Rejected</option>
                         </select>
                     </div>
 
-                    <!-- Add submit button -->
-                    <div class="col text-center p-2 px-5">
-                        <button type="submit" class="btn btn-dark">Submit</button>
+                    <div class="flex justify-center gap-4 px-5">
+                        <a href="{{ route('admin.leave.index') }}" class="text-white bg-gray-700 hover:bg-gray-800 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-gray-600 dark:hover:bg-gray-700 focus:outline-none dark:focus:ring-gray-800">
+                            <i class="fas fa-arrow-left mr-2"></i>Back
+                        </a>
+                        <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
+                            Create Leave
+                        </button>
                     </div>
-
                 </form>
                 </div>
             </div>

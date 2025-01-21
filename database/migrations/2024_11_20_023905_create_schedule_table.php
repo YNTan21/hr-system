@@ -17,7 +17,7 @@ return new class extends Migration
                   ->constrained()
                   ->onDelete('cascade');
             $table->date('shift_date');
-            $table->string('shift_code');
+            // $table->string('shift_code');
             $table->time('start_time');
             $table->time('end_time');
             $table->timestamps();
