@@ -45,24 +45,23 @@ class UserLeaveController extends Controller
 
     public function index(Request $request)
     {
-        $query = Leave::where('user_id', auth()->id())->with(['leaveType', 'user']);
+        $query = Leave::where('user_id', auth()->id())
+                     ->with(['leaveType', 'user']);
 
-        if ($request->filled('leave_type_id')) {
-            $query->where('leave_type_id', $request->leave_type_id);
+        // Apply month filter if selected
+        if ($request->filled('month')) {
+            $query->whereMonth('from_date', $request->month);
         }
 
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
+        // Apply year filter if selected
+        if ($request->filled('year')) {
+            $query->whereYear('from_date', $request->year);
         }
 
-        if ($request->filled('from_date') && $request->filled('to_date')) {
-            $query->whereBetween('from_date', [$request->from_date, $request->to_date]);
-        }
+        $leaves = $query->orderBy('created_at', 'desc')
+                       ->paginate(10);
 
-        $leaves = $query->paginate(10);
-        $leaveTypes = LeaveType::all();
-
-        return view('user.leave.index', compact('leaves', 'leaveTypes'));
+        return view('user.leave.index', compact('leaves'));
     }
 
     public function edit($id)

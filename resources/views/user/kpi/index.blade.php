@@ -48,6 +48,7 @@
                             <tr>
                                 <th class="py-3 px-3">Month</th>
                                 <th class="py-3 px-3">Status</th>
+                                <th class="py-3 px-3">Result</th>
                                 <th class="py-3 px-3">Action</th>
                             </tr>
                         </thead>
@@ -57,6 +58,12 @@
                                     $submittedCount = isset($existingEntries[$monthNum]) ? count($existingEntries[$monthNum]) : 0;
                                     $totalGoals = $goals->count();
                                     $statusClass = $submittedCount === $totalGoals ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
+                                    
+                                    // Calculate total score if all goals are completed
+                                    $totalScore = 0;
+                                    if (isset($existingEntries[$monthNum])) {
+                                        $totalScore = $existingEntries[$monthNum]->sum('final_score');
+                                    }
                                 @endphp
                                 <tr class="bg-white hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700">
                                     <td class="py-2.5 px-3">{{ $monthName }}</td>
@@ -64,6 +71,17 @@
                                         <span class="px-2 py-1 inline-flex text-xs leading-4 font-semibold rounded-full {{ $statusClass }}">
                                             {{ $submittedCount }}/{{ $totalGoals }}
                                         </span>
+                                    </td>
+                                    <td class="py-2.5 px-3">
+                                        @if($submittedCount === $totalGoals)
+                                            <span class="px-2 py-1 inline-flex text-xs leading-4 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                                {{ $totalScore }}
+                                            </span>
+                                        @else
+                                            <span class="px-2 py-1 inline-flex text-xs leading-4 font-semibold rounded-full bg-gray-100 text-gray-800">
+                                                Not Completed
+                                            </span>
+                                        @endif
                                     </td>
                                     <td class="py-2.5 px-3">
                                         <a href="{{ route('user.kpi.manage', ['month' => $monthNum, 'year' => $currentYear]) }}" 

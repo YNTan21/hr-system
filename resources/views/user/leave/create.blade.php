@@ -33,14 +33,15 @@
                             </select>
                         </div>
 
-                        <!-- Date Range -->
-                        <div class="grid grid-cols-2 gap-4">
+                        <!-- Date Range and Number of Days -->
+                        <div class="grid grid-cols-3 gap-4">
                             <!-- From Date -->
                             <div>
                                 <label for="from_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">From Date:</label>
                                 <input type="date" name="from_date" id="from_date" 
                                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white" 
-                                       value="{{ old('from_date') }}" 
+                                       value="{{ old('from_date') }}"
+                                       min="{{ \Carbon\Carbon::today()->toDateString() }}" 
                                        required>
                             </div>
 
@@ -49,8 +50,17 @@
                                 <label for="to_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">To Date:</label>
                                 <input type="date" name="to_date" id="to_date" 
                                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white" 
-                                       value="{{ old('to_date') }}" 
+                                       value="{{ old('to_date') }}"
+                                       min="{{ \Carbon\Carbon::today()->toDateString() }}" 
                                        required>
+                            </div>
+
+                            <!-- Number of Days -->
+                            <div>
+                                <label for="number_of_days" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Number of Days:</label>
+                                <input type="number" name="number_of_days" id="number_of_days" 
+                                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white" 
+                                       readonly>
                             </div>
                         </div>
 
@@ -97,9 +107,8 @@
             document.getElementById('number_of_days').value = '';
         }
     }
-</script>
 
-<script>
+    // Validate dates
     document.getElementById('from_date').addEventListener('change', validateDates);
     document.getElementById('to_date').addEventListener('change', validateDates);
 
@@ -110,6 +119,7 @@
         if (fromDate && toDate && toDate < fromDate) {
             alert('To Date must be after From Date.');
             document.getElementById('to_date').value = '';
+            document.getElementById('number_of_days').value = '';
         }
     }
 </script>

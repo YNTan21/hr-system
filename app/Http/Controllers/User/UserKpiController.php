@@ -130,7 +130,8 @@ class UserKpiController extends Controller
             'year' => $request->year,
         ]);
 
-        return redirect()->route('user.kpi.index', [
+        return redirect()->route('user.kpi.manage', [
+            'month' => $request->month,
             'year' => $request->year
         ])->with('success', 'KPI Entry created successfully');
     }
@@ -152,5 +153,75 @@ class UserKpiController extends Controller
         }
         
         return 0; // Default to lowest category if no range matches
+    }
+
+    public function edit($id)
+    {
+        try {
+            $entry = KpiEntry::with('goal')
+                ->where('users_id', auth()->id())
+                ->findOrFail($id);
+
+            return view('user.kpi.edit', compact('entry'));
+        } catch (\Exception $e) {
+            \Log::error('Error in UserKpiController@edit: ' . $e->getMessage());
+            return back()->with('error', 'An error occurred while loading the KPI entry.');
+        }
+    }
+
+    public function update(Request $request, $id)
+    {
+        try {
+            $entry = KpiEntry::where('users_id', auth()->id())->findOrFail($id);
+
+            $validated = $request->validate([
+                'actual_result' => 'required|numeric|between:0,999999.99',
+            ]);
+
+            $goal = $entry->goal;
+            $ranges = json_decode($goal->category_score_ranges, true);
+            
+            // Calculate the category score
+            $actual_score = $this->calculateCategoryScore($request->actual_result, $ranges);
+            
+            // Calculate final score
+            $final_score = round(($actual_score / 4) * $goal->goal_score);
+
+            $entry->update([
+                'actual_result' => $request->actual_result,
+                'actual_score' => (int)$actual_score,
+                'final_score' => (int)$final_score,
+            ]);
+
+            return redirect()->route('user.kpi.manage', [
+                'month' => $entry->month,
+                'year' => $entry->year
+            ])->with('success', 'KPI Entry updated successfully');
+        } catch (\Exception $e) {
+            \Log::error('Error in UserKpiController@update: ' . $e->getMessage());
+            return back()->with('error', 'An error occurred while updating the KPI entry.');
+        }
+    }
+
+    public function destroy($id)
+    {
+        try {
+            $entry = KpiEntry::where('users_id', auth()->id())->findOrFail($id);
+            
+            // Store month and year before deletion for redirect
+            $month = $entry->month;
+            $year = $entry->year;
+            
+            // Delete the entry
+            $entry->delete();
+
+            return redirect()
+                ->route('user.kpi.manage', ['month' => $month, 'year' => $year])
+                ->with('success', 'KPI entry deleted successfully');
+            
+        } catch (\Exception $e) {
+            \Log::error('Error in UserKpiController@destroy: ' . $e->getMessage());
+            return back()->with('error', 'An error occurred while deleting the KPI entry.');
+        }
     }
 }

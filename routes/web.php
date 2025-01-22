@@ -229,6 +229,15 @@ Route::middleware('auth')->group(function(){
 
     // kpi
     Route::get('/user/kpi/index', [UserKpiController::class, 'index'])->name('user.kpi.index');
+    Route::get('/user/kpi/create', [UserKpiController::class, 'create'])->name('user.kpi.create');
+    Route::post('/user/kpi', [UserKpiController::class, 'store'])->name('user.kpi.store');
+    Route::get('/user/kpi/{id}/edit', [UserKpiController::class, 'edit'])->name('user.kpi.edit');
+    Route::put('/user/kpi/{id}', [UserKpiController::class, 'update'])->name('user.kpi.update');
+    Route::get('/user/kpi/manage/{month}/{year}', [UserKpiController::class, 'manage'])->name('user.kpi.manage');
+    Route::get('/user/kpi/export', [UserKpiController::class, 'export'])->name('user.kpi.export');
+    Route::get('/user/kpi/manage/export/{month}/{year}', [UserKpiController::class, 'exportManage'])->name('user.kpi.manage.export');
+    Route::delete('/user/kpi/{id}', [UserKpiController::class, 'destroy'])->name('user.kpi.destroy');
+
 });
 
 Route::middleware('guest')->group(function(){

@@ -20,6 +20,49 @@
                     </div>
                 </div>
 
+                <!-- Filter Form -->
+                <form action="{{ route('user.leave.index') }}" method="GET" class="mb-6">
+                    <div class="flex gap-4 items-end">
+                        <!-- Month Filter -->
+                        <div class="flex-1">
+                            <label class="block text-sm font-medium text-gray-700">Month</label>
+                            <select name="month" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200">
+                                <option value="">All Months</option>
+                                @foreach(range(1, 12) as $month)
+                                    <option value="{{ $month }}" {{ request('month') == $month ? 'selected' : '' }}>
+                                        {{ date('F', mktime(0, 0, 0, $month, 1)) }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <!-- Year Filter -->
+                        <div class="flex-1">
+                            <label class="block text-sm font-medium text-gray-700">Year</label>
+                            <select name="year" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200">
+                                <option value="">All Years</option>
+                                @foreach(range(date('Y') - 1, date('Y') + 1) as $year)
+                                    <option value="{{ $year }}" {{ request('year') == $year ? 'selected' : '' }}>
+                                        {{ $year }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <!-- Filter Buttons -->
+                        <div class="flex space-x-2">
+                            <button type="submit" 
+                                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                                <i class="fas fa-search"></i> Search
+                            </button>
+                            <a href="{{ route('user.leave.index') }}" 
+                               class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+                                <i class="fas fa-undo"></i> Reset
+                            </a>
+                        </div>
+                    </div>
+                </form>
+
                 <!-- Success Message -->
                 @if (session('success'))
                     <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4">
@@ -98,7 +141,7 @@
 
                 <!-- Pagination -->
                 <div class="mt-4">
-                    {{ $leaves->links() }}
+                    {{ $leaves->appends(request()->query())->links() }}
                 </div>
             </div>
         </div>

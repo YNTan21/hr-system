@@ -35,8 +35,8 @@
                             @forelse($goals as $index => $goal)
                                 <tr class="bg-white hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700">
                                     <td class="py-2.5 px-3">{{ $index + 1 }}</td>
-                                    <td class="py-2.5 px-3 max-w-xs">
-                                        <div class="truncate text-left" title="{{ $goal->goal_name }}">
+                                    <td class="py-2.5 px-3">
+                                        <div class="line-clamp-2 text-left min-h-[40px]" title="{{ $goal->goal_name }}">
                                             {{ $goal->goal_name }}
                                         </div>
                                     </td>
@@ -77,13 +77,25 @@
                                     <td class="py-2.5 px-3">
                                         <div class="flex justify-center space-x-2">
                                             @if(isset($existingEntries[$goal->id]))
-                                                <a href="#" 
+                                                <a href="{{ route('user.kpi.edit', $existingEntries[$goal->id]->id) }}" 
                                                    class="text-yellow-600 hover:text-yellow-900"
                                                    title="Edit">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
+                                                <form action="{{ route('user.kpi.destroy', $existingEntries[$goal->id]->id) }}" 
+                                                      method="POST" 
+                                                      class="inline"
+                                                      onsubmit="return confirm('Are you sure you want to delete this KPI entry?');">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" 
+                                                            class="text-red-600 hover:text-red-900"
+                                                            title="Delete">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </form>
                                             @else
-                                                <a href="#" 
+                                                <a href="{{ route('user.kpi.create', ['goal_id' => $goal->id, 'month' => $month, 'year' => $year]) }}" 
                                                    class="text-blue-600 hover:text-blue-900"
                                                    title="Add Entry">
                                                     <i class="fas fa-plus"></i>
