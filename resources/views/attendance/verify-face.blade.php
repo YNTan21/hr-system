@@ -7,66 +7,64 @@
     <title>Register Face</title>
     @vite(['resources/css/app.css'])
     <script src="{{ asset('facejs/face-api.min.js') }}"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs/dist/tf.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
-<body class="bg-gray-100">
-    <!-- PIN Modal -->
-    <div id="pinModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex items-center justify-center">
-        <div class="bg-white p-8 rounded-lg shadow-xl">
-            <h2 class="text-xl font-bold mb-4">Security Check</h2>
-            <p class="mb-4">Please enter PIN number to access the system:</p>
-            
-            <div class="flex justify-center space-x-2 mb-4">
-                <input type="password" maxlength="1" class="w-10 h-10 text-center border rounded text-xl" data-pin-index="0">
-                <input type="password" maxlength="1" class="w-10 h-10 text-center border rounded text-xl" data-pin-index="1">
-                <input type="password" maxlength="1" class="w-10 h-10 text-center border rounded text-xl" data-pin-index="2">
-                <input type="password" maxlength="1" class="w-10 h-10 text-center border rounded text-xl" data-pin-index="3">
-                <input type="password" maxlength="1" class="w-10 h-10 text-center border rounded text-xl" data-pin-index="4">
-                <input type="password" maxlength="1" class="w-10 h-10 text-center border rounded text-xl" data-pin-index="5">
-            </div>
-            
-            <div class="flex justify-end space-x-2">
-                <button onclick="checkPin()" 
-                        class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                    Submit
-                </button>
-                <button onclick="closePinModal()" 
-                        class="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400">
-                    Cancel
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 原有内容，初始时隐藏 -->
-    <div id="mainContent" class="hidden">
+<body class="bg-gray-100 min-h-screen">
+    <div id="mainContent" class="">
         <div class="container mx-auto px-4 py-8">
-            <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-6">
-                <h1 class="text-2xl font-bold text-center mb-6">Register Your Face</h1>
+            <div class="max-w-5xl mx-auto bg-white rounded-lg shadow-md p-8">
+                <!-- Add Home Button -->
+                <div class="mb-4">
+                    <a href="{{ route('login') }}" 
+                       class="inline-flex items-center justify-center w-10 h-10 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
+                        <i class="fas fa-home"></i>
+                    </a>
+                </div>
 
-                <div class="text-center space-y-4">
-                    <div class="mb-4">
-                        <select id="userSelect" class="w-64 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <option value="">Select Employee</option>
-                            @foreach($users as $user)
-                                <option value="{{ $user->username }}">{{ $user->username }}</option>
-                            @endforeach
-                        </select>
+                <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Register Your Face</h1>
+
+                <div class="flex gap-8">
+                    <!-- Left Column - Employee Info -->
+                    <div class="flex-1 space-y-6">
+                        <!-- Employee Selection -->
+                        <div class="mb-6">
+                            <label for="userSelect" class="block text-sm font-semibold text-gray-700 mb-2">Employee Name</label>
+                            <select id="userSelect" 
+                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white shadow-sm">
+                                <option value="">Choose an employee</option>
+                                @foreach($users as $user)
+                                    <option value="{{ $user->username }}">{{ $user->username }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <!-- Register Face Button -->
+                        <div class="mb-6">
+                            <button id="registerFaceButton" 
+                                    class="w-full flex items-center justify-center p-4 bg-white rounded-lg border-2 border-blue-500 text-blue-700 hover:bg-blue-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                                <span class="font-medium">Register Face</span>
+                            </button>
+                        </div>
+
+                        <!-- Status Display -->
+                        <div class="bg-gray-50 p-6 rounded-lg">
+                            <div id="status" class="text-gray-700">
+                                Position your face in the camera. Click "Register Face" to proceed.
+                            </div>
+                        </div>
                     </div>
 
-                    <div id="videoFeed" class="w-full aspect-video bg-gray-200 mb-4 relative">
-                        <video id="video" width="720" height="560" autoplay muted></video>
-                        <canvas id="canvas" class="absolute top-0 left-0" width="720" height="560"></canvas>
+                    <!-- Right Column - Video Feed -->
+                    <div class="flex-1">
+                        <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 h-full transition-all hover:border-blue-500">
+                            <div class="flex flex-col items-center space-y-4 h-full">
+                                <div id="videoFeed" class="w-full h-64 bg-gray-50 rounded-lg flex items-center justify-center border border-gray-200 mb-4 overflow-hidden relative">
+                                    <video id="video" class="w-full h-full object-cover" autoplay muted></video>
+                                    <canvas id="canvas" class="absolute top-0 left-0 w-full h-full"></canvas>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-
-                    <div id="status" class="text-center text-lg mb-4 p-2">
-                        Position your face in the camera. Click "Register Face" to proceed.
-                    </div>
-
-                    <button id="registerFaceButton" 
-                            class="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
-                        Register Face
-                    </button>
                 </div>
             </div>
         </div>
@@ -204,53 +202,6 @@
 
         // 注册按钮点击事件
         registerFaceButton.addEventListener('click', registerFace);
-
-        // PIN 验证相关代码
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('pinModal').classList.remove('hidden');
-            setupPinInputs();
-        });
-
-        function setupPinInputs() {
-            const inputs = document.querySelectorAll('[data-pin-index]');
-            
-            inputs.forEach((input, index) => {
-                input.addEventListener('input', function() {
-                    if (this.value.length === 1) {
-                        const nextInput = inputs[index + 1];
-                        if (nextInput) nextInput.focus();
-                    }
-                });
-
-                input.addEventListener('keydown', function(e) {
-                    if (e.key === 'Backspace' && !this.value) {
-                        const prevInput = inputs[index - 1];
-                        if (prevInput) {
-                            prevInput.focus();
-                            prevInput.value = '';
-                        }
-                    }
-                });
-            });
-        }
-
-        function checkPin() {
-            const inputs = document.querySelectorAll('[data-pin-index]');
-            const pin = Array.from(inputs).map(input => input.value).join('');
-            
-            if (pin === '000000') {
-                document.getElementById('pinModal').classList.add('hidden');
-                document.getElementById('mainContent').classList.remove('hidden');
-            } else {
-                alert('Invalid PIN number');
-                inputs.forEach(input => input.value = '');
-                inputs[0].focus();
-            }
-        }
-
-        function closePinModal() {
-            window.location.href = '/';
-        }
     </script>
 </body>
 </html>

@@ -42,10 +42,14 @@
         <div class="container mx-auto px-4 py-8">
             <div class="max-w-5xl mx-auto bg-white rounded-lg shadow-md p-8">
                 <!-- Add Home Button -->
-                <div class="mb-4">
+                <div class="mb-4 flex items-center gap-2">
                     <a href="{{ route('admin.attendance.index') }}" 
                        class="inline-flex items-center justify-center w-10 h-10 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
                         <i class="fas fa-home"></i>
+                    </a>
+                    <a href="{{ route('attendance.verify-face') }}" 
+                       class="inline-flex items-center justify-center px-4 h-10 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
+                        <span class="font-medium">Register Face</span>
                     </a>
                 </div>
 
