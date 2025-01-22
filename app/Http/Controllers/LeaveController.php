@@ -18,7 +18,7 @@ class LeaveController extends Controller
     public function create()
     {
         $users = User::all();
-        $leaveTypes = LeaveType::all();
+        $leaveTypes = LeaveType::where('status', 'active')->get();
         return view('admin.leave.create', compact('users','leaveTypes'));
     }
 
@@ -91,9 +91,9 @@ class LeaveController extends Controller
         // Paginate the results
         $leaves = $query->paginate(10);
 
-        // Get all users and leave types for the filters
+        // Get only active leave types for the filters
         $users = User::all();
-        $leaveTypes = LeaveType::all();
+        $leaveTypes = LeaveType::where('status', 'active')->get();
 
         return view('admin.leave.index', compact('leaves', 'users', 'leaveTypes', 'currentYear'));
     }
@@ -102,7 +102,7 @@ class LeaveController extends Controller
     {
         $leave = Leave::findOrFail($id);
         $users = User::all();
-        $leaveTypes = LeaveType::all();
+        $leaveTypes = LeaveType::where('status', 'active')->get();
         
         return view('admin.leave.edit', compact('leave', 'users', 'leaveTypes'));
     }
@@ -196,9 +196,9 @@ class LeaveController extends Controller
         // Paginate the results
         $leaves = $query->paginate(10);
 
-        // Get all users and leave types for the filters
+        // Get only active leave types for the filters
         $users = User::all();
-        $leaveTypes = LeaveType::all();
+        $leaveTypes = LeaveType::where('status', 'active')->get();
 
         return view('admin.leave.process', compact('leaves', 'users', 'leaveTypes'));
     }

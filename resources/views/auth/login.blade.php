@@ -22,18 +22,18 @@
             <div class="max-w-md mx-auto bg-white rounded-lg shadow-lg p-8">
                 <div class="text-center mb-8">
                     <h3 class="text-2xl font-bold mb-2">Login</h3>
-                    <!-- <p class="text-gray-600">Access to our dashboard</p> -->
                 </div>
 
                 <!-- Login Form -->
                 <form action="{{ route('auth.login') }}" method="POST">
                     @csrf
 
-                    @error('failed')
+                    <!-- General Error Message -->
+                    @if (session('error'))
                         <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
-                            {{ $message }}
+                            {{ session('error') }}
                         </div>
-                    @enderror
+                    @endif
 
                     <!-- Email -->
                     <div class="mb-6">
@@ -52,11 +52,6 @@
                     <div class="mb-6">
                         <div class="flex justify-between mb-2">
                             <label for="password" class="block text-gray-700 text-sm font-bold">Password</label>
-                            {{-- Remove or update password reset link
-                            <a href="{{ route('password.request') }}" class="text-sm text-blue-600 hover:text-blue-800">
-                                Forgot password?
-                            </a> 
-                            --}}
                         </div>
                         <input type="password" 
                                name="password" 
@@ -74,14 +69,6 @@
                             Login
                         </button>
                     </div>
-
-                    <!-- Register Link -->
-                    {{-- <div class="text-center text-gray-600">
-                        Don't have an account yet? 
-                        <a href="{{ route('auth.register') }}" class="text-blue-600 hover:text-blue-800">
-                            Register
-                        </a>
-                    </div> --}}
                 </form>
             </div>
         </div>

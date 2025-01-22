@@ -41,6 +41,9 @@ class AuthController extends Controller
         {
             $user = Auth::user();
 
+            // Regenerate session for security
+            $request->session()->regenerate();
+
             if($user->is_admin)
             {
                 return redirect()->intended('/admin/dashboard');
@@ -52,9 +55,11 @@ class AuthController extends Controller
         }
         else
         {
-            return back()->withErrors([
-                'failed' => 'Email or Password is wrong'
-            ]);
+            return back()
+                ->withInput($request->only('email'))
+                ->withErrors([
+                    'email' => 'The provided credentials do not match our records.',
+                ]);
         }
     }
 
