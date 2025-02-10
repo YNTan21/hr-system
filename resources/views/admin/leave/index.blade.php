@@ -24,10 +24,10 @@
                            class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
                             <i class="fas fa-file-excel"></i> Export Excel
                         </a>
-                        <a href="{{ route('admin.leave.template') }}" 
+                        {{-- <a href="{{ route('admin.leave.template') }}" 
                            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                             <i class="fas fa-download"></i> Download Template
-                        </a>
+                        </a> --}}
                         <a href="{{ route('admin.leave.predictions') }}" 
                            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                             <i class="fas fa-chart-line"></i> View Predictions
@@ -66,6 +66,35 @@
                                         {{ $year }}
                                     </option>
                                 @endfor
+                            </select>
+                        </div>
+
+                        <!-- Month Filter -->
+                        <div class="flex-1">
+                            <label class="block text-sm font-medium text-gray-700">Month</label>
+                            <select name="month" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200">
+                                <option value="">All Months</option>
+                                @php
+                                    $months = [
+                                        1 => 'January',
+                                        2 => 'February',
+                                        3 => 'March',
+                                        4 => 'April',
+                                        5 => 'May',
+                                        6 => 'June',
+                                        7 => 'July',
+                                        8 => 'August',
+                                        9 => 'September',
+                                        10 => 'October',
+                                        11 => 'November',
+                                        12 => 'December'
+                                    ];
+                                @endphp
+                                @foreach($months as $value => $label)
+                                    <option value="{{ $value }}" {{ request('month') == $value ? 'selected' : '' }}>
+                                        {{ $label }}
+                                    </option>
+                                @endforeach
                             </select>
                         </div>
 

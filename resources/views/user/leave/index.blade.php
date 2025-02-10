@@ -9,13 +9,28 @@
         <div class="p-4 sm:ml-64">
             <div class="p-4 border-2 border-gray-200 rounded-lg dark:border-gray-700 mt-14">
                 
-                <!-- Title and Apply Button -->
+                <!-- Title, Leave Balance, and Apply Buttons -->
                 <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-xl font-semibold">Leave List</h2>
+                    <div>
+                        <h2 class="text-xl font-semibold">Leave List</h2>
+                        <!-- Annual Leave Balance -->
+                        <div class="mt-2 text-sm">
+                            <span class="font-medium text-gray-600">Annual Leave Balance:</span>
+                            <span class="ml-2 px-3 py-1 bg-blue-100 text-blue-800 rounded-full">
+                                {{ auth()->user()->annual_leave_balance ?? 0 }} days remaining
+                            </span>
+                        </div>
+                    </div>
                     <div class="flex space-x-2">
+                        <!-- Quick Apply Annual Leave -->
+                        <a href="{{ route('user.leave.create', ['type' => 'annual']) }}" 
+                           class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                            <i class="fas fa-calendar"></i> Apply Annual Leave
+                        </a>
+                        <!-- General Apply Leave -->
                         <a href="{{ route('user.leave.create')}}" 
                            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                            <i class="fas fa-plus"></i> Apply for Leave
+                            <i class="fas fa-plus"></i> Apply Other Leave
                         </a>
                     </div>
                 </div>
