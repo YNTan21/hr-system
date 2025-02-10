@@ -25,9 +25,10 @@
                                     class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-300" 
                                     required>
                                 <option value="">Select Leave Type</option>
-                                @foreach($leaveTypes as $leaveType)
-                                    <option value="{{ $leaveType->id }}" {{ old('leave_type_id') == $leaveType->id ? 'selected' : '' }}>
-                                        {{ $leaveType->leave_type }}
+                                @foreach($leaveTypes as $type)
+                                    <option value="{{ $type->id }}" 
+                                            {{ old('leave_type_id', $selectedLeaveType) == $type->id ? 'selected' : '' }}>
+                                        {{ $type->leave_type }}
                                     </option>
                                 @endforeach
                             </select>

@@ -7,6 +7,7 @@ use App\Http\Controllers\FingerprintController;
 use App\Http\Controllers\AttendanceScheduleController;
 use App\Http\Controllers\Auth\DashboardController;
 use App\Http\Controllers\PinVerificationController;
+use App\Http\Controllers\LeavePredictController;
 
 Route::middleware('api')->group(function () {
     Route::post('/store-fingerprint', [FingerprintClocklogsController::class, 'storeFingerprint']);
@@ -17,3 +18,7 @@ Route::middleware('api')->group(function () {
 });
 
 Route::get('/overtime-data/{month}', [DashboardController::class, 'getOvertimeData']);
+Route::get('/overtime-data/{month}', [App\Http\Controllers\Auth\DashboardController::class, 'getOvertimeData']);
+
+Route::get('/get-leave-data', [LeavePredictController::class, 'getLeaveData']);
+Route::post('/store-predictions', [LeavePredictController::class, 'storePredictions']);

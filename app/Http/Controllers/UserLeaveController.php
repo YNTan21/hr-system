@@ -13,11 +13,18 @@ class UserLeaveController extends Controller
 {
     use AuthorizesRequests;
     
-    public function create()
+    public function create(Request $request)
     {
         $leaveTypes = LeaveType::all();
-        $user = auth()->user(); // Get the authenticated user
-        return view('user.leave.create', compact('leaveTypes', 'user'));
+        $user = auth()->user();
+        
+        // Pre-select annual leave type if specified
+        $selectedLeaveType = null;
+        if ($request->type === 'annual') {
+            $selectedLeaveType = LeaveType::where('leave_type', 'LIKE', '%annual%')->first()?->id;
+        }
+        
+        return view('user.leave.create', compact('leaveTypes', 'user', 'selectedLeaveType'));
     }
 
     public function store(Request $request)

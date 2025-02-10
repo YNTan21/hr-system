@@ -24,9 +24,10 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\FingerprintController;
 use App\Http\Controllers\AdminSettingsController;
 use App\Http\Controllers\User\UserKpiController;
+use App\Http\Controllers\LeavePredictController;
 
 // home
-Route::view('/', 'home')->name('home');
+// Route::view('/', 'home')->name('home');
 
 Route::middleware('auth')->group(function(){
     // logout
@@ -50,18 +51,24 @@ Route::middleware('auth')->group(function(){
         Route::delete('/admin/leaveType/{id}', [LeaveTypeController::class, 'destroy'])->name('admin.leaveType.destroy');
         Route::get('/admin/leaveType/export', [LeaveTypeController::class, 'export'])->name('admin.leaveType.export');
 
-        // leave
+        // Add these routes BEFORE other leave routes with parameters
+        Route::get('/admin/leave/predictions', [LeavePredictController::class, 'showPredictions'])->name('admin.leave.predictions');
+        Route::post('/admin/leave/predict', [LeavePredictController::class, 'predict'])->name('admin.leave.predict');
+
+        // leave routes - static routes first
+        Route::get('/admin/leave/export', [LeaveController::class, 'export'])->name('admin.leave.export');
+        Route::get('/admin/leave/template', [LeaveController::class, 'downloadTemplate'])->name('admin.leave.template');
+        Route::post('/admin/leave/import', [LeaveController::class, 'import'])->name('admin.leave.import');
         Route::get('/admin/leave/create', [LeaveController::class, 'create'])->name('admin.leave.create');
-        Route::post('/admin/leave', [LeaveController::class, 'store'])->name('admin.leave.store');
         Route::get('/admin/leave/index', [LeaveController::class, 'index'])->name('admin.leave.index');
         Route::get('/admin/leave/leave-balance', [LeaveController::class, 'leaveBalance'])->name('admin.leave.leave-balance');
         Route::get('/admin/leave/process', [LeaveController::class, 'processLeaves'])->name('admin.leave.process');
-        // Route::get('/admin/leave/{id}/edit', [LeaveController::class, 'edit'])->name('admin.leave.edit');
-        // Route::put('/admin/leave/{id}', [LeaveController::class, 'update'])->name('admin.leave.update');
+
+        // Then dynamic routes with parameters
+        Route::post('/admin/leave', [LeaveController::class, 'store'])->name('admin.leave.store');
         Route::put('/admin/leave/{leave}/approve', [LeaveController::class, 'approve'])->name('admin.leave.approve');
-        Route::put('/admin/leave/{leave}/reject', [LeaveController::class, 'reject'])->name('admin.leave.reject');  
+        Route::put('/admin/leave/{leave}/reject', [LeaveController::class, 'reject'])->name('admin.leave.reject');
         Route::get('/admin/leave/{leave}', [LeaveController::class, 'show'])->name('admin.leave.show');
-        Route::get('/admin/leave/export', [LeaveController::class, 'export'])->name('admin.leave.export');
         Route::get('/admin/leave/{id}/edit', [LeaveController::class, 'edit'])->name('admin.leave.edit');
         Route::put('/admin/leave/{id}', [LeaveController::class, 'update'])->name('admin.leave.update');
         Route::delete('/admin/leave/{id}', [LeaveController::class, 'destroy'])->name('admin.leave.destroy');
@@ -106,9 +113,9 @@ Route::middleware('auth')->group(function(){
         // kpi
         Route::get('/admin/kpi/index', [KPIController::class, 'index'])->name('admin.kpi.index');
         Route::get('/admin/kpi/create/{position_id}', [KPIController::class, 'create'])->name('admin.kpi.create');
-        Route::post('/admin/kpi', [KPIController::class, 'store'])->name('admin.kpi.store');
+        // Route::post('/admin/kpi', [KPIController::class, 'store'])->name('admin.kpi.store');
         // Route::get('/admin/kpi/{id}/edit', [KPIController::class, 'edit'])->name('admin.kpi.edit');
-        Route::put('/admin/kpi/{id}', [KPIController::class, 'update'])->name('admin.kpi.update');
+        // Route::put('/admin/kpi/{id}', [KPIController::class, 'update'])->name('admin.kpi.update');
         // Route::delete('/admin/kpi/{id}', [KPIController::class, 'destroy'])->name('admin.kpi.destroy');
         Route::get('/admin/kpi/manage/{position_id}', [KPIController::class, 'manage'])->name('admin.kpi.manage');
         Route::get('/admin/kpi/export', [KPIController::class, 'export'])->name('admin.kpi.export');
@@ -212,13 +219,13 @@ Route::middleware('auth')->group(function(){
     Route::delete('/user/leave/{id}', [UserLeaveController::class, 'destroy'])->name('user.leave.destroy');
 
     // kpi entry
-    Route::get('/user/kpi/kpiEntry/index', [UserKpiEntryController::class, 'index'])->name('user.kpi.kpiEntry.index');
-    Route::get('/user/kpi/kpiEntry/create', [UserKpiEntryController::class, 'create'])->name('user.kpi.kpiEntry.create');
-    Route::post('/user/kpi/kpiEntry', [UserKpiEntryController::class, 'store'])->name('user.kpi.kpiEntry.store');
-    Route::get('/user/kpi/kpiEntry/{id}/edit', [UserKpiEntryController::class, 'edit'])->name('user.kpi.kpiEntry.edit');
-    Route::put('/user/kpi/kpiEntry/{id}', [UserKpiEntryController::class, 'update'])->name('user.kpi.kpiEntry.update');
-    Route::get('/user/kpi/kpiEntry/export', [UserKpiEntryController::class, 'export'])->name('user.kpi.kpiEntry.export');
-    Route::get('/kpi/manage/{month}/{year}', [UserKpiController::class, 'manage'])->name('user.kpi.manage');
+    Route::get('/user/kpi/kpiEntry/index', [UserKpiController::class, 'index'])->name('user.kpi.kpiEntry.index');
+    Route::get('/user/kpi/kpiEntry/create', [UserKpiController::class, 'create'])->name('user.kpi.kpiEntry.create');
+    Route::post('/user/kpi/kpiEntry', [UserKpiController::class, 'store'])->name('user.kpi.kpiEntry.store');
+    Route::get('/user/kpi/kpiEntry/{id}/edit', [UserKpiController::class, 'edit'])->name('user.kpi.kpiEntry.edit');
+    Route::put('/user/kpi/kpiEntry/{id}', [UserKpiController::class, 'update'])->name('user.kpi.kpiEntry.update');
+    Route::get('/user/kpi/kpiEntry/export', [UserKpiController::class, 'export'])->name('user.kpi.kpiEntry.export');
+    Route::get('/user/kpi/manage/{month}/{year}', [UserKpiController::class, 'manage'])->name('user.kpi.manage');
 
     // schedule
     Route::get('/user/schedule/index', [UserScheduleController::class, 'index'])->name('user.schedule.index');

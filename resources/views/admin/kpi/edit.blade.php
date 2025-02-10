@@ -9,9 +9,20 @@
             <div class="p-6 border-2 border-gray-200 rounded-lg dark:border-gray-700 mt-14 bg-white shadow-sm">
                 <h2 class="text-2xl font-bold mb-6 text-gray-800 text-center">Edit Goal</h2> 
 
-                <!-- Goal Creation Form -->
-                <form action="{{ route('admin.kpi.store', ['position_id' => $position->id]) }}" method="POST">
+                @if ($errors->any())
+                    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4 text-sm">
+                        <ul>
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
+                <!-- Goal Edit Form -->
+                <form action="{{ route('admin.kpi.update', ['position_id' => $position->id, 'id' => $goal->id]) }}" method="POST">
                     @csrf
+                    @method('PUT')
 
                     <!-- Position Display -->
                     <div class="mb-6">
@@ -24,35 +35,19 @@
                         <!-- Goal Name -->
                         <div>
                             <label for="goal_name" class="block text-sm font-semibold text-gray-700 mb-2">Goal Name</label>
-                            <input type="text" name="goal_name" id="goal_name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
+                            <input type="text" name="goal_name" id="goal_name" value="{{ old('goal_name', $goal->goal_name) }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
                         </div>
 
                         <!-- Goal Score -->
                         <div>
                             <label for="goal_score" class="block text-sm font-semibold text-gray-700 mb-2">Goal Score</label>
-                            <input type="number" name="goal_score" id="goal_score" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
+                            <input type="number" step="0.01" name="goal_score" id="goal_score" value="{{ old('goal_score', $goal->goal_score) }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
                         </div>
 
                         <!-- Goal Unit -->
                         <div>
                             <label for="goal_unit" class="block text-sm font-semibold text-gray-700 mb-2">Goal Unit</label>
-                            <input type="text" name="goal_unit" id="goal_unit" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
-                        </div>
-
-                        <!-- Goal Type -->
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Goal Type</label>
-                            <div class="grid grid-cols-2 gap-4">
-                                <div class="flex items-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 cursor-pointer">
-                                    <input id="goal_type_monthly" type="radio" value="monthly" name="goal_type" class="w-4 h-4 text-blue-600 focus:ring-blue-500" required>
-                                    <label for="goal_type_monthly" class="ml-2 text-sm text-gray-700 cursor-pointer">Monthly</label>
-                                </div>
-                                
-                                <div class="flex items-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 cursor-pointer">
-                                    <input id="goal_type_yearly" type="radio" value="yearly" name="goal_type" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
-                                    <label for="goal_type_yearly" class="ml-2 text-sm text-gray-700 cursor-pointer">Yearly</label>
-                                </div>
-                            </div>
+                            <input type="text" name="goal_unit" id="goal_unit" value="{{ old('goal_unit', $goal->goal_unit) }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
                         </div>
 
                         <!-- Category Ranges -->
@@ -81,14 +76,14 @@
                                                 <input type="number" 
                                                        name="category_{{ $index + 1 }}_min" 
                                                        class="w-full px-3 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
-                                                       value="{{ old('category_' . ($index + 1) . '_min') }}">
+                                                       value="{{ old('category_' . ($index + 1) . '_min', $goal->category_score_ranges['category_' . ($index + 1)]['min'] ?? '') }}">
                                             </td>
                                             <td class="px-4 py-3">
                                                 <input type="number" 
                                                        name="category_{{ $index + 1 }}_max" 
                                                        class="w-full px-3 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
                                                        required 
-                                                       value="{{ old('category_' . ($index + 1) . '_max') }}">
+                                                       value="{{ old('category_' . ($index + 1) . '_max', $goal->category_score_ranges['category_' . ($index + 1)]['max'] ?? '') }}">
                                             </td>
                                         </tr>
                                     @endforeach

@@ -24,6 +24,14 @@
                            class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
                             <i class="fas fa-file-excel"></i> Export Excel
                         </a>
+                        {{-- <a href="{{ route('admin.leave.template') }}" 
+                           class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                            <i class="fas fa-download"></i> Download Template
+                        </a> --}}
+                        <a href="{{ route('admin.leave.predictions') }}" 
+                           class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                            <i class="fas fa-chart-line"></i> View Predictions
+                        </a>
                     </div>
                 </div>
 
@@ -58,6 +66,35 @@
                                         {{ $year }}
                                     </option>
                                 @endfor
+                            </select>
+                        </div>
+
+                        <!-- Month Filter -->
+                        <div class="flex-1">
+                            <label class="block text-sm font-medium text-gray-700">Month</label>
+                            <select name="month" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200">
+                                <option value="">All Months</option>
+                                @php
+                                    $months = [
+                                        1 => 'January',
+                                        2 => 'February',
+                                        3 => 'March',
+                                        4 => 'April',
+                                        5 => 'May',
+                                        6 => 'June',
+                                        7 => 'July',
+                                        8 => 'August',
+                                        9 => 'September',
+                                        10 => 'October',
+                                        11 => 'November',
+                                        12 => 'December'
+                                    ];
+                                @endphp
+                                @foreach($months as $value => $label)
+                                    <option value="{{ $value }}" {{ request('month') == $value ? 'selected' : '' }}>
+                                        {{ $label }}
+                                    </option>
+                                @endforeach
                             </select>
                         </div>
 
@@ -105,6 +142,26 @@
                         </div>
                     </div>
                 </form>
+
+                <!-- Import Form with spacing -->
+                <div class="flex justify-end mb-6">
+                    <form action="{{ route('admin.leave.import') }}" 
+                          method="POST" 
+                          enctype="multipart/form-data" 
+                          class="inline-flex items-center">
+                        @csrf
+                        <input type="file" 
+                               name="file" 
+                               accept=".csv,.xlsx,.xls" 
+                               class="hidden" 
+                               id="fileInput" 
+                               onchange="this.form.submit()">
+                        <label for="fileInput" 
+                               class="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded cursor-pointer">
+                            <i class="fas fa-upload"></i> Import Excel
+                        </label>
+                    </form>
+                </div>
 
                 <!-- Leave Table -->
                 <div class="overflow-x-auto relative">
@@ -214,6 +271,26 @@
                 <div class="mt-4">
                     {{ $leaves->links() }}
                 </div>
+
+                <!-- Success Message -->
+                @if(session('success'))
+                    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4">
+                        <strong class="font-bold">Success:</strong>
+                        <span class="block sm:inline">{{ session('success') }}</span>
+                    </div>
+                @endif
+
+                <!-- Import Errors -->
+                @if(session('importErrors'))
+                    <div class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded relative mb-4">
+                        <strong class="font-bold">Import completed with errors:</strong>
+                        <ul class="list-disc list-inside">
+                            @foreach(session('importErrors') as $error)
+                                <li>Row {{ $error['row'] }}: {{ $error['error'] }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
             </div>
         </div>
     </div>

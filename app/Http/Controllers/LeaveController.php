@@ -10,6 +10,12 @@ use App\Models\LeaveType;
 use App\Models\Leave;
 use App\Models\AnnualLeaveBalance;
 use App\Http\Controllers\AnnualLeaveBalanceController;
+use Carbon\Carbon;
+use App\Models\Position;
+use App\Models\Goal;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\LeaveImport;
+use App\Models\LeavePrediction;
 
 class LeaveController extends Controller
 {
@@ -57,54 +63,56 @@ class LeaveController extends Controller
     {
         $query = Leave::with(['user', 'leaveType']);
 
-        // Apply filters if they are present in the request
+        // User Filter
         if ($request->filled('user_id')) {
             $query->where('user_id', $request->user_id);
         }
 
+        // Year Filter
+        if ($request->filled('year')) {
+            $query->whereYear('from_date', $request->year);
+        }
+
+        // Month Filter
+        if ($request->filled('month')) {
+            $query->whereMonth('from_date', $request->month);
+        }
+
+        // Leave Type Filter
         if ($request->filled('leave_type_id')) {
             $query->where('leave_type_id', $request->leave_type_id);
         }
 
+        // Status Filter
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
 
-        // Year filter with extended range
-        $currentYear = date('Y');
-        $year = $request->input('year', $currentYear); // Default to current year if not specified
-        
-        // Allow filtering for any year in the specified range
-        $query->whereYear('from_date', $year);
-
+        // Date Filter
         if ($request->filled('filter_date')) {
-            $filterDate = $request->filter_date;
-            $query->where(function($q) use ($filterDate) {
-                $q->where('from_date', '<=', $filterDate)
-                  ->where('to_date', '>=', $filterDate);
-            });
+            $query->whereDate('from_date', $request->filter_date);
         }
 
-        // Order by created_at in descending order to show newest leaves first
-        $query->orderBy('created_at', 'desc');
-
-        // Paginate the results
-        $leaves = $query->paginate(10);
-
-        // Get only active leave types for the filters
+        $leaves = $query->orderBy('created_at', 'desc')->paginate(10);
+        
+        // Get other data for dropdowns
         $users = User::all();
-        $leaveTypes = LeaveType::where('status', 'active')->get();
+        $leaveTypes = LeaveType::all();
 
-        return view('admin.leave.index', compact('leaves', 'users', 'leaveTypes', 'currentYear'));
+        $predictions = LeavePrediction::where('date', '>=', now())
+            ->where('date', '<=', now()->addDays(30))
+            ->orderBy('date')
+            ->get();
+
+        return view('admin.leave.index', compact('leaves', 'users', 'leaveTypes', 'predictions'));
     }
 
-    public function edit($id)
+    public function edit($position_id, $id)
     {
-        $leave = Leave::findOrFail($id);
-        $users = User::all();
-        $leaveTypes = LeaveType::where('status', 'active')->get();
-        
-        return view('admin.leave.edit', compact('leave', 'users', 'leaveTypes'));
+        $position = Position::findOrFail($position_id);
+        $goal = Goal::findOrFail($id);
+
+        return view('admin.kpi.edit', compact('position', 'goal'));
     }
 
     public function update(Request $request, $id)
@@ -269,19 +277,13 @@ class LeaveController extends Controller
     {
         try {
             $leaves = Leave::with(['user', 'leaveType'])->get();
-
-            $headers = [
-                'Content-Type' => 'text/csv',
-                'Content-Disposition' => 'attachment; filename=leave_records.csv',
-                'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
-                'Pragma' => 'public'
-            ];
-
-            $output = fopen('php://output', 'w');
-            fputs($output, chr(0xEF) . chr(0xBB) . chr(0xBF)); // Add BOM for Excel
-
-            // Write headers
-            fputcsv($output, [
+            
+            $filename = "leaves_" . date('Y-m-d_His') . ".csv";
+            
+            $csvData = [];
+            
+            // Headers
+            $csvData[] = [
                 'Employee Name',
                 'Leave Type',
                 'From Date',
@@ -290,37 +292,126 @@ class LeaveController extends Controller
                 'Reason',
                 'Status',
                 'Applied Date'
-            ]);
-
-            // Write data
+            ];
+            
+            // Data
             foreach ($leaves as $leave) {
-                fputcsv($output, [
-                    $leave->user->username,
+                $fromDate = $leave->from_date instanceof \Carbon\Carbon 
+                    ? $leave->from_date->format('d/m/Y') 
+                    : date('d/m/Y', strtotime($leave->from_date));
+                    
+                $toDate = $leave->to_date instanceof \Carbon\Carbon 
+                    ? $leave->to_date->format('d/m/Y') 
+                    : date('d/m/Y', strtotime($leave->to_date));
+                    
+                $appliedDate = $leave->created_at instanceof \Carbon\Carbon 
+                    ? $leave->created_at->format('d/m/Y') 
+                    : date('d/m/Y', strtotime($leave->created_at));
+
+                $csvData[] = [
+                    $leave->user->username ?? 'N/A',
                     $leave->leaveType->leave_type,
-                    date('d/m/Y', strtotime($leave->from_date)),
-                    date('d/m/Y', strtotime($leave->to_date)),
+                    $fromDate,
+                    $toDate,
                     $leave->number_of_days,
-                    $leave->reason,
+                    $leave->reason ?? '-',
                     ucfirst($leave->status),
-                    date('d/m/Y', strtotime($leave->created_at))
-                ]);
+                    $appliedDate
+                ];
             }
-
-            fclose($output);
-
-            return response()->stream(
-                function() {
-                    // Data has already been written to output
-                },
-                200,
-                $headers
-            );
+            
+            $handle = fopen('php://temp', 'w');
+            fputs($handle, chr(0xEF) . chr(0xBB) . chr(0xBF)); // BOM for Excel
+            
+            foreach ($csvData as $row) {
+                fputcsv($handle, $row);
+            }
+            
+            rewind($handle);
+            $csv = stream_get_contents($handle);
+            fclose($handle);
+            
+            return response($csv)
+                ->header('Content-Type', 'text/csv; charset=UTF-8')
+                ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
 
         } catch (\Exception $e) {
-            \Log::error('Export Error', [
-                'error' => $e->getMessage()
-            ]);
-            return back()->withErrors(['error' => 'Failed to export data']);
+            \Log::error('Export error: ' . $e->getMessage());
+            return back()->with('error', 'Failed to export data: ' . $e->getMessage());
         }
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:csv,xlsx,xls|max:2048'
+        ]);
+
+        try {
+            $import = new LeaveImport;
+            Excel::import($import, $request->file('file'));
+
+            $errors = $import->getErrors();
+            
+            if (count($errors) > 0) {
+                return redirect()
+                    ->route('admin.leave.index')
+                    ->with('importErrors', $errors)
+                    ->with('success', 'Import completed with some errors.');
+            }
+
+            return redirect()
+                ->route('admin.leave.index')
+                ->with('success', 'All records imported successfully.');
+
+        } catch (\Exception $e) {
+            return redirect()
+                ->route('admin.leave.index')
+                ->with('error', 'Error importing file: ' . $e->getMessage());
+        }
+    }
+
+    public function downloadTemplate()
+    {
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename=leave_import_template.csv',
+            'Pragma' => 'no-cache',
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires' => '0'
+        ];
+
+        $callback = function() {
+            $file = fopen('php://output', 'w');
+            fputs($file, chr(0xEF) . chr(0xBB) . chr(0xBF)); // BOM for Excel
+
+            // Add header row - matching the actual Excel columns
+            fputcsv($file, [
+                'employee_name',
+                'leave_type',
+                'from_date',
+                'to_date',
+                'number_of_days',
+                'reason',
+                'status',
+                'applied_date'
+            ]);
+
+            // Add sample row
+            fputcsv($file, [
+                'john_doe',
+                'Annual Leave',
+                '01/01/2024',
+                '02/01/2024',
+                '2',
+                'Vacation',
+                'Pending',
+                '01/01/2024'
+            ]);
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 }
