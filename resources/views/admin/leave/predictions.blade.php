@@ -9,10 +9,10 @@
             <div class="p-4 border-2 border-gray-200 rounded-lg dark:border-gray-700 mt-14">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-lg font-semibold">Leave Predictions Overview</h2>
-                    <button onclick="runPrediction()" 
+                    {{-- <button onclick="runPrediction()" 
                             class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-3 rounded text-sm">
                         Update Predictions
-                    </button>
+                    </button> --}}
                 </div>
 
                 <!-- Leave Trend Graph -->

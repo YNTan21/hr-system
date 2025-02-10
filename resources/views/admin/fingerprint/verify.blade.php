@@ -41,9 +41,9 @@
     <div id="mainContent" class="">
         <div class="container mx-auto px-4 py-8">
             <div class="max-w-5xl mx-auto bg-white rounded-lg shadow-md p-8">
-                <!-- Add Home Button -->
+                <!-- Home Button with Auth Check -->
                 <div class="mb-4">
-                    <a href="{{ route('login') }}" 
+                    <a href="{{ Auth::check() ? route('fingerprint.index') : route('login') }}" 
                        class="inline-flex items-center justify-center w-10 h-10 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
                         <i class="fas fa-home"></i>
                     </a>
