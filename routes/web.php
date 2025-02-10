@@ -34,7 +34,7 @@ Route::middleware('auth')->group(function(){
     
     // admin dashboard
     Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
-    Route::get('/overtime-data/{month}', [DashboardController::class, 'getOvertimeData']);
+    Route::get('/api/overtime-data/{month}', [DashboardController::class, 'getOvertimeData']);
 
     // user dashboard
     Route::get('/user/dashboard', [PageController::class, 'user_dashboard'])->name('user.dashboard');

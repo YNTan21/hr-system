@@ -17,7 +17,12 @@
                            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                             <i class="fas fa-plus"></i> Add Attendance
                         </a>
-                        <a href="{{ route('admin.attendance.export') }}" 
+                        <a href="{{ route('admin.attendance.export', [
+                                'user_id' => request('user_id'),
+                                'month' => request('month'),
+                                'week' => request('week'),
+                                'date' => request('date')
+                            ]) }}" 
                            class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
                             <i class="fas fa-file-excel"></i> Export Excel
                         </a>

@@ -59,20 +59,36 @@ class DashboardController extends Controller
     public function getOvertimeData($month)
     {
         try {
+            DB::enableQueryLog();
+            
             $year = date('Y');
             $startDate = Carbon::create($year, $month, 1, 0, 0, 0);
             $endDate = $startDate->copy()->endOfMonth();
             
+            \Log::info('Query Parameters:', [
+                'start_date' => $startDate->toDateString(),
+                'end_date' => $endDate->toDateString(),
+                'month' => $month,
+                'year' => $year
+            ]);
+
             $overtimeData = DB::table('attendances')
                 ->join('users', 'attendances.user_id', '=', 'users.id')
                 ->whereBetween('attendances.date', [$startDate, $endDate])
-                ->where('attendances.overtime_hours', '>', 0)
+                ->whereNotNull('attendances.overtime')
+                ->where('attendances.overtime', '!=', 0)
                 ->select(
-                    'users.name',
-                    DB::raw('SUM(CASE WHEN overtime_hours > 0 THEN overtime_hours ELSE 0 END) as total_hours')
+                    'users.username as name',
+                    DB::raw('SUM(attendances.overtime) as total_hours')
                 )
-                ->groupBy('users.name')
+                ->groupBy('users.username')  // 只按用户名分组
                 ->get();
+
+            \Log::info('Query Result:', [
+                'data' => $overtimeData,
+                'count' => $overtimeData->count(),
+                'sql' => DB::getQueryLog()
+            ]);
 
             return response()->json([
                 'usernames' => $overtimeData->pluck('name'),
@@ -81,7 +97,8 @@ class DashboardController extends Controller
                     'month' => $month,
                     'start_date' => $startDate->toDateString(),
                     'end_date' => $endDate->toDateString(),
-                    'count' => $overtimeData->count()
+                    'count' => $overtimeData->count(),
+                    'data' => $overtimeData
                 ]
             ]);
         } catch (\Exception $e) {

@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FingerprintClocklogsController;
 use App\Http\Controllers\FingerprintController;
 use App\Http\Controllers\AttendanceScheduleController;
-use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Auth\DashboardController;
 use App\Http\Controllers\PinVerificationController;
 
 Route::middleware('api')->group(function () {
@@ -16,4 +16,4 @@ Route::middleware('api')->group(function () {
     Route::post('/verify-pin', [PinVerificationController::class, 'verify']);
 });
 
-Route::get('/overtime-data/{month}', [App\Http\Controllers\Auth\DashboardController::class, 'getOvertimeData']);
+Route::get('/overtime-data/{month}', [DashboardController::class, 'getOvertimeData']);
