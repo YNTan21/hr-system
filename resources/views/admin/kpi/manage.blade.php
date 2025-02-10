@@ -22,6 +22,12 @@
                     </div>
                 </div>
 
+                @if(session('success'))
+                    <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4 text-sm">
+                        {{ session('success') }}
+                    </div>
+                @endif
+
                 @if ($goals->isEmpty())
                     <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4 text-sm">
                         <p>No goals assigned for this position. Please add a goal first.</p>

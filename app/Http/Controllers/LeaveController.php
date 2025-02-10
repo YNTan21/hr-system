@@ -10,6 +10,12 @@ use App\Models\LeaveType;
 use App\Models\Leave;
 use App\Models\AnnualLeaveBalance;
 use App\Http\Controllers\AnnualLeaveBalanceController;
+use Carbon\Carbon;
+use App\Models\Position;
+use App\Models\Goal;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\LeaveImport;
+use App\Models\LeavePrediction;
 
 class LeaveController extends Controller
 {
@@ -95,16 +101,20 @@ class LeaveController extends Controller
         $users = User::all();
         $leaveTypes = LeaveType::where('status', 'active')->get();
 
-        return view('admin.leave.index', compact('leaves', 'users', 'leaveTypes', 'currentYear'));
+        $predictions = LeavePrediction::where('date', '>=', now())
+            ->where('date', '<=', now()->addDays(30))
+            ->orderBy('date')
+            ->get();
+
+        return view('admin.leave.index', compact('leaves', 'users', 'leaveTypes', 'currentYear', 'predictions'));
     }
 
-    public function edit($id)
+    public function edit($position_id, $id)
     {
-        $leave = Leave::findOrFail($id);
-        $users = User::all();
-        $leaveTypes = LeaveType::where('status', 'active')->get();
-        
-        return view('admin.leave.edit', compact('leave', 'users', 'leaveTypes'));
+        $position = Position::findOrFail($position_id);
+        $goal = Goal::findOrFail($id);
+
+        return view('admin.kpi.edit', compact('position', 'goal'));
     }
 
     public function update(Request $request, $id)
@@ -265,20 +275,32 @@ class LeaveController extends Controller
         return view('admin.leave.leave-balance', compact('leaves', 'users'));
     }
 
-    public function export()
+    public function export(Request $request)
     {
         try {
-            $leaves = Leave::with(['user', 'leaveType'])->get();
+            $query = Leave::with(['user', 'leaveType']);
+            
+            if ($request->from_date) {
+                $query->whereDate('from_date', '>=', $request->from_date);
+            }
+            if ($request->to_date) {
+                $query->whereDate('to_date', '<=', $request->to_date);
+            }
+            if ($request->user_id) {
+                $query->where('user_id', $request->user_id);
+            }
+
+            $leaves = $query->orderBy('from_date', 'desc')->get();
 
             $headers = [
                 'Content-Type' => 'text/csv',
-                'Content-Disposition' => 'attachment; filename=leave_records.csv',
+                'Content-Disposition' => 'attachment; filename=leave_report.csv',
                 'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
                 'Pragma' => 'public'
             ];
 
             $output = fopen('php://output', 'w');
-            fputs($output, chr(0xEF) . chr(0xBB) . chr(0xBF)); // Add BOM for Excel
+            fputs($output, chr(0xEF) . chr(0xBB) . chr(0xBF));
 
             // Write headers
             fputcsv($output, [
@@ -292,17 +314,21 @@ class LeaveController extends Controller
                 'Applied Date'
             ]);
 
-            // Write data
+            // Write data rows
             foreach ($leaves as $leave) {
+                $fromDate = Carbon::parse($leave->from_date)->format('d/m/Y');
+                $toDate = Carbon::parse($leave->to_date)->format('d/m/Y');
+                $appliedDate = Carbon::parse($leave->created_at)->format('d/m/Y');
+
                 fputcsv($output, [
                     $leave->user->username,
                     $leave->leaveType->leave_type,
-                    date('d/m/Y', strtotime($leave->from_date)),
-                    date('d/m/Y', strtotime($leave->to_date)),
+                    "=\"$fromDate\"",  // Add quotes and equals sign for Excel
+                    "=\"$toDate\"",    // Add quotes and equals sign for Excel
                     $leave->number_of_days,
                     $leave->reason,
                     ucfirst($leave->status),
-                    date('d/m/Y', strtotime($leave->created_at))
+                    "=\"$appliedDate\"" // Add quotes and equals sign for Excel
                 ]);
             }
 
@@ -310,7 +336,7 @@ class LeaveController extends Controller
 
             return response()->stream(
                 function() {
-                    // Data has already been written to output
+                    // Data has already been written to output stream
                 },
                 200,
                 $headers
@@ -322,5 +348,79 @@ class LeaveController extends Controller
             ]);
             return back()->withErrors(['error' => 'Failed to export data']);
         }
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:csv,xlsx,xls|max:2048'
+        ]);
+
+        try {
+            $import = new LeaveImport;
+            Excel::import($import, $request->file('file'));
+
+            $errors = $import->getErrors();
+            
+            if (count($errors) > 0) {
+                return redirect()
+                    ->route('admin.leave.index')
+                    ->with('importErrors', $errors)
+                    ->with('success', 'Import completed with some errors.');
+            }
+
+            return redirect()
+                ->route('admin.leave.index')
+                ->with('success', 'All records imported successfully.');
+
+        } catch (\Exception $e) {
+            return redirect()
+                ->route('admin.leave.index')
+                ->with('error', 'Error importing file: ' . $e->getMessage());
+        }
+    }
+
+    public function downloadTemplate()
+    {
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename=leave_import_template.csv',
+            'Pragma' => 'no-cache',
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires' => '0'
+        ];
+
+        $callback = function() {
+            $file = fopen('php://output', 'w');
+            fputs($file, chr(0xEF) . chr(0xBB) . chr(0xBF)); // BOM for Excel
+
+            // Add header row - matching the actual Excel columns
+            fputcsv($file, [
+                'employee_name',
+                'leave_type',
+                'from_date',
+                'to_date',
+                'number_of_days',
+                'reason',
+                'status',
+                'applied_date'
+            ]);
+
+            // Add sample row
+            fputcsv($file, [
+                'john_doe',
+                'Annual Leave',
+                '01/01/2024',
+                '02/01/2024',
+                '2',
+                'Vacation',
+                'Pending',
+                '01/01/2024'
+            ]);
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 }
