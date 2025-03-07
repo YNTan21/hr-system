@@ -16,6 +16,7 @@ use App\Models\Goal;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\LeaveImport;
 use App\Models\LeavePrediction;
+use Illuminate\Support\Facades\Http;
 
 class LeaveController extends Controller
 {
@@ -413,5 +414,156 @@ class LeaveController extends Controller
         };
 
         return response()->stream($callback, 200, $headers);
+    }
+
+    private function getPublicHolidays($year, $month)
+    {
+        try {
+            $response = Http::get("https://date.nager.at/api/v3/PublicHolidays/{$year}/MY");
+
+            if ($response->successful()) {
+                $holidays = $response->json();
+                
+                // Filter holidays for the current month and transform the data
+                return collect($holidays)
+                    ->filter(function ($holiday) use ($month) {
+                        return Carbon::parse($holiday['date'])->month == $month;
+                    })
+                    ->mapWithKeys(function ($holiday) {
+                        return [
+                            $holiday['date'] => [
+                                'name' => $holiday['localName'],
+                                'description' => $holiday['name'],
+                                'type' => 'holiday'
+                            ]
+                        ];
+                    });
+            }
+            
+            return collect([]);
+        } catch (\Exception $e) {
+            \Log::error('Failed to fetch public holidays: ' . $e->getMessage());
+            return collect([]);
+        }
+    }
+
+    private function generateCalendar($month = null, $year = null)
+    {
+        $month = $month ?? date('n');
+        $year = $year ?? date('Y');
+        
+        // Get the first day of the month
+        $firstDay = Carbon::create($year, $month, 1);
+        
+        // Get today's date for comparison
+        $today = Carbon::today();
+        
+        // Get the first day of the calendar (might be in previous month)
+        $start = $firstDay->copy()->startOfWeek(Carbon::SUNDAY);
+        
+        // Get the last day of the calendar (might be in next month)
+        $end = $firstDay->copy()->endOfMonth()->endOfWeek(Carbon::SATURDAY);
+        
+        // Get public holidays
+        $publicHolidays = $this->getPublicHolidays($year, $month);
+        
+        // Get all leaves for the visible calendar period
+        $leaves = Leave::where(function($query) use ($start, $end) {
+            $query->whereBetween('from_date', [$start->format('Y-m-d'), $end->format('Y-m-d')])
+                  ->orWhereBetween('to_date', [$start->format('Y-m-d'), $end->format('Y-m-d')]);
+        })
+        ->with(['user', 'leaveType'])
+        ->get();
+        
+        $calendar = [];
+        $currentDate = $start->copy();
+        
+        // Generate calendar data
+        while ($currentDate <= $end) {
+            $date = $currentDate->format('Y-m-d');
+            
+            // Get leaves for this day
+            $dayLeaves = $leaves->filter(function($leave) use ($currentDate) {
+                $fromDate = Carbon::parse($leave->from_date);
+                $toDate = Carbon::parse($leave->to_date);
+                return $currentDate->between($fromDate, $toDate);
+            });
+            
+            $calendar[] = [
+                'day' => $currentDate->format('j'),
+                'date' => $date,
+                'isCurrentMonth' => $currentDate->month == $month,
+                'isToday' => $currentDate->isToday(),
+                'leaves' => $dayLeaves,
+                'holiday' => $publicHolidays->get($date)
+            ];
+            
+            $currentDate->addDay();
+        }
+        
+        return $calendar;
+    }
+
+    public function calendar(Request $request)
+    {
+        $currentMonth = $request->get('month', now()->month);
+        $currentYear = $request->get('year', now()->year);
+
+        // Generate months array
+        $months = [
+            ['value' => 1, 'name' => 'January'],
+            ['value' => 2, 'name' => 'February'],
+            ['value' => 3, 'name' => 'March'],
+            ['value' => 4, 'name' => 'April'],
+            ['value' => 5, 'name' => 'May'],
+            ['value' => 6, 'name' => 'June'],
+            ['value' => 7, 'name' => 'July'],
+            ['value' => 8, 'name' => 'August'],
+            ['value' => 9, 'name' => 'September'],
+            ['value' => 10, 'name' => 'October'],
+            ['value' => 11, 'name' => 'November'],
+            ['value' => 12, 'name' => 'December']
+        ];
+
+        // Generate years array (e.g., current year -2 to +2)
+        $years = range(now()->year - 2, now()->year + 2);
+
+        // Get prev month and year
+        if ($currentMonth == 1) {
+            $prevMonth = 12;
+            $prevYear = $currentYear - 1;
+        } else {
+            $prevMonth = $currentMonth - 1;
+            $prevYear = $currentYear;
+        }
+
+        // Get next month and year
+        if ($currentMonth == 12) {
+            $nextMonth = 1;
+            $nextYear = $currentYear + 1;
+        } else {
+            $nextMonth = $currentMonth + 1;
+            $nextYear = $currentYear;
+        }
+
+        // Format current month name
+        $monthName = date('F', mktime(0, 0, 0, $currentMonth, 1));
+
+        $calendar = $this->generateCalendar($currentMonth, $currentYear);
+        $leaveTypes = LeaveType::where('status', 'active')->get();
+
+        return view('admin.leave.calendar', compact(
+            'calendar', 
+            'leaveTypes', 
+            'monthName', 
+            'currentYear',
+            'prevMonth',
+            'prevYear',
+            'nextMonth',
+            'nextYear',
+            'months',
+            'years',
+            'currentMonth'
+        ));
     }
 }

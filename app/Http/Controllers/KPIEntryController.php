@@ -9,114 +9,217 @@ use App\Models\Position;
 use App\Models\Employee;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use App\Models\Goal;
+use Illuminate\Support\Facades\DB;
 
 class KPIEntryController extends Controller
 {
     public function index(Request $request)
     {
-        try {
-            // Get users and selected user
-            $users = User::all();
-            $selectedUser = $request->filled('user_id') ? User::find($request->user_id) : auth()->user();
+        // Define months array
+        $months = [
+            1 => 'January',
+            2 => 'February',
+            3 => 'March',
+            4 => 'April',
+            5 => 'May',
+            6 => 'June',
+            7 => 'July',
+            8 => 'August',
+            9 => 'September',
+            10 => 'October',
+            11 => 'November',
+            12 => 'December'
+        ];
 
-            // Get current month and year
-            $currentMonth = $request->filled('month') ? $request->month : Carbon::now()->month;
-            $currentYear = $request->filled('year') ? $request->year : Carbon::now()->year;
+        // Generate years array (5 years before and after current year)
+        $currentYear = now()->year;
+        $years = range($currentYear - 5, $currentYear + 5);
 
-            // Debug user's position
-            \Log::info('Selected User:', [
-                'user_id' => $selectedUser->id,
-                'position_id' => $selectedUser->position_id
-            ]);
-
-            // Get goals based on user's position_id
-            $goals = KPIGoal::where('position_id', $selectedUser->position_id)
-                        ->orderBy('goal_name')
-                        ->get();
-
-            // Debug goals
-            \Log::info('Goals found:', [
-                'count' => $goals->count(),
-                'position_id' => $selectedUser->position_id,
-                'goals' => $goals->pluck('goal_name', 'id')
-            ]);
-
-            // Get existing KPI entries
-            $existingEntries = KpiEntry::where('users_id', $selectedUser->id)
-                ->where('month', $currentMonth)
-                ->where('year', $currentYear)
-                ->get()
-                ->keyBy('goals_id');
-
-            $months = [
-                1 => 'January', 2 => 'February', 3 => 'March', 4 => 'April',
-                5 => 'May', 6 => 'June', 7 => 'July', 8 => 'August',
-                9 => 'September', 10 => 'October', 11 => 'November', 12 => 'December'
-            ];
-
-            $years = range(date('Y'), date('Y') + 10);
-
-            return view('admin.kpi.kpiEntry.index', compact(
-                'goals',
-                'existingEntries',
-                'users',
-                'selectedUser',
-                'months',
-                'years',
-                'currentMonth',
-                'currentYear'
-            ));
-
-        } catch (\Exception $e) {
-            \Log::error('Error in KpiEntryController@index: ' . $e->getMessage());
-            return back()->with('error', 'An error occurred while loading the KPI entries.');
+        // Get the selected month and year, default to current if not provided
+        $currentMonth = $request->get('month', now()->month);
+        $currentYear = $request->get('year', $currentYear);
+        
+        // Get the selected user, default to first admin if not provided
+        $selectedUser = null;
+        if ($request->has('user_id')) {
+            $selectedUser = User::findOrFail($request->user_id);
+        } else {
+            // Redirect to the same page with a user_id parameter to prevent loops
+            $firstUser = User::first();
+            if ($firstUser) {
+                return redirect()->route('admin.kpi.kpiEntry.index', [
+                    'user_id' => $firstUser->id,
+                    'month' => $currentMonth,
+                    'year' => $currentYear
+                ]);
+            }
         }
+
+        if (!$selectedUser) {
+            return back()->with('error', 'No users found in the system.');
+        }
+
+        // Get goals based on user's position
+        $goals = KPIGoal::where('position_id', $selectedUser->position_id)->get();
+
+        // Get existing entries for the selected month/year/user
+        $existingEntries = KpiEntry::where([
+            'users_id' => $selectedUser->id,
+            'month' => $currentMonth,
+            'year' => $currentYear,
+        ])->get()->keyBy('goals_id');
+
+        // Get all users for the dropdown
+        $users = User::all();
+
+        // 检查每个目标是否有被还原的历史记录
+        $hasRevertedHistory = [];
+        foreach ($goals as $goal) {
+            $hasRevertedHistory[$goal->id] = KpiEntry::onlyTrashed()  // 使用 onlyTrashed() 来查找被软删除的记录
+                ->where([
+                    'goals_id' => $goal->id,
+                    'users_id' => $selectedUser->id,
+                    'month' => $currentMonth,
+                    'year' => $currentYear
+                ])
+                ->exists();  // 如果有被软删除的记录，说明有还原历史
+        }
+
+        return view('admin.kpi.kpiEntry.index', compact(
+            'goals',
+            'users',
+            'selectedUser',
+            'months',
+            'years',
+            'currentMonth',
+            'currentYear',
+            'existingEntries',
+            'hasRevertedHistory'
+        ));
     }
 
     public function create(Request $request)
     {
-        $goal = KPIGoal::findOrFail($request->goal_id);
-        $user_id = $request->user_id;
+        $goalId = $request->goal_id;
         $month = $request->month;
         $year = $request->year;
+        $userId = $request->user_id;
 
-        return view('admin.kpi.kpiEntry.create', compact('goal', 'user_id', 'month', 'year'));
+        // Check if there's an existing entry
+        $existingEntry = KpiEntry::where([
+            'goals_id' => $goalId,
+            'users_id' => $userId,
+            'month' => $month,
+            'year' => $year
+        ])->first();
+
+        // Get the goal and user data
+        $goal = KPIGoal::findOrFail($goalId);
+        $user = User::findOrFail($userId);
+
+        // If there's a reverted entry, update it instead of creating new
+        if ($existingEntry && $existingEntry->status === 'reverted') {
+            return view('admin.kpi.kpiEntry.edit', compact('entry', 'goal', 'month', 'year', 'user'));
+        }
+
+        // Otherwise proceed with normal create
+        return view('admin.kpi.kpiEntry.create', compact('goal', 'month', 'year', 'user'));
     }
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'users_id' => 'required',
-            'goals_id' => 'required',
-            'actual_result' => 'required|numeric|between:0,999999.99',
-            'month' => 'required',
-            'year' => 'required',
-        ]);
+        try {
+            \Log::info('Starting KPI Entry store', [
+                'request_data' => $request->all()
+            ]);
 
-        $goal = KPIGoal::findOrFail($request->goals_id);
+            $validated = $request->validate([
+                'actual_result' => 'required|numeric',
+                'goals_id' => 'required|exists:goals,id',
+                'users_id' => 'required|exists:users,id',
+                'month' => 'required',
+                'year' => 'required'
+            ]);
+
+            $goal = KPIGoal::findOrFail($request->goals_id);
+            $ranges = json_decode($goal->category_score_ranges, true);
+            $actualScore = 0;
+            
+            // 根据实际结果和范围确定 category (0-4)
+            foreach ($ranges as $category => $range) {
+                if ($request->actual_result >= $range['min'] && $request->actual_result <= $range['max']) {
+                    // 从 category_1 中提取数字并减1 (因为范围是0-4)
+                    $actualScore = (int)substr($category, -1) - 1;
+                    break;
+                }
+            }
+
+            // 计算 final_score：(actual_score / 4) * goal_score
+            $finalScore = ($actualScore / 4) * $goal->goal_score;
+
+            DB::beginTransaction();
+            try {
+                $entry = new KpiEntry();
+                $entry->users_id = $request->users_id;
+                $entry->goals_id = $request->goals_id;
+                $entry->actual_result = $request->actual_result;
+                $entry->actual_score = $actualScore;
+                $entry->final_score = $finalScore;
+                $entry->month = $request->month;
+                $entry->year = $request->year;
+                $entry->status = 'pending';
+
+                $saved = $entry->save();
+
+                if (!$saved) {
+                    throw new \Exception('Failed to save entry');
+                }
+
+                DB::commit();
+
+                return redirect()->route('admin.kpi.kpiEntry.index', [
+                    'user_id' => $request->users_id,
+                    'month' => $request->month,
+                    'year' => $request->year
+                ])->with('success', 'KPI entry has been created successfully.');
+
+            } catch (\Exception $e) {
+                DB::rollBack();
+                throw $e;
+            }
+
+        } catch (\Exception $e) {
+            \Log::error('KPI Entry Store Error:', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return back()
+                ->withInput()
+                ->with('error', 'Failed to create KPI entry: ' . $e->getMessage());
+        }
+    }
+
+    private function calculateScore($actualResult, $goal)
+    {
         $ranges = json_decode($goal->category_score_ranges, true);
-        
-        // Calculate the category score (0 for category 1, 1 for category 2, etc.)
-        $actual_score = $this->calculateCategoryScore($request->actual_result, $ranges);
-        
-        // Calculate final score: (actual_score / 4) * goal_score
-        $final_score = round(($actual_score / 4) * $goal->goal_score);
+        $score = 0;
 
-        KpiEntry::create([
-            'users_id' => $request->users_id,
-            'goals_id' => $request->goals_id,
-            'actual_result' => $request->actual_result,
-            'actual_score' => (int)$actual_score,
-            'final_score' => (int)$final_score,
-            'month' => $request->month,
-            'year' => $request->year,
-        ]);
+        foreach ($ranges as $category => $range) {
+            if ($actualResult >= $range['min'] && $actualResult <= $range['max']) {
+                switch ($category) {
+                    case 'category_1': $score = 0; break;
+                    case 'category_2': $score = 1; break;
+                    case 'category_3': $score = 2; break;
+                    case 'category_4': $score = 3; break;
+                    case 'category_5': $score = 4; break;
+                }
+                break;
+            }
+        }
 
-        return redirect()->route('admin.kpi.kpiEntry.index', [
-            'user_id' => $request->users_id,
-            'month' => $request->month,
-            'year' => $request->year
-        ])->with('success', 'KPI Entry created successfully');
+        return $score;
     }
 
     public function edit($id)
@@ -127,30 +230,37 @@ class KPIEntryController extends Controller
 
     public function update(Request $request, $id)
     {
-        $validated = $request->validate([
-            'actual_result' => 'required|numeric|between:0,999999.99',
-        ]);
+        try {
+            $entry = KpiEntry::findOrFail($id);
+            $goal = KPIGoal::findOrFail($entry->goals_id);
+            
+            $validated = $request->validate([
+                'actual_result' => 'required|numeric|between:0,999999.99',
+            ]);
 
-        $entry = KpiEntry::findOrFail($id);
-        $goal = KPIGoal::findOrFail($entry->goals_id);
-        $ranges = json_decode($goal->category_score_ranges, true);
-        
-        $actual_score = $this->calculateCategoryScore($request->actual_result, $ranges);
-        
-        // Calculate final score: (actual_score / 4) * goal_score
-        $final_score = round(($actual_score / 4) * $goal->goal_score);
+            $ranges = json_decode($goal->category_score_ranges, true);
+            $actualScore = 0;
+            
+            foreach ($ranges as $category => $range) {
+                if ($request->actual_result >= $range['min'] && $request->actual_result <= $range['max']) {
+                    $actualScore = $category;
+                    break;
+                }
+            }
 
-        $entry->update([
-            'actual_result' => $request->actual_result,
-            'actual_score' => (int)$actual_score,
-            'final_score' => (int)$final_score,
-        ]);
+            $entry->actual_result = $request->actual_result;
+            $entry->actual_score = $actualScore;
+            $entry->final_score = $actualScore * ($goal->goal_score / 5);
+            $entry->save();
 
-        return redirect()->route('admin.kpi.kpiEntry.index', [
-            'user_id' => $entry->users_id,
-            'month' => $entry->month,
-            'year' => $entry->year,
-        ])->with('success', 'KPI Entry updated successfully');
+            return redirect()->route('admin.kpi.kpiEntry.index', [
+                'user_id' => $entry->users_id,
+                'month' => $entry->month,
+                'year' => $entry->year,
+            ])->with('success', 'KPI Entry updated successfully');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Failed to update KPI entry: ' . $e->getMessage());
+        }
     }
 
     public function destroy($id)
@@ -313,5 +423,89 @@ class KPIEntryController extends Controller
             ]);
             return back()->withErrors(['error' => 'Failed to export data']);
         }
+    }
+
+    public function approve($id)
+    {
+        $entry = KpiEntry::findOrFail($id);
+        
+        try {
+            $entry->update([
+                'status' => 'approved'
+            ]);
+
+            return redirect()->route('admin.kpi.kpiEntry.index', [
+                'user_id' => $entry->users_id,
+                'month' => $entry->month,
+                'year' => $entry->year
+            ])->with('success', 'KPI entry has been approved successfully.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Failed to approve KPI entry: ' . $e->getMessage());
+        }
+    }
+
+    public function reject(KpiEntry $entry)
+    {
+        $entry->update([
+            'status' => 'rejected'
+        ]);
+
+        return back()->with('success', 'KPI entry has been rejected. User can now edit the entry again.');
+    }
+
+    public function revert($id)
+    {
+        $entry = KpiEntry::findOrFail($id);
+        
+        try {
+            // Store the current values in reverted fields before clearing
+            $entry->update([
+                'reverted_actual_result' => $entry->actual_result,
+                'reverted_actual_score' => $entry->actual_score,
+                'reverted_at' => now(),
+            ]);
+
+            // Delete the current entry
+            $entry->delete();
+
+            return redirect()->route('admin.kpi.kpiEntry.index', [
+                'user_id' => $entry->users_id,
+                'month' => $entry->month,
+                'year' => $entry->year
+            ])->with('success', 'KPI entry has been reverted to no entry status.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Failed to revert KPI entry: ' . $e->getMessage());
+        }
+    }
+
+    public function history($goal_id, $user_id, $month, $year)
+    {
+        $entries = KpiEntry::onlyTrashed()
+            ->where([
+                'goals_id' => $goal_id,
+                'users_id' => $user_id,
+                'month' => $month,
+                'year' => $year
+            ])
+            ->orderBy('deleted_at', 'asc')  // 改为升序，最早的记录在前
+            ->get();
+
+        if ($entries->isEmpty()) {
+            return response()->json([
+                'entries' => []
+            ]);
+        }
+
+        $formattedEntries = $entries->map(function($entry, $index) {
+            return [
+                'sequence' => $index + 1,  // 添加序号
+                'date' => $entry->deleted_at->format('Y-m-d'),
+                'result' => number_format($entry->actual_result, 2)
+            ];
+        });
+
+        return response()->json([
+            'entries' => $formattedEntries
+        ]);
     }
 }

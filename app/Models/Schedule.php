@@ -3,20 +3,21 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Carbon\Carbon;
 
 class Schedule extends Model
 {
     protected $fillable = [
         'user_id',
-        'shift_date',
-        'shift_code',
+        'date',
+        'shift_type',
         'start_time',
-        'end_time'
+        'end_time',
     ];
 
     protected $casts = [
-        'shift_date' => 'date',
+        'date' => 'date',
         'start_time' => 'datetime',
         'end_time' => 'datetime'
     ];
@@ -33,7 +34,7 @@ class Schedule extends Model
         return $value ? Carbon::parse($value)->format('H:i:s') : null;
     }
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }

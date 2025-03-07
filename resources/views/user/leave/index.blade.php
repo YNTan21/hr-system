@@ -17,20 +17,14 @@
                         <div class="mt-2 text-sm">
                             <span class="font-medium text-gray-600">Annual Leave Balance:</span>
                             <span class="ml-2 px-3 py-1 bg-blue-100 text-blue-800 rounded-full">
-                                {{ auth()->user()->annual_leave_balance ?? 0 }} days remaining
+                                {{ auth()->user()->annualLeaveBalance->annual_leave_balance ?? 0 }} days remaining
                             </span>
                         </div>
                     </div>
-                    <div class="flex space-x-2">
-                        <!-- Quick Apply Annual Leave -->
-                        <a href="{{ route('user.leave.create', ['type' => 'annual']) }}" 
-                           class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
-                            <i class="fas fa-calendar"></i> Apply Annual Leave
-                        </a>
-                        <!-- General Apply Leave -->
+                    <div>
                         <a href="{{ route('user.leave.create')}}" 
                            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                            <i class="fas fa-plus"></i> Apply Other Leave
+                            <i class="fas fa-plus"></i> Apply Leave
                         </a>
                     </div>
                 </div>
@@ -84,6 +78,14 @@
                         {{ session('success') }}
                     </div>
                 @endif
+
+                <!-- For debugging purposes -->
+                @php
+                    \Log::info('User annual leave balance:', [
+                        'user_id' => auth()->id(),
+                        'balance' => auth()->user()->annualLeaveBalance
+                    ]);
+                @endphp
 
                 <!-- Leave Table -->
                 <table class="w-full text-sm text-center text-black-500 dark:text-gray-400">

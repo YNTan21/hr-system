@@ -15,10 +15,10 @@ class IsAdminMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if(auth()->check() && auth()->user()->is_admin)
-        {
-            return $next($request);
+        if (!auth()->check() || !auth()->user()->is_admin) {
+            return redirect()->route('dashboard')->with('error', 'Unauthorized access.');
         }
-        return redirect()->route('login');
+
+        return $next($request);
     }
 }

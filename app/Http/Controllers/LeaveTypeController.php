@@ -17,11 +17,11 @@ class LeaveTypeController extends Controller
     
     public function store(Request $request)
     {
-        
         $request->validate([
             'leaveType' => 'required|string|max:255',
             'leaveCode' => 'required|string|max:8',
-            'status' => 'required|in:active,inactive'
+            'status' => 'required|in:active,inactive',
+            'color' => 'required|string|max:7'
         ]);
 
         $fields = [
@@ -29,6 +29,7 @@ class LeaveTypeController extends Controller
             'code' => $request->leaveCode,
             'status' => $request->status,
             'deduct_annual_leave' => $request->has('deductAnnualLeave'),
+            'color' => $request->color
         ];
 
         LeaveType::create($fields);
@@ -45,10 +46,11 @@ class LeaveTypeController extends Controller
 
     public function update(Request $request, $id)
     {
-        $request -> validate([
+        $request->validate([
             'leaveType' => 'required|string|max:255',
             'leaveCode' => 'required|string|max:8',
-            'status' => 'required|in:active,inactive'
+            'status' => 'required|in:active,inactive',
+            'color' => 'required|string|max:7'
         ]);
 
         $leaveType = LeaveType::findOrFail($id);
@@ -58,6 +60,7 @@ class LeaveTypeController extends Controller
             'code' => $request->leaveCode,
             'status' => $request->status,
             'deduct_annual_leave' => $request->has('deductAnnualLeave'),
+            'color' => $request->color
         ]);
 
         return redirect()->route('admin.leaveType.index')->with('success', 'Leave Type updated successfully.');

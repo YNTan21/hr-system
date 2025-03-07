@@ -25,13 +25,26 @@ use App\Http\Controllers\FingerprintController;
 use App\Http\Controllers\AdminSettingsController;
 use App\Http\Controllers\User\UserKpiController;
 use App\Http\Controllers\LeavePredictController;
+use App\Http\Controllers\CalendarController;
+use App\Http\Controllers\PinVerificationController;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\Auth\VerificationController;
+use App\Mail\TestMail;
+use Illuminate\Support\Facades\Mail;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\Auth\PasswordResetController;
+use App\Http\Controllers\Auth\NewPasswordController;
 
 // home
 // Route::view('/', 'home')->name('home');
 
 Route::middleware('auth')->group(function(){
     // logout
-    Route::post('/logout', [AuthController::class, 'logout'])->name('auth.logout');
+    Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
     
     // admin dashboard
     Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
@@ -63,6 +76,7 @@ Route::middleware('auth')->group(function(){
         Route::get('/admin/leave/index', [LeaveController::class, 'index'])->name('admin.leave.index');
         Route::get('/admin/leave/leave-balance', [LeaveController::class, 'leaveBalance'])->name('admin.leave.leave-balance');
         Route::get('/admin/leave/process', [LeaveController::class, 'processLeaves'])->name('admin.leave.process');
+        Route::get('/admin/leave/calendar', [LeaveController::class, 'calendar'])->name('admin.leave.calendar');
 
         // Then dynamic routes with parameters
         Route::post('/admin/leave', [LeaveController::class, 'store'])->name('admin.leave.store');
@@ -144,7 +158,11 @@ Route::middleware('auth')->group(function(){
         Route::get('/admin/kpi/kpiEntry/{id}/edit', [KpiEntryController::class, 'edit'])->name('admin.kpi.kpiEntry.edit');
         Route::delete('/admin/kpi/kpiEntry/{id}', [KpiEntryController::class, 'destroy'])->name('admin.kpi.kpiEntry.destroy');
         Route::get('/admin/kpi/kpiEntry/export', [KpiEntryController::class, 'export'])->name('admin.kpi.kpiEntry.export');
-
+        Route::put('/admin/kpi/kpiEntry/{id}/approve', [KpiEntryController::class, 'approve'])->name('admin.kpi.kpiEntry.approve');
+        Route::put('/admin/kpi/kpiEntry/{id}/reject', [KpiEntryController::class, 'reject'])->name('admin.kpi.kpiEntry.reject');
+        Route::put('/admin/kpi/kpiEntry/{id}/revert', [KpiEntryController::class, 'revert'])->name('admin.kpi.kpiEntry.revert');
+        Route::get('admin/kpi/entry/history/{goal_id}/{user_id}/{month}/{year}', [KPIEntryController::class, 'history'])
+            ->name('admin.kpi.kpiEntry.history');
 
         // timetable
         Route::get('/admin/timetable/index', [TimetableController::class, 'index'])->name('admin.timetable.index');
@@ -184,6 +202,8 @@ Route::middleware('auth')->group(function(){
         Route::get('/admin/schedule/view', [ScheduleController::class, 'view'])->name('admin.schedule.view');
         Route::get('/admin/schedule/select', [ScheduleController::class, 'select'])->name('admin.schedule.select');
         Route::get('/admin/schedule/current', [ScheduleController::class, 'currentWeek'])->name('admin.schedule.current');
+        Route::get('/admin/schedule/calendar', [ScheduleController::class, 'calendar'])
+            ->name('admin.schedule.calendar');
 
         // attendance schedule
         Route::get('/admin/attendance-schedule/index', [AttendanceScheduleController::class, 'index'])->name('admin.attendance-schedule.index');
@@ -247,15 +267,44 @@ Route::middleware('auth')->group(function(){
 
 });
 
-Route::middleware('guest')->group(function(){
-    // register
-    Route::view('/register', 'auth.register')->name('register');
-    Route::post('/register', [AuthController::class, 'register'])->name('auth.register');
-
-    // login
-    Route::view('/login', 'auth.login')->name('login');
-    Route::post('/login', [AuthController::class, 'login'])->name('auth.login');
+// Authentication Routes
+Route::middleware('guest')->group(function () {
+    Route::get('/', function () {
+        return redirect()->route('login');
+    });
+    
+    Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
+    Route::post('/login', [LoginController::class, 'login']);
 });
+
+Route::middleware('auth')->group(function () {
+    Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+    Route::get('/dashboard', function () {
+        return view('admin.dashboard');
+    })->name('dashboard');
+});
+
+// Password Reset Routes
+Route::get('forgot-password', [PasswordResetController::class, 'create'])
+    ->middleware('guest')
+    ->name('password.request');
+
+Route::post('forgot-password', [PasswordResetController::class, 'store'])
+    ->middleware('guest')
+    ->name('password.email');
+
+Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])
+    ->middleware('guest')
+    ->name('password.reset');
+
+Route::post('reset-password', [NewPasswordController::class, 'store'])
+    ->middleware('guest')
+    ->name('password.update');
+
+// Email Verification Routes
+Route::get('email/verify', [VerificationController::class, 'show'])->name('verification.notice');
+Route::get('email/verify/{id}/{hash}', [VerificationController::class, 'verify'])->name('verification.verify');
+Route::post('email/resend', [VerificationController::class, 'resend'])->name('verification.resend');
 
 Route::get('/shift-list', [ShiftController::class, 'shiftList'])->name('shift.list');
 
@@ -298,3 +347,55 @@ Route::post('/fingerprint/verify', [FingerprintController::class, 'verifyFingerp
 Route::get('/fingerprint/{id}/remove', [FingerprintController::class, 'removeFingerprint'])
     ->name('remove.fingerprint');
 
+Route::get('/admin/calendar', [CalendarController::class, 'index'])
+    ->name('admin.calendar.index');
+
+Route::get('/pin-test', function () {
+    return view('admin.pin-test');
+})->name('pin.test');
+
+Route::post('/verify-pin', [PinVerificationController::class, 'verify'])->name('verify.pin');
+
+// Protected routes that require email verification
+Route::middleware(['auth', 'verified'])->group(function () {
+    // Protected routes here
+});
+
+Auth::routes();
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/home', [HomeController::class, 'index'])->name('home');
+    // other protected routes...
+});
+
+// Test email route
+Route::get('/test-email', function () {
+    try {
+        Mail::to('your-email@example.com')->send(new TestMail());
+        return 'Test email sent successfully!';
+    } catch (\Exception $e) {
+        return 'Error sending email: ' . $e->getMessage();
+    }
+});
+
+// Catch-all route - redirect any undefined routes to login
+Route::any('{any}', function () {
+    return redirect()->route('login');
+})->where('any', '.*')->middleware('guest');
+
+// Inside your auth middleware group
+Route::middleware('auth')->group(function () {
+    // Admin routes
+    Route::middleware('admin')->prefix('admin')->name('admin.')->group(function () {
+        Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+        // ... other admin routes
+    });
+
+    // User routes
+    Route::prefix('user')->name('user.')->group(function () {
+        Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+        // ... other user routes
+    });
+});

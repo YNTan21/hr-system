@@ -1,4 +1,4 @@
-<?php
+s<?php
 
 namespace App\Http\Controllers;
 
@@ -190,6 +190,60 @@ class ScheduleController extends Controller
         ]);
     }
 
-
-    
+    public function calendar(Request $request)
+    {
+        // Get current date for comparison
+        $currentDate = Carbon::now();
+        
+        // Get requested month and year, default to current month if not specified
+        $month = $request->query('month', $currentDate->month);
+        $year = $request->query('year', $currentDate->year);
+        
+        // Create date from request parameters
+        $requestedDate = Carbon::create($year, $month, 1);
+        
+        // Get the first day of the month
+        $firstDay = Carbon::create($year, $month, 1);
+        
+        // Get the start and end dates for the calendar view
+        $start = $firstDay->copy()->startOfWeek(Carbon::SUNDAY);
+        $end = $firstDay->copy()->endOfMonth()->endOfWeek(Carbon::SATURDAY);
+        
+        // Get all users
+        $users = User::orderBy('username')->get();
+        
+        // Get all schedules for the visible calendar period
+        $schedules = Schedule::whereBetween('shift_date', [
+                $start->format('Y-m-d'), 
+                $end->format('Y-m-d')
+            ])
+            ->with(['user'])
+            ->get();
+        
+        $calendar = [];
+        $currentDate = $start->copy();
+        
+        // Generate calendar data
+        while ($currentDate <= $end) {
+            $date = $currentDate->format('Y-m-d');
+            
+            // Get schedules for this day
+            $daySchedules = $schedules->filter(function($schedule) use ($date) {
+                if (!$schedule->shift_date) return false;
+                return $schedule->shift_date->format('Y-m-d') === $date;
+            });
+            
+            $calendar[] = [
+                'day' => $currentDate->format('j'),
+                'date' => $date,
+                'isCurrentMonth' => $currentDate->month == $month,
+                'isToday' => $currentDate->isToday(),
+                'schedules' => $daySchedules
+            ];
+            
+            $currentDate->addDay();
+        }
+        
+        return view('admin.schedule.calendar', compact('calendar', 'users'));
+    }
 }

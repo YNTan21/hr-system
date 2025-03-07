@@ -13,10 +13,10 @@
                 </div>
                 
                 <div class="bg-white rounded-lg shadow-sm p-6">
-                    <form action="{{ route('admin.kpi.kpiEntry.store') }}" method="POST">
+                    <form method="POST" action="{{ route('admin.kpi.kpiEntry.store') }}">
                         @csrf
-                        <input type="hidden" name="users_id" value="{{ $user_id }}">
                         <input type="hidden" name="goals_id" value="{{ $goal->id }}">
+                        <input type="hidden" name="users_id" value="{{ $user->id }}">
                         <input type="hidden" name="month" value="{{ $month }}">
                         <input type="hidden" name="year" value="{{ $year }}">
 
@@ -68,6 +68,7 @@
                                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm @error('actual_result') border-red-500 @enderror" 
                                    id="actual_result" 
                                    name="actual_result" 
+                                   value="{{ old('actual_result') }}"
                                    required>
                             @error('actual_result')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -77,7 +78,7 @@
                         <!-- Form Actions -->
                         <div class="flex justify-end space-x-3">
                             <a href="{{ route('admin.kpi.kpiEntry.index', [
-                                'user_id' => $user_id,
+                                'user_id' => $user->id,
                                 'month' => $month,
                                 'year' => $year
                             ]) }}" 

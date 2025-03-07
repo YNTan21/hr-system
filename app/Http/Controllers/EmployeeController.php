@@ -13,6 +13,7 @@ use App\Models\LeaveBalance;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
+use App\Notifications\NewAccountCreated;
 
 class EmployeeController extends Controller
 {
@@ -165,8 +166,28 @@ class EmployeeController extends Controller
 
             Log::info('User saved successfully', ['user_id' => $user->id]);
 
+            // Send email notification
+            try {
+                Log::info('Attempting to send welcome email to: ' . $user->email);
+                
+                // Send test email first
+                \Mail::raw('Test email from HR System', function($message) use ($user) {
+                    $message->to($user->email)
+                           ->subject('Test Email');
+                });
+                Log::info('Test email sent successfully');
+
+                // Send the actual welcome notification with credentials
+                $user->notify(new NewAccountCreated($validatedData['password']));
+                Log::info('Welcome notification sent successfully');
+
+            } catch (\Exception $e) {
+                Log::error('Failed to send email: ' . $e->getMessage());
+                // Continue with the process even if email fails
+            }
+
             return redirect()->route('admin.employee.index')
-                ->with('success', 'Employee created successfully');
+                ->with('success', 'Employee created successfully. Login credentials have been sent to their email.');
 
         } catch (\Illuminate\Validation\ValidationException $e) {
             Log::error('Validation failed', ['errors' => $e->errors()]);

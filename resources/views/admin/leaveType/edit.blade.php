@@ -1,91 +1,126 @@
 @section('site-title', 'Edit Leave Type')
 <x-layout.master>
     <div class="container-fluid">
-        <div class="row">
+        <div class="row border-b shadow-lg fixed top-0 right-0 left-0 bg-white dark:bg-gray-800 z-10">
             <x-sharedata.header></x-sharedata.header>
         </div>
         <!-- Main Content -->
         <div class="p-4 sm:ml-64">
-            <div class="p-4 border-2 border-gray-200 rounded-lg dark:border-gray-700 mt-14">
-                <!-- Title -->
-                <div class="mb-6">
-                    <h2 class="text-2xl font-bold mb-4 text-center text-gray-800 dark:text-white">Edit Leave Type</h2>
-                </div>
-
-                {{-- Success Message --}}
-                @if (session('success'))
-                <div class="alert alert-success text-center">
-                    {{ session('success') }}
-                </div>
-                @endif
-
-                <!-- Leave Type Edit Form -->
-                <form action="{{ route('admin.leaveType.update', $leaveType->id) }}" method="post" class="max-w-3xl mx-auto">
+            <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-md dark:bg-gray-800 mt-20">
+                <form action="{{ route('admin.leaveType.update', $leaveType->id) }}" method="post" class="p-6">
                     @csrf
                     @method('PUT')
                     
-                    <!-- Basic Information -->
-                    <div class="grid grid-cols-1 gap-6 mb-6">
-                        <!-- Leave Type -->
-                        <div>
-                            <label for="leaveType" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Leave Type:</label>
-                            <input type="text" id="leaveType" 
-                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white" 
-                                name="leaveType" 
-                                value="{{ old('leaveType', $leaveType->leave_type) }}" 
-                                placeholder="Enter leave type"
-                                required>
-                            @error('leaveType')
-                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
+                    {{-- Success Message --}}
+                    @if (session('success'))
+                    <div class="p-4 mb-6 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400" role="alert">
+                        {{ session('success') }}
+                    </div>
+                    @endif
 
-                        <!-- Leave Code -->
-                        <div>
-                            <label for="leaveCode" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Code:</label>
-                            <input type="text" id="leaveCode" 
-                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white" 
-                                name="leaveCode" 
-                                value="{{ old('leaveCode', $leaveType->code) }}" 
-                                placeholder="Enter leave code"
-                                required>
-                            @error('leaveCode')
-                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
+                    <div class="mb-8">
+                        <h3 class="text-2xl font-bold text-center text-gray-900 dark:text-white">
+                            Edit Leave Type
+                        </h3>
+                    </div>
 
-                        <!-- Status -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Status:</label>
-                            <div class="flex gap-4">
-                                <div class="flex items-center">
-                                    <input type="radio" id="active" name="status" value="active" 
-                                        class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500" 
-                                        {{ $leaveType->status == 'active' ? 'checked' : '' }}>
-                                    <label class="ml-2 text-sm text-gray-700 dark:text-gray-300" for="active">Active</label>
-                                </div>
-                                <div class="flex items-center">
-                                    <input type="radio" id="inactive" name="status" value="inactive" 
-                                        class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500" 
-                                        {{ $leaveType->status == 'inactive' ? 'checked' : '' }}>
-                                    <label class="ml-2 text-sm text-gray-700 dark:text-gray-300" for="inactive">Inactive</label>
-                                </div>
+                    <!-- Leave Type Input -->
+                    <div class="mb-6 px-5">
+                        <label for="leaveType" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Leave Type</label>
+                        <input type="text" id="leaveType" 
+                               class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 shadow-md" 
+                               name="leaveType" 
+                               value="{{ old('leaveType', $leaveType->leave_type) }}" 
+                               required>
+                        @error('leaveType')
+                            <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Leave Code -->
+                    <div class="mb-6 px-5">
+                        <label for="leaveCode" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Code</label>
+                        <input type="text" id="leaveCode" 
+                               class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 shadow-md" 
+                               name="leaveCode" 
+                               value="{{ old('leaveCode', $leaveType->code) }}" 
+                               required>
+                        @error('leaveCode')
+                            <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Leave Color -->
+                    <div class="mb-6 px-5">
+                        <label for="color" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Color</label>
+                        <div class="flex items-center gap-3">
+                            <div class="relative">
+                                <input type="color" 
+                                       name="color" 
+                                       id="color" 
+                                       value="{{ old('color', $leaveType->color) }}"
+                                       class="w-8 h-8 rounded-full cursor-pointer p-0 border-0 overflow-hidden appearance-none">
+                                <style>
+                                    input[type="color"]::-webkit-color-swatch-wrapper {
+                                        padding: 0;
+                                    }
+                                    input[type="color"]::-webkit-color-swatch {
+                                        border: none;
+                                        border-radius: 50%;
+                                    }
+                                    input[type="color"]::-moz-color-swatch {
+                                        border: none;
+                                        border-radius: 50%;
+                                    }
+                                </style>
                             </div>
-                            @error('status')
-                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                            @enderror
+                            <span id="colorCode" class="text-sm text-gray-900 dark:text-white">{{ old('color', $leaveType->color) }}</span>
                         </div>
+                        @error('color')
+                            <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Status -->
+                    <div class="mb-8 px-5">
+                        <div class="flex items-center justify-center gap-4">
+                            <div class="flex items-center">
+                                <input type="radio" 
+                                       id="active" 
+                                       name="status" 
+                                       value="active" 
+                                       class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" 
+                                       {{ old('status', $leaveType->status) == 'active' ? 'checked' : '' }} 
+                                       required>
+                                <label for="active" class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Active</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="radio" 
+                                       id="inactive" 
+                                       name="status" 
+                                       value="inactive" 
+                                       class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                       {{ old('status', $leaveType->status) == 'inactive' ? 'checked' : '' }}>
+                                <label for="inactive" class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Inactive</label>
+                            </div>
+                        </div>
+                        @error('status')
+                            <p class="mt-2 text-sm text-red-600 dark:text-red-500 text-center">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     <!-- Buttons -->
-                    <div class="flex justify-center gap-4 mt-6">
+                    <div class="flex justify-center gap-4 px-5">
                         <a href="{{ route('admin.leaveType.index') }}" 
-                           class="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
-                            <i class="fas fa-arrow-left mr-2"></i>Back
+                           class="flex items-center justify-center px-5 py-2 text-sm text-gray-700 transition-colors duration-200 bg-white border rounded-lg gap-x-2 sm:w-auto dark:hover:bg-gray-800 dark:bg-gray-900 hover:bg-gray-100 dark:text-gray-200 dark:border-gray-700">
+                            <svg class="w-5 h-5 rtl:rotate-180" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 15.75L3 12m0 0l3.75-3.75M3 12h18" />
+                            </svg>
+                            <span>Go back</span>
                         </a>
                         <button type="submit" 
-                                class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                            <i class="fas fa-save mr-2"></i>Update Leave Type
+                                class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 shadow-md transition-all duration-200">
+                            Update Leave Type
                         </button>
                     </div>
                 </form>
@@ -93,3 +128,15 @@
         </div>
     </div>
 </x-layout.master>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const colorInput = document.getElementById('color');
+    const colorCode = document.getElementById('colorCode');
+
+    // Update color code when color changes
+    colorInput.addEventListener('input', function(e) {
+        colorCode.textContent = e.target.value;
+    });
+});
+</script>

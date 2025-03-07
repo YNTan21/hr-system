@@ -28,5 +28,6 @@
         <script src="{{ asset('fontawesome/js/all.min.js') }}"></script>
         <!-- Flatpickr JavaScript -->
         <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+        <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     </body>
 </html>

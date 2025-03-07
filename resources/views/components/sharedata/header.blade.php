@@ -32,26 +32,54 @@
             </div>
             <div class="z-50 hidden my-1 text-base list-none bg-white divide-y divide-gray-100 rounded shadow dark:bg-gray-700 dark:divide-gray-600" id="dropdown-user">
                 <div class="px-4 py-3" role="none">
-                <p class="text-sm text-gray-900 dark:text-white" role="none">
-                    {{ Auth::user()->username }}
-                </p>
-                <!-- <p class="text-sm font-medium text-gray-900 truncate dark:text-gray-300" role="none">
-                    {{ Auth::user()->email }}
-                </p> -->
+                    @auth
+                        <p class="text-sm font-medium text-gray-900 dark:text-white" role="none">
+                            {{ Auth::user()->name }}
+                        </p>
+                        <p class="text-sm text-gray-500 truncate dark:text-gray-300" role="none">
+                            {{ Auth::user()->email }}
+                        </p>
+                        <div class="text-xs text-gray-500 mt-1">
+                            <span class="px-2 py-1 rounded-full {{ Auth::user()->is_admin ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800' }}">
+                                {{ Auth::user()->is_admin ? 'Admin' : 'User' }}
+                            </span>
+                        </div>
+                    @endauth
                 </div>
                 <ul class="py-1" role="none">
-                <li>
-                    <a href="{{ route('profile.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white" role="menuitem">Profile</a>
-                </li>
-                <li>
-                    <form action="{{ route('auth.logout') }}" method="post">
-                        @csrf 
-                        <button class="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white" role="menuitem">
-                            Logout
-                        </button>
-                    </form>
-                    {{-- <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white" role="menuitem">Logout</a> --}}
-                </li>
+                    @auth
+                        <li>
+                            <a href="{{ Auth::user()->is_admin ? route('admin.profile.edit') : route('user.profile.edit') }}" 
+                               class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white transition-colors duration-150 flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
+                                <span>Profile</span>
+                            </a>
+                        </li>
+                        <li>
+                            <form method="POST" action="{{ route('logout') }}" class="inline-block w-full">
+                                @csrf
+                                <button type="submit" 
+                                        class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white transition-colors duration-150 flex items-center gap-2">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                    </svg>
+                                    <span>Sign Out</span>
+                                </button>
+                            </form>
+                        </li>
+                    @else
+                        <li>
+                            <a href="{{ route('login') }}" 
+                               class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white transition-colors duration-150 flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                                </svg>
+                                <span>Sign In</span>
+                            </a>
+                        </li>
+                    @endauth
                 </ul>
             </div>
             </div>
@@ -75,14 +103,14 @@
         </li>
         @if(Auth::check() && Auth::user()->is_admin)
             <!-- Inside admin menu section -->
-        {{-- <li>
+        <li>
             <a href="{{ route('admin.settings.pin') }}" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
                 <svg class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>
                 <span class="flex-1 ms-3 whitespace-nowrap">PIN Settings</span>
             </a>
-        </li> --}}
+        </li>
         <li>
             <button type="button" class="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700" aria-controls="dropdown-example" data-collapse-toggle="dropdown-example">
                 <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 18">
@@ -135,6 +163,9 @@
                     </li>
                     <li>
                         <a href="{{ route('admin.leave.index') }}" class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Leave List</a>
+                    </li>
+                    <li>
+                        <a href="{{ route('admin.leave.calendar') }}" class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Leave Calendar</a>
                     </li>
                 </ul>
             @else
@@ -212,6 +243,9 @@
                 <li>
                     <a href="{{ route('admin.schedule.timesheet') }}" class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Timesheet</a>
                 </li>
+                <li>
+                    <a href="{{ route('admin.schedule.calendar') }}" class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Calendar</a>
+                </li>
             </ul>
         </li>
         <!-- <li>
@@ -269,7 +303,11 @@
                 <span class="flex-1 ms-3 whitespace-nowrap">Sign Up</span>
             </a>
         </li> -->
+        <li>
+            <a href="{{ route('admin.calendar.index') }}" class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Calendar</a>
+        </li>
         </ul>
+
     </div>
 </aside>
 

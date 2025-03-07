@@ -34,6 +34,7 @@
                 <table class="w-full text-base text-center text-black-500 dark:text-gray-400">
                     <thead class="text-sm text-white uppercase bg-gray-800 dark:bg-gray-900">
                         <tr>
+                            <th class="py-2 px-4 w-12">Color</th>
                             <th class="py-2 px-4">Leave Type</th>
                             <th class="py-2 px-4">Leave Code</th>
                             <th class="py-2 px-4">Status</th>
@@ -43,6 +44,12 @@
                     <tbody class="divide-y divide-gray-200">
                         @foreach ($leaveTypes as $leaveType)
                             <tr class="bg-white hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700">
+                                <td class="py-2 px-4">
+                                    <div class="flex justify-center">
+                                        <div class="w-6 h-6 rounded-full border border-gray-200" 
+                                             style="background-color: {{ $leaveType->color }};"></div>
+                                    </div>
+                                </td>
                                 <td class="py-2 px-4">{{ $leaveType->leave_type }}</td>
                                 <td class="py-2 px-4">{{ $leaveType->code }}</td>
                                 <td class="py-2 px-4">

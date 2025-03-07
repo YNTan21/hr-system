@@ -28,10 +28,10 @@
                            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                             <i class="fas fa-download"></i> Download Template
                         </a> --}}
-                        <a href="{{ route('admin.leave.predictions') }}" 
+                        {{-- <a href="{{ route('admin.leave.predictions') }}" 
                            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                             <i class="fas fa-chart-line"></i> View Predictions
-                        </a>
+                        </a> --}}
                     </div>
                 </div>
 
@@ -144,7 +144,7 @@
                 </form>
 
                 <!-- Import Form with spacing -->
-                <div class="flex justify-end mb-6">
+                {{-- <div class="flex justify-end mb-6">
                     <form action="{{ route('admin.leave.import') }}" 
                           method="POST" 
                           enctype="multipart/form-data" 
@@ -161,7 +161,7 @@
                             <i class="fas fa-upload"></i> Import Excel
                         </label>
                     </form>
-                </div>
+                </div> --}}
 
                 <!-- Leave Table -->
                 <div class="overflow-x-auto relative">

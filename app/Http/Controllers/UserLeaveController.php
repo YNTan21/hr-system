@@ -68,7 +68,10 @@ class UserLeaveController extends Controller
         $leaves = $query->orderBy('created_at', 'desc')
                        ->paginate(10);
 
-        return view('user.leave.index', compact('leaves'));
+        // Eager load the annual leave balance
+        $user = auth()->user()->load('annualLeaveBalance');
+
+        return view('user.leave.index', compact('leaves', 'user'));
     }
 
     public function edit($id)
