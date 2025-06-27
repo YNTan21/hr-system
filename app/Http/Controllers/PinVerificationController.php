@@ -54,7 +54,7 @@ class PinVerificationController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'An error occurred. Please try again.'
-            ], 500);
+            ], 500); //test
         }
     }
 }
