@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Setting;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Hash;
 
 class PinVerificationController extends Controller
 {
@@ -27,7 +28,7 @@ class PinVerificationController extends Controller
             }
 
             // Direct string comparison
-            $isValid = ($pin === $systemPin->value);
+            $isValid = Hash::check($pin, $systemPin->value);
             
             Log::info('Verification result', ['is_valid' => $isValid]);
 

@@ -356,6 +356,7 @@ Route::get('/pin-test', function () {
 
 Route::post('/verify-pin', [PinVerificationController::class, 'verify'])->name('verify.pin');
 
+
 // Protected routes that require email verification
 Route::middleware(['auth', 'verified'])->group(function () {
     // Protected routes here
@@ -399,3 +400,7 @@ Route::middleware('auth')->group(function () {
         // ... other user routes
     });
 });
+
+Auth::routes();
+
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');

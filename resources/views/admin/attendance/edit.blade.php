@@ -71,6 +71,18 @@
                                    value="{{ old('clock_out_time', $attendance->clock_out_time ? date('H:i', strtotime($attendance->clock_out_time)) : '') }}">
                         </div>
 
+                        <!-- Overtime -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Overtime (hours)</label>
+                            <input type="number" 
+                                   name="overtime" 
+                                   step="0.01" 
+                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" 
+                                   value="{{ old('overtime', $attendance->overtime) }}"
+                                   min="0"
+                                   placeholder="Enter overtime hours">
+                        </div>
+
                         <!-- Status -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Status</label>

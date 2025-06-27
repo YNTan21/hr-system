@@ -385,7 +385,8 @@ class AttendanceController extends Controller
             'date' => 'required|date',
             'clock_in_time' => 'nullable',
             'clock_out_time' => 'nullable',
-            'status' => 'required|in:on_time,late'
+            'status' => 'required|in:on_time,late',
+            'overtime' => 'nullable|numeric|min:0'
         ]);
 
         try {
@@ -394,9 +395,7 @@ class AttendanceController extends Controller
 
             // 更新 clock_in_time
             if ($validated['clock_in_time']) {
-                // 获取时间部分 (HH:mm:ss)
                 $timeOnly = Carbon::parse($validated['clock_in_time'])->format('H:i:s');
-                // 将新日期与时间部分结合，更新 clock_in_time
                 $clockInTime = $newDate . ' ' . $timeOnly;
             } else {
                 $clockInTime = null;
@@ -404,9 +403,7 @@ class AttendanceController extends Controller
 
             // 更新 clock_out_time
             if ($validated['clock_out_time']) {
-                // 获取时间部分 (HH:mm:ss)
                 $timeOnly = Carbon::parse($validated['clock_out_time'])->format('H:i:s');
-                // 将新日期与时间部分结合，更新 clock_out_time
                 $clockOutTime = $newDate . ' ' . $timeOnly;
             } else {
                 $clockOutTime = null;
@@ -439,7 +436,7 @@ class AttendanceController extends Controller
                 'clock_in_time' => $clockInTime,
                 'clock_out_time' => $clockOutTime,
                 'status' => $validated['status'],
-                'overtime' => $overtime
+                'overtime' => $validated['overtime']
             ]);
 
             return redirect()->route('admin.attendance.index')
