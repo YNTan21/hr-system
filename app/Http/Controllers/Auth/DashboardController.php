@@ -8,51 +8,92 @@ use App\Models\User;
 use App\Models\Attendance;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use App\Models\Leave;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        // 统计员工总数
-        $totalEmployees = User::where('is_admin', false)->count();
-        
+        $totalEmployees = User::where('is_admin', false)->where('status', 'active')->count();
         $today = Carbon::today();
-        
-        // 统计今天的考勤状态
+
+        // Attendance stats (only for active, non-admin users)
+        $activeUserIds = User::where('is_admin', false)->where('status', 'active')->pluck('id');
         $onTime = Attendance::whereDate('date', $today)
             ->where('status', 'on_time')
+            ->whereIn('user_id', $activeUserIds)
             ->count();
-            
         $late = Attendance::whereDate('date', $today)
             ->where('status', 'late')
-            ->count();
-            
-        $leave = Attendance::whereDate('date', $today)
-            ->where('status', 'leave')
+            ->whereIn('user_id', $activeUserIds)
             ->count();
 
-        // 获取加班数据
-        $users = User::where('is_admin', false)->get();  // 只获取非管理员用户
+        // Get users on approved leave today from leaves table
+        $onLeaveApprovedUserIds = Leave::where('status', 'approved')
+            ->whereDate('from_date', '<=', $today)
+            ->whereDate('to_date', '>=', $today)
+            ->whereIn('user_id', $activeUserIds)
+            ->pluck('user_id')
+            ->unique();
+        $leave = $onLeaveApprovedUserIds->count();
+
+        // Employee stats
+        $presentEmployeeIds = Attendance::whereDate('date', $today)
+            ->where('status', '!=', 'leave')
+            ->whereIn('user_id', $activeUserIds)
+            ->pluck('user_id')
+            ->unique();
+        $onLeaveEmployeeIds = $onLeaveApprovedUserIds;
+        $absentEmployeeIds = User::where('is_admin', false)
+            ->where('status', 'active')
+            ->whereNotIn('id', $presentEmployeeIds->merge($onLeaveEmployeeIds))
+            ->pluck('id');
+
+        $presentCount = $presentEmployeeIds->count();
+        $onLeaveCount = $onLeaveEmployeeIds->count();
+        $absentCount = $absentEmployeeIds->count();
+
+        // Get user details for each group
+        $presentEmployees = User::whereIn('id', $presentEmployeeIds)->get();
+        $onLeaveEmployees = User::whereIn('id', $onLeaveEmployeeIds)->get();
+        $absentEmployees = User::whereIn('id', $absentEmployeeIds)->get();
+
+        // Leave stats (today, only for active users)
+        $pendingLeaves = Leave::whereDate('from_date', '<=', $today)
+            ->whereDate('to_date', '>=', $today)
+            ->where('status', 'pending')
+            ->whereIn('user_id', $activeUserIds)
+            ->with('user')
+            ->get();
+        $approvedLeaves = Leave::whereDate('from_date', '<=', $today)
+            ->whereDate('to_date', '>=', $today)
+            ->where('status', 'approved')
+            ->whereIn('user_id', $activeUserIds)
+            ->get();
+        $rejectedLeaves = Leave::whereDate('from_date', '<=', $today)
+            ->whereDate('to_date', '>=', $today)
+            ->where('status', 'rejected')
+            ->whereIn('user_id', $activeUserIds)
+            ->get();
+
+        // Overtime data (only for active, non-admin users)
+        $users = User::where('is_admin', false)->where('status', 'active')->get();
         $usernames = $users->pluck('username')->toArray();
         $overtimeHours = [];
-
         foreach ($users as $user) {
-            // 从 Attendance 表计算加班时间
             $overtime = Attendance::where('user_id', $user->id)
                 ->whereMonth('date', now()->month)
                 ->whereNotNull('overtime')
                 ->sum('overtime');
-            
             $overtimeHours[] = $overtime;
         }
 
         return view('admin.dashboard', compact(
-            'totalEmployees', 
-            'onTime', 
-            'late',
-            'leave',
-            'usernames',
-            'overtimeHours'
+            'totalEmployees', 'onTime', 'late', 'leave',
+            'usernames', 'overtimeHours',
+            'presentCount', 'absentCount', 'onLeaveCount',
+            'presentEmployees', 'absentEmployees', 'onLeaveEmployees',
+            'pendingLeaves', 'approvedLeaves', 'rejectedLeaves'
         ));
     }
 

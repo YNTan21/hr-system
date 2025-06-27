@@ -13,25 +13,25 @@ class Leave extends Model
     protected $fillable = [
         'user_id',
         'leave_type_id',
-        'start_date',
-        'end_date',
-        'status',
+        'from_date',
+        'to_date',
         'reason',
+        'status',
         'number_of_days',
     ];
 
     protected $casts = [
-        'start_date' => 'datetime',
-        'end_date' => 'datetime',
+        'from_date' => 'datetime',
+        'to_date' => 'datetime',
     ];
 
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
-
+    
     public function leaveType(): BelongsTo
     {
-        return $this->belongsTo(LeaveType::class);
+        return $this->belongsTo(LeaveType::class, 'leave_type_id');
     }
 }
