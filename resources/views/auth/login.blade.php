@@ -30,7 +30,7 @@
     <!-- Main Login Content (Initially Hidden) -->
     <div id="login-content" class="hidden main-wrapper min-h-screen bg-gray-100 flex items-center">
         <div class="container mx-auto">
-            {{-- <!-- Biometric Options -->
+            <!-- Biometric Options -->
             <div class="max-w-md mx-auto mb-6">
                 <h3 class="text-2xl font-bold text-center mb-4">Clock In and Clock Out</h3>
                 <div class="flex gap-4">
@@ -39,13 +39,13 @@
                         <i class="fas fa-camera text-xl"></i>
                         <span>Face</span>
                     </a>
-                    <a href="{{ route('verify.page') }}" 
+                    {{-- <a href="{{ route('verify.page') }}" 
                        class="flex-1 flex items-center justify-center gap-2 bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 transition-colors">
                         <i class="fas fa-fingerprint text-xl"></i>
                         <span>Fingerprint</span>
-                    </a>
+                    </a> --}}
                 </div>
-            </div> --}}
+            </div>
 
             <!-- Login Box -->
             <div class="max-w-md mx-auto bg-white rounded-lg shadow-lg p-8">
