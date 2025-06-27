@@ -10,16 +10,16 @@ class Schedule extends Model
 {
     protected $fillable = [
         'user_id',
-        'date',
-        'shift_type',
+        'shift_date',
+        'shift_code',
         'start_time',
         'end_time',
     ];
 
     protected $casts = [
-        'date' => 'date',
-        'start_time' => 'datetime',
-        'end_time' => 'datetime'
+        'shift_date' => 'date',
+        'start_time' => 'datetime:H:i:s',
+        'end_time' => 'datetime:H:i:s',
     ];
 
     // 获取格式化的开始时间
