@@ -108,12 +108,13 @@ class LeaveController extends Controller
         return view('admin.leave.index', compact('leaves', 'users', 'leaveTypes', 'predictions'));
     }
 
-    public function edit($position_id, $id)
+    public function edit($id)
     {
-        $position = Position::findOrFail($position_id);
-        $goal = Goal::findOrFail($id);
+        $leave = Leave::with(['user', 'leaveType'])->findOrFail($id);
+        $users = User::all();
+        $leaveTypes = LeaveType::where('status', 'active')->get();
 
-        return view('admin.kpi.edit', compact('position', 'goal'));
+        return view('admin.leave.edit', compact('leave', 'users', 'leaveTypes'));
     }
 
     public function update(Request $request, $id)

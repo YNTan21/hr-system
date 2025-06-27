@@ -30,7 +30,7 @@
     <!-- Main Login Content (Initially Hidden) -->
     <div id="login-content" class="hidden main-wrapper min-h-screen bg-gray-100 flex items-center">
         <div class="container mx-auto">
-            <!-- Biometric Options -->
+            {{-- <!-- Biometric Options -->
             <div class="max-w-md mx-auto mb-6">
                 <h3 class="text-2xl font-bold text-center mb-4">Clock In and Clock Out</h3>
                 <div class="flex gap-4">
@@ -45,7 +45,7 @@
                         <span>Fingerprint</span>
                     </a>
                 </div>
-            </div>
+            </div> --}}
 
             <!-- Login Box -->
             <div class="max-w-md mx-auto bg-white rounded-lg shadow-lg p-8">
