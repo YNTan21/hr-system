@@ -64,6 +64,90 @@
                     </div>
                 </div>
 
+                <!-- Employee Status Tables -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+                    <!-- Present Employees -->
+                    <div class="bg-white rounded-lg shadow-md p-4 border border-gray-300">
+                        <h3 class="text-lg font-semibold mb-2 text-green-600">Present Today ({{ $presentCount }})</h3>
+                        <ul class="text-sm text-gray-700 max-h-48 overflow-y-auto">
+                            @forelse($presentEmployees as $user)
+                                <li class="py-1 border-b">{{ $user->username }}</li>
+                            @empty
+                                <li class="text-gray-400">No present employees</li>
+                            @endforelse
+                        </ul>
+                    </div>
+                    <!-- Absent Employees -->
+                    <div class="bg-white rounded-lg shadow-md p-4 border border-gray-300">
+                        <h3 class="text-lg font-semibold mb-2 text-red-600">Absent Today ({{ $absentCount }})</h3>
+                        <ul class="text-sm text-gray-700 max-h-48 overflow-y-auto">
+                            @forelse($absentEmployees as $user)
+                                <li class="py-1 border-b">{{ $user->username }}</li>
+                            @empty
+                                <li class="text-gray-400">No absent employees</li>
+                            @endforelse
+                        </ul>
+                    </div>
+                    <!-- On Leave Employees -->
+                    <div class="bg-white rounded-lg shadow-md p-4 border border-gray-300">
+                        <h3 class="text-lg font-semibold mb-2 text-blue-600">On Leave Today ({{ $onLeaveCount }})</h3>
+                        <ul class="text-sm text-gray-700 max-h-48 overflow-y-auto">
+                            @forelse($onLeaveEmployees as $user)
+                                <li class="py-1 border-b">{{ $user->username }}</li>
+                            @empty
+                                <li class="text-gray-400">No employees on leave</li>
+                            @endforelse
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Pending Leave Requests -->
+                <div class="mt-8 bg-white rounded-lg shadow-md p-6 border-2 border-yellow-400">
+                    <h3 class="text-lg font-semibold text-yellow-700 mb-4 flex items-center">
+                        <i class="fas fa-hourglass-half mr-2"></i> Pending Leave Requests ({{ $pendingLeaves->count() }})
+                    </h3>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full text-sm text-left">
+                            <thead>
+                                <tr class="bg-yellow-100">
+                                    <th class="py-2 px-3">Employee</th>
+                                    <th class="py-2 px-3">From</th>
+                                    <th class="py-2 px-3">To</th>
+                                    <th class="py-2 px-3">Reason</th>
+                                    <th class="py-2 px-3">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($pendingLeaves as $leave)
+                                    <tr class="border-b">
+                                        <td class="py-2 px-3">{{ $leave->user->username ?? 'N/A' }}</td>
+                                        <td class="py-2 px-3">{{ $leave->from_date->format('Y-m-d') }}</td>
+                                        <td class="py-2 px-3">{{ $leave->to_date->format('Y-m-d') }}</td>
+                                        <td class="py-2 px-3">{{ $leave->reason }}</td>
+                                        <td class="py-2 px-3">
+                                            <a href="{{ route('admin.leave.edit', $leave->id) }}" class="text-blue-600 hover:underline">Review</a>
+                                            <form action="{{ route('admin.leave.approve', $leave->id) }}" method="POST" style="display:inline-block;">
+                                                @csrf
+                                                @method('PUT')
+                                                <button type="submit" class="ml-2 text-green-600 hover:underline" onclick="return confirm('Approve this leave request?')">Approve</button>
+                                            </form>
+                                            <form action="{{ route('admin.leave.reject', $leave->id) }}" method="POST" style="display:inline-block;">
+                                                @csrf
+                                                @method('PUT')
+                                                <button type="submit" class="ml-2 text-red-600 hover:underline" onclick="return confirm('Reject this leave request?')">Reject</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="5" class="text-center text-gray-400 py-3">No pending leave requests</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
                 <!-- Overtime Chart -->
                 <div class="mt-8 bg-white rounded-lg shadow-md p-6 border-2 border-gray-300">
                     <div class="flex justify-between items-center mb-4">

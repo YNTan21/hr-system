@@ -63,7 +63,7 @@
                         <!-- From Date -->
                         <div class="flex-1">
                             <label for="from_date" class="block text-sm font-medium text-gray-700">From Date</label>
-                            <input type="date" name="from_date" id="from_date" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" value="{{ $leave->from_date }}" required>
+                            <input type="date" name="from_date" id="from_date" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" value="{{ old('from_date', optional($leave->from_date)->format('Y-m-d')) }}" required>
                             @error('from_date')
                                 <p class="error">
                                     {{ $message }}
@@ -74,7 +74,7 @@
                         <!-- To Date -->
                         <div class="flex-1">
                             <label for="to_date" class="block text-sm font-medium text-gray-700">To Date</label>
-                            <input type="date" name="to_date" id="to_date" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" value="{{ $leave->to_date }}" required>
+                            <input type="date" name="to_date" id="to_date" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" value="{{ old('to_date', optional($leave->to_date)->format('Y-m-d')) }}" required>
                             @error('to_date')
                                 <p class="error">
                                     {{ $message }}
