@@ -111,6 +111,14 @@ class FacialAttendanceController extends Controller
                 }
 
                 $lastAttendance->clock_out_time = $serverTime;
+
+                $overtime = \App\Http\Controllers\AttendanceController::calculateOvertime(
+                    $user->id,
+                    $today,
+                    $serverTime
+                );
+                $lastAttendance->overtime = $overtime;
+                
                 $lastAttendance->save();
 
                 return response()->json([

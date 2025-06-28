@@ -210,7 +210,7 @@ class AttendanceController extends Controller
                 ]);
 
                 if ($actualEndTime->gt($scheduleEndTime)) {
-                    $overtimeMinutes = $actualEndTime->diffInMinutes($scheduleEndTime);
+                    $overtimeMinutes = $scheduleEndTime->diffInMinutes($actualEndTime);
                     $overtimeHours = floor($overtimeMinutes / 60);
                     $remainingMinutes = $overtimeMinutes % 60;
                     $overtime = sprintf('%02d:%02d', $overtimeHours, $remainingMinutes);
@@ -419,9 +419,17 @@ class AttendanceController extends Controller
                 $scheduleEndTime = Carbon::parse($newDate . ' ' . $schedule->end_time);
                 $actualEndTime = Carbon::parse($clockOutTime);
 
+                \Log::info('OVERTIME DEBUG', [
+    'clock_out_time' => $clockOutTime,
+    'schedule_end_time' => $scheduleEndTime,
+    'actual_end_time' => $actualEndTime,
+    'actual_gt_schedule' => $actualEndTime->gt($scheduleEndTime),
+]);
+
+
                 $overtimeMinutes = 0;
                 if ($actualEndTime->gt($scheduleEndTime)) {
-                    $overtimeMinutes = $actualEndTime->diffInMinutes($scheduleEndTime);
+                    $overtimeMinutes = $scheduleEndTime->diffInMinutes($actualEndTime);
                 }
 
                 $overtimeHours = floor($overtimeMinutes / 60);
@@ -446,5 +454,27 @@ class AttendanceController extends Controller
                 ->withErrors(['error' => 'Failed to update attendance. ' . $e->getMessage()]);
         }
     }
+
+    public static function calculateOvertime($user_id, $date, $clockOutTime)
+{
+    $schedule = Schedule::where('user_id', $user_id)
+        ->whereDate('shift_date', $date)
+        ->first();
+
+    if ($schedule && $clockOutTime) {
+        $scheduleEndTime = Carbon::parse($date . ' ' . $schedule->end_time);
+        $actualEndTime = Carbon::parse($clockOutTime);
+
+        if ($actualEndTime->gt($scheduleEndTime)) {
+            $overtimeMinutes = $scheduleEndTime->diffInMinutes($actualEndTime);
+            $overtimeHours = floor($overtimeMinutes / 60);
+            $remainingMinutes = $overtimeMinutes % 60;
+            return sprintf('%02d:%02d', $overtimeHours, $remainingMinutes);
+        }
+    }
+
+    return '00:00';
+}
+
 
 }
