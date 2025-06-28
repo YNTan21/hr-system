@@ -172,9 +172,13 @@
                                                     <span class="px-3 py-1.5 inline-flex text-sm leading-5 font-semibold rounded-full bg-green-100 text-green-800">
                                                         Approved
                                                     </span>
-                                                @else
+                                                @elseif($existingEntries[$kpigoal->id]->status === 'pending')
                                                     <span class="px-3 py-1.5 inline-flex text-sm leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
                                                         Pending
+                                                    </span>
+                                                @else
+                                                    <span class="px-3 py-1.5 inline-flex text-sm leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                                                        {{ $existingEntries[$kpigoal->id]->status ?? 'Unknown' }}
                                                     </span>
                                                 @endif
                                             @else
@@ -210,7 +214,7 @@
                                                                 <i class="fas fa-undo"></i>
                                                             </button>
                                                         </form>
-                                                    @else
+                                                    @elseif($existingEntries[$kpigoal->id]->status === 'pending')
                                                         <!-- Pending 状态: 编辑、批准和还原按钮 -->
                                                         <a href="{{ route('admin.kpi.kpiEntry.edit', $existingEntries[$kpigoal->id]->id) }}"
                                                            class="text-blue-600 hover:text-blue-900"
@@ -221,6 +225,7 @@
                                                               action="{{ route('admin.kpi.kpiEntry.approve', $existingEntries[$kpigoal->id]->id) }}" 
                                                               class="inline">
                                                             @csrf
+                                                            @method('PUT')
                                                             <button type="button" 
                                                                     class="text-green-600 hover:text-green-900"
                                                                     title="Approve"
@@ -250,6 +255,16 @@
                                                                 <i class="fas fa-undo"></i>
                                                             </button>
                                                         </form>
+                                                    @else
+                                                        <!-- Other status: 编辑按钮 -->
+                                                        <a href="{{ route('admin.kpi.kpiEntry.edit', $existingEntries[$kpigoal->id]->id) }}"
+                                                           class="text-blue-600 hover:text-blue-900"
+                                                           title="Edit">
+                                                            <i class="fas fa-edit"></i>
+                                                        </a>
+                                                        <span class="text-xs text-gray-500" title="Status: {{ $existingEntries[$kpigoal->id]->status }}">
+                                                            {{ $existingEntries[$kpigoal->id]->status }}
+                                                        </span>
                                                     @endif
                                                 @else
                                                     <!-- No Entry 状态: 创建按钮 -->

@@ -1,8 +1,7 @@
 <?php
 
-namespace App\Http\Controllers\Auth;
+namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Attendance;
@@ -15,7 +14,7 @@ use App\Models\Position;
 use App\Models\AnnualLeaveBalance;
 use App\Models\LeaveType;
 
-class DashboardController extends Controller
+class EnhancedDashboardController extends Controller
 {
     public function index()
     {
@@ -100,14 +99,17 @@ class DashboardController extends Controller
         $leaveTrends = $this->getLeaveTrends();
         $positionStats = $this->getPositionStats();
         $leaveBalanceOverview = $this->getLeaveBalanceOverview();
+        $attendancePatterns = $this->getAttendancePatterns($currentMonth, $currentYear);
+        $recentActivities = $this->getRecentActivities();
 
-        return view('admin.dashboard', compact(
+        return view('admin.enhanced-dashboard', compact(
             'totalEmployees', 'onTime', 'late', 'leave',
             'usernames', 'overtimeHours',
             'presentCount', 'absentCount', 'onLeaveCount',
             'presentEmployees', 'absentEmployees', 'onLeaveEmployees',
             'pendingLeaves', 'approvedLeaves', 'rejectedLeaves',
-            'kpiStats', 'leaveTrends', 'positionStats', 'leaveBalanceOverview'
+            'kpiStats', 'leaveTrends', 'positionStats', 'leaveBalanceOverview',
+            'attendancePatterns', 'recentActivities'
         ));
     }
 
@@ -169,6 +171,64 @@ class DashboardController extends Controller
         return $trends;
     }
 
+    private function getPositionStats()
+    {
+        $positions = Position::where('status', 'active')->get();
+        $stats = [];
+        
+        foreach ($positions as $position) {
+            $employeeCount = User::where('position_id', $position->id)
+                ->where('is_admin', false)
+                ->where('status', 'active')
+                ->count();
+                
+            $presentToday = Attendance::whereDate('date', Carbon::today())
+                ->whereHas('user', function($query) use ($position) {
+                    $query->where('position_id', $position->id);
+                })
+                ->count();
+                
+            $stats[] = [
+                'position_name' => $position->position_name,
+                'employee_count' => $employeeCount,
+                'present_today' => $presentToday,
+                'attendance_rate' => $employeeCount > 0 ? round(($presentToday / $employeeCount) * 100, 1) : 0
+            ];
+        }
+        
+        return $stats;
+    }
+
+    private function getLeaveBalanceOverview()
+    {
+        $users = User::where('is_admin', false)
+            ->where('status', 'active')
+            ->with('annualLeaveBalance')
+            ->get();
+            
+        $totalBalance = 0;
+        $lowBalanceUsers = [];
+        
+        foreach ($users as $user) {
+            $balance = $user->annualLeaveBalance->annual_leave_balance ?? 0;
+            $totalBalance += $balance;
+            
+            if ($balance <= 5) {
+                $lowBalanceUsers[] = [
+                    'username' => $user->username,
+                    'balance' => $balance
+                ];
+            }
+        }
+        
+        return [
+            'total_balance' => $totalBalance,
+            'average_balance' => $users->count() > 0 ? round($totalBalance / $users->count(), 1) : 0,
+            'low_balance_users' => $lowBalanceUsers,
+            'total_users' => $users->count()
+        ];
+    }
+
     private function getAttendancePatterns($month, $year)
     {
         $totalDays = Carbon::create($year, $month, 1)->daysInMonth;
@@ -208,34 +268,6 @@ class DashboardController extends Controller
             'total_overtime' => round($totalOvertime, 2),
             'punctuality_rate' => $totalAttendance > 0 ? round(($onTimeAttendance / $totalAttendance) * 100, 1) : 0
         ];
-    }
-
-    private function getPositionStats()
-    {
-        $positions = Position::where('status', 'active')->get();
-        $stats = [];
-        
-        foreach ($positions as $position) {
-            $employeeCount = User::where('position_id', $position->id)
-                ->where('is_admin', false)
-                ->where('status', 'active')
-                ->count();
-                
-            $presentToday = Attendance::whereDate('date', Carbon::today())
-                ->whereHas('user', function($query) use ($position) {
-                    $query->where('position_id', $position->id);
-                })
-                ->count();
-                
-            $stats[] = [
-                'position_name' => $position->position_name,
-                'employee_count' => $employeeCount,
-                'present_today' => $presentToday,
-                'attendance_rate' => $employeeCount > 0 ? round(($presentToday / $employeeCount) * 100, 1) : 0
-            ];
-        }
-        
-        return $stats;
     }
 
     private function getRecentActivities()
@@ -284,66 +316,6 @@ class DashboardController extends Controller
         return array_slice($activities, 0, 10);
     }
 
-    private function getLeaveBalanceOverview()
-    {
-        $users = User::where('is_admin', false)
-            ->where('status', 'active')
-            ->with('annualLeaveBalance')
-            ->get();
-            
-        $totalBalance = 0;
-        $lowBalanceUsers = [];
-        
-        foreach ($users as $user) {
-            $balance = $user->annualLeaveBalance->annual_leave_balance ?? 0;
-            $totalBalance += $balance;
-            
-            if ($balance <= 5) {
-                $lowBalanceUsers[] = [
-                    'username' => $user->username,
-                    'balance' => $balance
-                ];
-            }
-        }
-        
-        return [
-            'total_balance' => $totalBalance,
-            'average_balance' => $users->count() > 0 ? round($totalBalance / $users->count(), 1) : 0,
-            'low_balance_users' => $lowBalanceUsers,
-            'total_users' => $users->count()
-        ];
-    }
-
-    private function getMonthlyAttendanceSummary($month, $year)
-    {
-        $summary = [];
-        
-        for ($day = 1; $day <= Carbon::create($year, $month, 1)->daysInMonth; $day++) {
-            $date = Carbon::create($year, $month, $day);
-            
-            if ($date->isWeekday()) {
-                $present = Attendance::whereDate('date', $date)
-                    ->where('status', '!=', 'leave')
-                    ->count();
-                    
-                $onLeave = Leave::where('status', 'approved')
-                    ->whereDate('from_date', '<=', $date)
-                    ->whereDate('to_date', '>=', $date)
-                    ->count();
-                    
-                $summary[] = [
-                    'date' => $date->format('M d'),
-                    'day' => $date->format('D'),
-                    'present' => $present,
-                    'on_leave' => $onLeave,
-                    'absent' => User::where('is_admin', false)->where('status', 'active')->count() - $present - $onLeave
-                ];
-            }
-        }
-        
-        return $summary;
-    }
-
     public function getOvertimeData($month)
     {
         try {
@@ -369,7 +341,7 @@ class DashboardController extends Controller
                     'users.username as name',
                     DB::raw('SUM(attendances.overtime) as total_hours')
                 )
-                ->groupBy('users.username')  // 只按用户名分组
+                ->groupBy('users.username')
                 ->get();
 
             \Log::info('Query Result:', [

@@ -241,16 +241,21 @@ class KPIEntryController extends Controller
             $ranges = json_decode($goal->category_score_ranges, true);
             $actualScore = 0;
             
+            // Calculate actual score based on ranges (0-4)
             foreach ($ranges as $category => $range) {
                 if ($request->actual_result >= $range['min'] && $request->actual_result <= $range['max']) {
-                    $actualScore = $category;
+                    // Extract the category number and subtract 1 (0-4 scale)
+                    $actualScore = (int)substr($category, -1) - 1;
                     break;
                 }
             }
 
+            // Calculate final score: (actual_score / 4) * goal_score
+            $finalScore = ($actualScore / 4) * $goal->goal_score;
+
             $entry->actual_result = $request->actual_result;
             $entry->actual_score = $actualScore;
-            $entry->final_score = $actualScore * ($goal->goal_score / 5);
+            $entry->final_score = $finalScore;
             $entry->save();
 
             return redirect()->route('admin.kpi.kpiEntry.index', [
@@ -427,11 +432,23 @@ class KPIEntryController extends Controller
 
     public function approve($id)
     {
-        $entry = KpiEntry::findOrFail($id);
-        
         try {
+            $entry = KpiEntry::findOrFail($id);
+            
+            \Log::info('Approving KPI entry', [
+                'entry_id' => $entry->id,
+                'current_status' => $entry->status,
+                'user_id' => $entry->users_id,
+                'goal_id' => $entry->goals_id
+            ]);
+            
             $entry->update([
                 'status' => 'approved'
+            ]);
+
+            \Log::info('KPI entry approved successfully', [
+                'entry_id' => $entry->id,
+                'new_status' => $entry->status
             ]);
 
             return redirect()->route('admin.kpi.kpiEntry.index', [
@@ -440,6 +457,12 @@ class KPIEntryController extends Controller
                 'year' => $entry->year
             ])->with('success', 'KPI entry has been approved successfully.');
         } catch (\Exception $e) {
+            \Log::error('Failed to approve KPI entry', [
+                'entry_id' => $id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
             return back()->with('error', 'Failed to approve KPI entry: ' . $e->getMessage());
         }
     }

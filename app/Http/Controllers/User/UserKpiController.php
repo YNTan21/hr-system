@@ -128,6 +128,7 @@ class UserKpiController extends Controller
             'final_score' => (int)$final_score,
             'month' => $request->month,
             'year' => $request->year,
+            'status' => 'pending',
         ]);
 
         return redirect()->route('user.kpi.manage', [

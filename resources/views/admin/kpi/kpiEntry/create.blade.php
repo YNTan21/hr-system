@@ -4,41 +4,68 @@
         <div class="row">
             <x-sharedata.header></x-sharedata.header>
         </div>
+        <!-- Main Content -->
         <div class="p-4 sm:ml-64">
             <div class="p-4 border-2 border-gray-200 rounded-lg dark:border-gray-700 mt-14">
-                <!-- Page Title -->
-                <div class="mb-6">
-                    <h2 class="text-xl font-semibold text-gray-800">Create KPI Entry</h2>
+                <!-- Simple Header -->
+                <div class="text-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">Create KPI Entry</h2>
                     <p class="text-sm text-gray-600 mt-1">{{ $goal->goal_name }}</p>
                 </div>
-                
-                <div class="bg-white rounded-lg shadow-sm p-6">
-                    <form method="POST" action="{{ route('admin.kpi.kpiEntry.store') }}">
-                        @csrf
-                        <input type="hidden" name="goals_id" value="{{ $goal->id }}">
-                        <input type="hidden" name="users_id" value="{{ $user->id }}">
-                        <input type="hidden" name="month" value="{{ $month }}">
-                        <input type="hidden" name="year" value="{{ $year }}">
 
-                        <!-- Goal Information -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Goal Name</label>
-                                <input type="text" class="bg-gray-50 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" 
-                                       value="{{ $goal->goal_name }}" disabled>
+                <!-- KPI Entry Form -->
+                <form method="POST" action="{{ route('admin.kpi.kpiEntry.store') }}">
+                    @csrf
+                    <input type="hidden" name="goals_id" value="{{ $goal->id }}">
+                    <input type="hidden" name="users_id" value="{{ $user->id }}">
+                    <input type="hidden" name="month" value="{{ $month }}">
+                    <input type="hidden" name="year" value="{{ $year }}">
+
+                    <!-- Goal Information Cards -->
+                    <div class="mb-6">
+                        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                            <div class="flex items-center mb-4">
+                                <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center mr-3">
+                                    <i class="fas fa-bullseye text-white text-sm"></i>
+                                </div>
+                                <h3 class="text-lg font-semibold text-gray-800">Goal Information</h3>
                             </div>
-
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Goal Score</label>
-                                <input type="text" class="bg-gray-50 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" 
-                                       value="{{ $goal->goal_score }}" disabled>
+                            
+                            <div class="grid grid-cols-2 gap-6">
+                                <div class="flex items-center">
+                                    <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                                        <i class="fas fa-bullseye text-blue-600 text-xs"></i>
+                                    </div>
+                                    <div>
+                                        <span class="text-sm font-semibold text-gray-700">Goal Name:</span>
+                                        <span class="text-sm text-gray-600 ml-2">{{ $goal->goal_name }}</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center">
+                                    <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                                        <i class="fas fa-star text-blue-600 text-xs"></i>
+                                    </div>
+                                    <div>
+                                        <span class="text-sm font-semibold text-gray-700">Goal Score:</span>
+                                        <span class="text-sm text-gray-600 ml-2">{{ $goal->goal_score }}</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
+                    </div>
 
-                        <!-- Category Ranges -->
-                        <div class="mb-6">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Category Ranges</label>
-                            <div class="bg-gray-50 rounded-md p-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- Category Ranges Card -->
+                    <div class="mb-6">
+                        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                            <div class="flex items-center mb-4">
+                                <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center mr-3">
+                                    <i class="fas fa-chart-line text-white text-sm"></i>
+                                </div>
+                                <h3 class="text-lg font-semibold text-gray-800">Category Ranges</h3>
+                            </div>
+                            
+                            <div class="flex justify-between gap-1">
                                 @php
                                     $ranges = json_decode($goal->category_score_ranges, true);
                                     $categoryLabels = [
@@ -50,48 +77,63 @@
                                     ];
                                 @endphp
                                 @foreach($ranges as $category => $range)
-                                    <div class="text-sm">
-                                        <span class="font-medium text-gray-700">{{ $categoryLabels[$category] }}:</span>
-                                        <span class="text-gray-600">{{ $range['min'] }} - {{ $range['max'] }}</span>
+                                    <div class="bg-white px-2 py-2 rounded-lg border border-gray-200 text-xs flex-1 text-center">
+                                        <div class="flex items-center justify-center">
+                                            <div class="w-4 h-4 rounded-full bg-blue-100 border border-blue-300 flex items-center justify-center mr-1">
+                                                <span class="text-xs font-bold text-blue-600">{{ array_search($category, array_keys($ranges)) + 1 }}</span>
+                                            </div>
+                                            <div>
+                                                <div class="font-medium text-gray-700">{{ $categoryLabels[$category] }}</div>
+                                                <div class="text-gray-600">{{ $range['min'] }}-{{ $range['max'] }}</div>
+                                            </div>
+                                        </div>
                                     </div>
                                 @endforeach
                             </div>
                         </div>
+                    </div>
 
-                        <!-- Actual Result Input -->
-                        <div class="mb-6">
-                            <label for="actual_result" class="block text-sm font-medium text-gray-700 mb-2">
-                                Actual Result <span class="text-red-600">*</span>
-                            </label>
+                    <!-- Actual Result Card -->
+                    <div class="mb-6">
+                        <div class="bg-white border-2 border-blue-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow">
+                            <div class="flex items-center mb-2">
+                                <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center mr-3">
+                                    <i class="fas fa-chart-bar text-white text-sm"></i>
+                                </div>
+                                <label for="actual_result" class="text-sm font-semibold text-gray-700">
+                                    Actual Result <span class="text-red-600">*</span>
+                                </label>
+                            </div>
                             <input type="number" 
                                    step="0.01" 
-                                   class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm @error('actual_result') border-red-500 @enderror" 
+                                   class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm @error('actual_result') border-red-500 @enderror" 
                                    id="actual_result" 
                                    name="actual_result" 
                                    value="{{ old('actual_result') }}"
+                                   placeholder="Enter actual result"
                                    required>
                             @error('actual_result')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
+                    </div>
 
-                        <!-- Form Actions -->
-                        <div class="flex justify-end space-x-3">
-                            <a href="{{ route('admin.kpi.kpiEntry.index', [
-                                'user_id' => $user->id,
-                                'month' => $month,
-                                'year' => $year
-                            ]) }}" 
-                               class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                                Cancel
-                            </a>
-                            <button type="submit" 
-                                    class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                                Save Entry
-                            </button>
-                        </div>
-                    </form>
-                </div>
+                    <!-- Simple Action Buttons -->
+                    <div class="flex justify-center gap-4">
+                        <a href="{{ route('admin.kpi.kpiEntry.index', [
+                            'user_id' => $user->id,
+                            'month' => $month,
+                            'year' => $year
+                        ]) }}" 
+                           class="px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200 shadow-md hover:shadow-lg">
+                            <i class="fas fa-arrow-left mr-2"></i>Back to List
+                        </a>
+                        <button type="submit" 
+                                class="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 shadow-md hover:shadow-lg">
+                            <i class="fas fa-save mr-2"></i>Create Entry
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
