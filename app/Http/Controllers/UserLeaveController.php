@@ -37,6 +37,17 @@ class UserLeaveController extends Controller
             'reason' => 'nullable|string|max:255',
         ]);
 
+        // Check if the selected leave type is annual leave
+        $leaveType = \App\Models\LeaveType::find($validatedData['leave_type_id']);
+        if ($leaveType && stripos($leaveType->leave_type, 'annual') !== false) {
+            $user = auth()->user();
+            if (!$user->annualLeaveBalance) {
+                return redirect()->back()
+                    ->withInput()
+                    ->withErrors(['annual_leave_balance' => 'You cannot apply for annual leave because no annual leave balance is entered for your account. Please contact HR.']);
+            }
+        }
+
         $leave = Leave::create([
             'user_id' => auth()->id(),
             'leave_type_id' => $validatedData['leave_type_id'],

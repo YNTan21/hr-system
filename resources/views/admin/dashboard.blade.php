@@ -154,7 +154,7 @@
                     </div>
                 </div>
 
-                <!-- Pending Leave Requests -->
+                {{-- <!-- Pending Leave Requests -->
                 <div class="bg-white rounded-xl shadow-lg p-6 border-2 border-yellow-400 mb-8">
                     <h3 class="text-lg font-semibold text-yellow-700 mb-4 flex items-center">
                         <i class="fas fa-hourglass-half mr-2"></i> Pending Leave Requests ({{ $pendingLeaves->count() }})
@@ -201,7 +201,7 @@
                             </tbody>
                         </table>
                     </div>
-                </div>
+                </div> --}}
 
                 <!-- Overtime Chart -->
                 <div class="bg-white rounded-xl shadow-lg p-6 border border-gray-200">

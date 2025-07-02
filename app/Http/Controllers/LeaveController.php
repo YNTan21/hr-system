@@ -369,17 +369,27 @@ class LeaveController extends Controller
 
     public function calendar(Request $request)
     {
-        $month = $request->get('month', now()->month);
-        $year = $request->get('year', now()->year);
+        $currentMonth = $request->get('month', now()->month);
+        $currentYear = $request->get('year', now()->year);
 
-        $calendar = $this->generateCalendar($month, $year);
+        $calendar = $this->generateCalendar($currentMonth, $currentYear);
         $leaveTypes = LeaveType::where('status', 'active')->get();
 
         $months = collect(range(1, 12))->map(fn($m) => ['value' => $m, 'name' => date('F', mktime(0, 0, 0, $m, 10))]);
         $years = range(now()->year - 2, now()->year + 2);
 
+        // Calculate month name
+        $monthName = date('F', mktime(0, 0, 0, $currentMonth, 10));
+
+        // Calculate navigation variables
+        $prevMonth = $currentMonth == 1 ? 12 : $currentMonth - 1;
+        $prevYear = $currentMonth == 1 ? $currentYear - 1 : $currentYear;
+        $nextMonth = $currentMonth == 12 ? 1 : $currentMonth + 1;
+        $nextYear = $currentMonth == 12 ? $currentYear + 1 : $currentYear;
+
         return view('admin.leave.calendar', compact(
-            'calendar', 'leaveTypes', 'month', 'year', 'months', 'years'
+            'calendar', 'leaveTypes', 'currentMonth', 'currentYear', 'monthName', 'months', 'years',
+            'prevMonth', 'prevYear', 'nextMonth', 'nextYear'
         ));
     }
 }
