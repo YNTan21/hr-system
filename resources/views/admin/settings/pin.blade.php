@@ -25,6 +25,64 @@
                         </div>
                     @endif
 
+                    @if(isset($currentPin) && Auth::user() && Auth::user()->is_admin)
+                        <!-- View PIN & History Button -->
+                        <button type="button" onclick="document.getElementById('pinHistoryModal').classList.remove('hidden')"
+                            class="mb-6 bg-gray-700 text-white px-4 py-2 rounded hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            View Current PIN & History
+                        </button>
+
+                        <!-- Modal -->
+                        <div id="pinHistoryModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 hidden">
+                            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg max-w-md w-full p-6 relative">
+                                <button onclick="document.getElementById('pinHistoryModal').classList.add('hidden')"
+                                    class="absolute top-2 right-2 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                                <h3 class="text-lg font-bold mb-4">Current & History PINs</h3>
+                                <div class="mb-4">
+                                    <span class="font-semibold">Current PIN:</span>
+                                    <span class="ml-2 tracking-widest">{{ $currentPin }}</span>
+                                </div>
+                                <div>
+                                    <span class="font-semibold">PIN Change History (last 10):</span>
+                                    <div class="overflow-x-auto mt-2">
+                                        <table class="min-w-full text-sm border">
+                                            <thead>
+                                                <tr class="bg-gray-100 dark:bg-gray-700">
+                                                    <th class="px-3 py-2 border">Date</th>
+                                                    <th class="px-3 py-2 border">Changed By</th>
+                                                    <th class="px-3 py-2 border">PIN</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @forelse($pinHistories as $history)
+                                                    <tr>
+                                                        <td class="px-3 py-2 border">{{ $history->created_at->format('Y-m-d H:i') }}</td>
+                                                        <td class="px-3 py-2 border">
+                                                            @if($history->changed_by && $history->changed_by == Auth::id())
+                                                                You
+                                                            @elseif($history->changed_by && $history->user)
+                                                                {{ $history->user->name ?? 'User #'.$history->changed_by }}
+                                                            @else
+                                                                -
+                                                            @endif
+                                                        </td>
+                                                        <td class="px-3 py-2 border tracking-widest">{{ $history->pin }}</td>
+                                                    </tr>
+                                                @empty
+                                                    <tr><td colspan="3" class="text-center py-2">No history found.</td></tr>
+                                                @endforelse
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+
                     <form action="{{ route('admin.settings.pin.update') }}" method="POST" class="space-y-6" id="pinForm">
                         @csrf
                         

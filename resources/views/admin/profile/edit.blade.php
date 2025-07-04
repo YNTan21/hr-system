@@ -1,4 +1,4 @@
-@section('site-title', 'Edit Employee')
+@section('site-title', 'Edit Profile')
 <x-layout.master>
     <div class="container-fluid">
         <div class="row">
@@ -23,11 +23,11 @@
                 @endif
                 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
                 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-                <form action="{{ route('admin.employee.update', $employee->id) }}" method="POST" enctype="multipart/form-data">
+                <form action="{{ route('admin.profile.update') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
                     <div class="text-center mb-6">
-                        <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Edit Employee</h2>
+                        <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Edit Profile</h2>
                     </div>
                     <!-- Personal Information -->
                     <div class="mb-6">
@@ -41,7 +41,7 @@
                                 <label for="profile_picture" class="text-sm font-semibold text-gray-700 dark:text-white whitespace-nowrap">Profile Picture</label>
                             </div>
                             <input type="file" name="profile_picture" id="profile_picture" class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm" accept="image/*" onchange="previewImage(this);">
-                            <img id="preview" src="{{ $employee->profile_picture_url }}" alt="Profile Picture Preview" style="max-width: 120px; max-height: 120px; margin-left: 1rem;">
+                            <img id="preview" src="{{ $user->profile_picture ? asset('storage/' . $user->profile_picture) : '' }}" alt="Profile Picture Preview" style="max-width: 120px; max-height: 120px; margin-left: 1rem;">
                         </div>
                         <!-- Name and IC -->
                         <div class="grid grid-cols-2 gap-4 mb-4">
@@ -52,7 +52,7 @@
                                     </div>
                                     <label for="username" class="text-sm font-semibold text-gray-700 dark:text-white whitespace-nowrap">Full Name</label>
                                 </div>
-                                <input type="text" name="username" id="username" value="{{ old('username', $employee->username) }}" class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm" required>
+                                <input type="text" name="username" id="username" value="{{ old('username', $user->username) }}" class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm" required>
                             </div>
                             <div class="bg-white border-2 border-blue-200 rounded-lg p-4 shadow-sm flex items-center gap-4 dark:bg-gray-800">
                                 <div class="flex items-center min-w-max">
@@ -61,7 +61,7 @@
                                     </div>
                                     <label for="ic" class="text-sm font-semibold text-gray-700 dark:text-white whitespace-nowrap">NRIC/Passport</label>
                                 </div>
-                                <input type="text" name="ic" id="ic" value="{{ old('ic', $employee->ic) }}" class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm" required>
+                                <input type="text" name="ic" id="ic" value="{{ old('ic', $user->ic) }}" class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm" required>
                             </div>
                         </div>
                         <!-- Date of Birth and Gender -->
@@ -74,7 +74,7 @@
                                     <label for="dob" class="text-sm font-semibold text-gray-700 dark:text-white whitespace-nowrap">Date of Birth</label>
                                 </div>
                                 <div class="relative flex-1">
-                                    <input type="text" name="dob" id="dob" value="{{ old('dob', $employee->dob) }}" class="flex-1 pl-10 rounded-md border-2 border-blue-200 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm py-2" placeholder="Select date" autocomplete="off" required>
+                                    <input type="text" name="dob" id="dob" value="{{ old('dob', $user->dob) }}" class="flex-1 pl-10 rounded-md border-2 border-blue-200 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm py-2" placeholder="Select date" autocomplete="off" required>
                                     <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                                         <i class="fas fa-calendar-alt text-blue-400"></i>
                                     </span>
@@ -89,7 +89,7 @@
                                 </div>
                                 <div class="flex-1 relative overflow-visible">
                                     <button id="dropdownGenderButton" type="button" class="flex-1 bg-white border-2 border-blue-200 rounded-lg shadow-sm text-gray-900 text-sm px-5 py-2.5 text-left inline-flex items-center justify-between dark:bg-gray-700 dark:border-blue-400 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                        <span id="selectedGender">{{ old('gender', $employee->gender) ? ucfirst(old('gender', $employee->gender)) : 'Select Gender' }}</span>
+                                        <span id="selectedGender">{{ old('gender', $user->gender) ? ucfirst(old('gender', $user->gender)) : 'Select Gender' }}</span>
                                         <svg class="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/></svg>
                                     </button>
                                     <div id="dropdownGender" class="z-50 hidden bg-white border border-blue-200 rounded-lg shadow-lg w-56 left-0 absolute mt-1 dark:bg-white">
@@ -98,7 +98,7 @@
                                             <li><a href="#" class="block px-4 py-2 hover:bg-gray-100" data-value="female">Female</a></li>
                                         </ul>
                                     </div>
-                                    <input type="hidden" name="gender" id="gender" value="{{ old('gender', $employee->gender) }}" required>
+                                    <input type="hidden" name="gender" id="gender" value="{{ old('gender', $user->gender) }}" required>
                                 </div>
                             </div>
                         </div>
@@ -107,10 +107,10 @@
                             <div class="flex items-center min-w-max">
                                 <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center mr-3">
                                     <i class="fas fa-phone text-white text-sm"></i>
-                        </div>
+                                </div>
                                 <label for="phone" class="text-sm font-semibold text-gray-700 dark:text-white whitespace-nowrap">Phone</label>
                             </div>
-                            <input type="tel" name="phone" id="phone" value="{{ old('phone', $employee->phone) }}" class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm" required>
+                            <input type="tel" name="phone" id="phone" value="{{ old('phone', $user->phone) }}" class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm" required>
                         </div>
                         <!-- Marital Status and Nationality in the same row -->
                         <div class="grid grid-cols-2 gap-4 mb-4">
@@ -124,7 +124,7 @@
                                 </div>
                                 <div class="flex-1 relative overflow-visible">
                                     <button id="dropdownMaritalButton" type="button" class="w-full bg-white border-2 border-blue-200 rounded-lg shadow-sm text-gray-900 text-sm px-5 py-2.5 text-left inline-flex items-center justify-between dark:bg-gray-700 dark:border-blue-400 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                        <span id="selectedMarital">{{ old('marital_status', $employee->marital_status) ? ucfirst(old('marital_status', $employee->marital_status)) : 'Select Status' }}</span>
+                                        <span id="selectedMarital">{{ old('marital_status', $user->marital_status) ? ucfirst(old('marital_status', $user->marital_status)) : 'Select Status' }}</span>
                                         <svg class="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/></svg>
                                     </button>
                                     <div id="dropdownMarital" class="z-50 hidden bg-white border border-blue-200 rounded-lg shadow-lg w-56 left-0 absolute mt-1 dark:bg-white">
@@ -135,7 +135,7 @@
                                             <li><a href="#" class="block px-4 py-2 hover:bg-gray-100" data-value="widowed">Widowed</a></li>
                                         </ul>
                                     </div>
-                                    <input type="hidden" name="marital_status" id="marital_status" value="{{ old('marital_status', $employee->marital_status) }}" required>
+                                    <input type="hidden" name="marital_status" id="marital_status" value="{{ old('marital_status', $user->marital_status) }}" required>
                                 </div>
                             </div>
                             <!-- Nationality -->
@@ -148,7 +148,7 @@
                                 </div>
                                 <div class="flex-1 relative overflow-visible">
                                     <button id="dropdownNationalityButton" type="button" class="w-full bg-white border-2 border-blue-200 rounded-lg shadow-sm text-gray-900 text-sm px-5 py-2.5 text-left inline-flex items-center justify-between dark:bg-gray-700 dark:border-blue-400 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                        <span id="selectedNationality">{{ old('nationality', $employee->nationality) ? ucfirst(old('nationality', $employee->nationality)) : 'Select Nationality' }}</span>
+                                        <span id="selectedNationality">{{ old('nationality', $user->nationality) ? ucfirst(old('nationality', $user->nationality)) : 'Select Nationality' }}</span>
                                         <svg class="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/></svg>
                                     </button>
                                     <div id="dropdownNationality" class="z-50 hidden bg-white border border-blue-200 rounded-lg shadow-lg w-56 left-0 absolute mt-1 dark:bg-white">
@@ -157,12 +157,12 @@
                                             <li><a href="#" class="block px-4 py-2 hover:bg-gray-100" data-value="non-malaysian">Non-Malaysian</a></li>
                                         </ul>
                                     </div>
-                                    <input type="hidden" name="nationality" id="nationality" value="{{ old('nationality', $employee->nationality) }}" required>
+                                    <input type="hidden" name="nationality" id="nationality" value="{{ old('nationality', $user->nationality) }}" required>
                                 </div>
                                 <!-- Specify Nationality (conditionally shown) -->
-                                <div id="non-malaysian-input" class="mt-2" style="display: {{ old('nationality', $employee->nationality) == 'non-malaysian' ? 'block' : 'none' }};">
+                                <div id="non-malaysian-input" class="mt-2 flex flex-col gap-1" style="display: {{ old('nationality', $user->nationality) == 'non-malaysian' ? 'flex' : 'none' }};">
                                     <label for="specific_nationality" class="text-sm font-semibold text-gray-700 dark:text-white mb-1">Specify Nationality</label>
-                                    <input type="text" name="specific_nationality" id="specific_nationality" value="{{ old('specific_nationality', $employee->specific_nationality) }}" class="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm">
+                                    <input type="text" name="specific_nationality" id="specific_nationality" value="{{ old('specific_nationality', $user->specific_nationality) }}" class="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm w-full">
                                 </div>
                             </div>
                         </div>
@@ -174,7 +174,7 @@
                                 </div>
                                 <label for="address" class="text-sm font-semibold text-gray-700 dark:text-white whitespace-nowrap">Address</label>
                             </div>
-                            <textarea name="address" id="address" class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm" required>{{ old('address', $employee->address) }}</textarea>
+                            <textarea name="address" id="address" class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm" required>{{ old('address', $user->address) }}</textarea>
                         </div>
                     </div>
                     <!-- Bank Information -->
@@ -190,7 +190,7 @@
                             </div>
                             <div class="flex-1 relative overflow-visible">
                                 <button id="dropdownBankButton" type="button" class="flex-1 bg-white border-2 border-blue-200 rounded-lg shadow-sm text-gray-900 text-sm px-5 py-2.5 text-left inline-flex items-center justify-between dark:bg-gray-700 dark:border-blue-400 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                    <span id="selectedBank">{{ old('bank_name', $employee->bank_name) ? old('bank_name', $employee->bank_name) : 'Select a bank' }}</span>
+                                    <span id="selectedBank">{{ old('bank_name', $user->bank_name) ? old('bank_name', $user->bank_name) : 'Select a bank' }}</span>
                                     <svg class="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/></svg>
                                 </button>
                                 <div id="dropdownBank" class="z-50 hidden bg-white border border-blue-200 rounded-lg shadow-lg w-56 left-0 absolute mt-1 dark:bg-white max-h-48 overflow-y-auto">
@@ -227,7 +227,7 @@
                                         <li><a href="#" class="block px-4 py-2 hover:bg-gray-100" data-value="United Overseas Bank (Malaysia) Berhad">United Overseas Bank (Malaysia) Berhad</a></li>
                                     </ul>
                                 </div>
-                                <input type="hidden" name="bank_name" id="bank_name" value="{{ old('bank_name', $employee->bank_name) }}" required>
+                                <input type="hidden" name="bank_name" id="bank_name" value="{{ old('bank_name', $user->bank_name) }}" required>
                             </div>
                         </div>
                         <!-- Bank Account Holder Name and Number -->
@@ -239,7 +239,7 @@
                                     </div>
                                     <label for="bank_account_holder_name" class="text-sm font-semibold text-gray-700 dark:text-white whitespace-nowrap">Account Holder Name</label>
                                 </div>
-                                <input type="text" name="bank_account_holder_name" id="bank_account_holder_name" value="{{ old('bank_account_holder_name', $employee->bank_account_holder_name) }}" class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm" required>
+                                <input type="text" name="bank_account_holder_name" id="bank_account_holder_name" value="{{ old('bank_account_holder_name', $user->bank_account_holder_name) }}" class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm" required>
                             </div>
                             <div class="bg-white border-2 border-blue-200 rounded-lg p-4 shadow-sm flex items-center gap-4 dark:bg-gray-800">
                                 <div class="flex items-center min-w-max">
@@ -248,8 +248,8 @@
                                     </div>
                                     <label for="bank_account_number" class="text-sm font-semibold text-gray-700 dark:text-white whitespace-nowrap">Account Number</label>
                                 </div>
-                                <input type="text" name="bank_account_number" id="bank_account_number" value="{{ old('bank_account_number', $employee->bank_account_number) }}" class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm" required>
-                        </div>
+                                <input type="text" name="bank_account_number" id="bank_account_number" value="{{ old('bank_account_number', $user->bank_account_number) }}" class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm" required>
+                            </div>
                         </div>
                     </div>
                     <!-- Employment Information -->
@@ -262,72 +262,37 @@
                                     <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center mr-3">
                                         <i class="fas fa-calendar-plus text-white text-sm"></i>
                                     </div>
-                                    <label for="hire_date" class="text-sm font-semibold text-gray-700 dark:text-white whitespace-nowrap">Hire Date</label>
+                                    <label class="text-sm font-semibold text-gray-700 dark:text-white whitespace-nowrap">Hire Date</label>
                                 </div>
-                                <div class="relative flex-1">
-                                    <input type="text" name="hire_date" id="hire_date" value="{{ old('hire_date', $employee->hire_date) }}" class="flex-1 pl-10 rounded-md border-2 border-blue-200 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm py-2" placeholder="Select date" autocomplete="off" required>
-                                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                                        <i class="fas fa-calendar-alt text-blue-400"></i>
-                                    </span>
-                                </div>
+                                <input type="text" value="{{ $user->hire_date }}" class="flex-1 rounded-md border-gray-300 shadow-sm bg-gray-100 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm" readonly disabled>
                             </div>
                             <div class="bg-white border-2 border-blue-200 rounded-lg p-4 shadow-sm flex items-center gap-4 dark:bg-gray-800">
                                 <div class="flex items-center min-w-max">
                                     <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center mr-3">
                                         <i class="fas fa-user-tie text-white text-sm"></i>
                                     </div>
-                                    <label for="position_id" class="text-sm font-semibold text-gray-700 dark:text-white whitespace-nowrap">Position</label>
-                        </div>
-                                <div class="flex-1 relative overflow-visible">
-                                    <button id="dropdownPositionButton" type="button" class="flex-1 bg-white border-2 border-blue-200 rounded-lg shadow-sm text-gray-900 text-sm px-5 py-2.5 text-left inline-flex items-center justify-between dark:bg-gray-700 dark:border-blue-400 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                        <span id="selectedPosition">{{ old('position_id', $employee->position_id) ? ($positions->firstWhere('id', old('position_id', $employee->position_id))?->position_name ?? 'Select Position') : 'Select Position' }}</span>
-                                        <svg class="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/></svg>
-                                    </button>
-                                    <div id="dropdownPosition" class="z-50 hidden bg-white border border-blue-200 rounded-lg shadow-lg w-56 left-0 absolute mt-1 dark:bg-white max-h-48 overflow-y-auto">
-                                        <ul class="py-2 text-sm text-gray-700" aria-labelledby="dropdownPositionButton">
-                                @foreach($positions as $position)
-                                                <li><a href="#" class="block px-4 py-2 hover:bg-gray-100" data-value="{{ $position->id }}">{{ $position->position_name }}</a></li>
-                                @endforeach
-                                        </ul>
-                                    </div>
-                                    <input type="hidden" name="position_id" id="position_id" value="{{ old('position_id', $employee->position_id) }}" required>
+                                    <label class="text-sm font-semibold text-gray-700 dark:text-white whitespace-nowrap">Position</label>
                                 </div>
-                            @error('position_id')
-                                    <p class="ml-4 text-sm text-red-600 dark:text-red-500">{{ $message }}</p>
-                            @enderror
-                        </div>
+                                <input type="text" value="{{ $user->position ? $user->position->position_name : '-' }}" class="flex-1 rounded-md border-gray-300 shadow-sm bg-gray-100 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm" readonly disabled>
+                            </div>
                         </div>
                         <!-- Employment Type -->
                         <div class="bg-white border-2 border-blue-200 rounded-lg p-4 shadow-sm mb-4 flex items-center gap-4 dark:bg-gray-800">
                             <div class="flex items-center min-w-max">
                                 <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center mr-3">
                                     <i class="fas fa-clipboard-list text-white text-sm"></i>
-                        </div>
-                                <label for="type" class="text-sm font-semibold text-gray-700 dark:text-white whitespace-nowrap">Employment Type</label>
-                    </div>
-                            <div class="flex-1 relative overflow-visible">
-                                <button id="dropdownTypeButton" type="button" class="flex-1 bg-white border-2 border-blue-200 rounded-lg shadow-sm text-gray-900 text-sm px-5 py-2.5 text-left inline-flex items-center justify-between dark:bg-gray-700 dark:border-blue-400 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                    <span id="selectedType">{{ old('type', $employee->type) ? ucfirst(old('type', $employee->type)) : 'Select Type' }}</span>
-                                    <svg class="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/></svg>
-                                </button>
-                                <div id="dropdownType" class="z-50 hidden bg-white border border-blue-200 rounded-lg shadow-lg w-56 left-0 absolute mt-1 dark:bg-white">
-                                    <ul class="py-2 text-sm text-gray-700" aria-labelledby="dropdownTypeButton">
-                                        <li><a href="#" class="block px-4 py-2 hover:bg-gray-100" data-value="full-time">Full-time</a></li>
-                                        <li><a href="#" class="block px-4 py-2 hover:bg-gray-100" data-value="part-time">Part-time</a></li>
-                                        <li><a href="#" class="block px-4 py-2 hover:bg-gray-100" data-value="contract">Contract</a></li>
-                                        <li><a href="#" class="block px-4 py-2 hover:bg-gray-100" data-value="intern">Intern</a></li>
-                                    </ul>
-                        </div>
-                                <input type="hidden" name="type" id="type" value="{{ old('type', $employee->type) }}" required>
+                                </div>
+                                <label class="text-sm font-semibold text-gray-700 dark:text-white whitespace-nowrap">Employment Type</label>
                             </div>
+                            <input type="text" value="{{ ucfirst($user->type) }}" class="flex-1 rounded-md border-gray-300 shadow-sm bg-gray-100 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm" readonly disabled>
                         </div>
                     </div>
                     <div class="flex justify-center gap-4 mt-6">
-                        <a href="{{ route('admin.employee.index') }}" class="px-5 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200 shadow-md hover:shadow-lg text-xs">
+                        <a href="{{ route('admin.profile.index') }}" class="px-5 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200 shadow-md hover:shadow-lg text-xs">
                             <i class="fas fa-arrow-left mr-2"></i>Back
                         </a>
                         <button type="submit" class="px-5 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 shadow-md hover:shadow-lg text-xs">
-                            <i class="fas fa-save mr-2"></i>Save Employee
+                            <i class="fas fa-save mr-2"></i>Save Profile
                         </button>
                     </div>
                 </form>
@@ -383,18 +348,18 @@
             document.getElementById('non-malaysian-input').style.display = 'flex';
         }
     });
-function previewImage(input) {
-    var preview = document.getElementById('preview');
-    if (input.files && input.files[0]) {
-        var reader = new FileReader();
+    function previewImage(input) {
+        var preview = document.getElementById('preview');
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
             reader.onload = function (e) {
-            preview.src = e.target.result;
-            preview.style.display = 'block';
+                preview.src = e.target.result;
+                preview.style.display = 'block';
             };
-        reader.readAsDataURL(input.files[0]);
-    } else {
-        preview.src = '#';
-        preview.style.display = 'none';
+            reader.readAsDataURL(input.files[0]);
+        } else {
+            preview.src = '#';
+            preview.style.display = 'none';
+        }
     }
-}
-</script>
+</script> 

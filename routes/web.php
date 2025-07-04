@@ -248,8 +248,8 @@ Route::middleware('auth')->group(function(){
     Route::get('/user/kpi/manage/{month}/{year}', [UserKpiController::class, 'manage'])->name('user.kpi.manage');
 
     // schedule
-    Route::get('/user/schedule/index', [UserScheduleController::class, 'index'])->name('user.schedule.index');
-    Route::get('/user/schedule/timesheet', [UserScheduleController::class, 'timesheet'])->name('user.schedule.timesheet');
+    // Route::get('/user/schedule/index', [UserScheduleController::class, 'index'])->name('user.schedule.index');
+    // Route::get('/user/schedule/timesheet', [UserScheduleController::class, 'timesheet'])->name('user.schedule.timesheet');
 
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -364,8 +364,9 @@ Auth::routes();
 
 Route::middleware(['auth'])->group(function () {
     // Admin routes
-    Route::middleware('admin')->prefix('admin')->name('admin.')->group(function () {
-        Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::middleware('is-admin')->prefix('admin')->name('admin.')->group(function () {
+        Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
+        Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
         // ... other admin routes
     });
@@ -394,23 +395,6 @@ Route::get('/test-email', function () {
 Route::any('{any}', function () {
     return redirect()->route('login');
 })->where('any', '.*')->middleware('guest');
-
-// Inside your auth middleware group
-Route::middleware('auth')->group(function () {
-    // Admin routes
-    Route::middleware('admin')->prefix('admin')->name('admin.')->group(function () {
-        Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-        Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
-        // ... other admin routes
-    });
-
-    // User routes
-    Route::prefix('user')->name('user.')->group(function () {
-        Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-        Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
-        // ... other user routes
-    });
-});
 
 Auth::routes();
 

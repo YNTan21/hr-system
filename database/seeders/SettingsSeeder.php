@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\Setting;
-use Illuminate\Support\Facades\Hash;
 
 class SettingsSeeder extends Seeder
 {
@@ -13,7 +12,7 @@ class SettingsSeeder extends Seeder
         // Create or update the system PIN
         Setting::updateOrCreate(
             ['key' => 'system_pin'],
-            ['value' => Hash::make('000000')] 
+            ['value' => '000000'] 
         );
     }
 }

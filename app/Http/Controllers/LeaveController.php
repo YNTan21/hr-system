@@ -211,7 +211,6 @@ class LeaveController extends Controller
                 ->whereHas('user', function ($query) {
                     $query->where('status', 'active');
                 })
-                ->where('status', 'active')
                 ->get();
             $filename = "leaves_" . now()->format('Ymd_His') . ".csv";
 
@@ -346,7 +345,7 @@ class LeaveController extends Controller
             ->whereHas('user', function ($query) {
                 $query->where('status', 'active');
             })
-            ->where('status', 'active')
+            ->where('status', 'approved')
             ->get();
 
         $calendar = [];
@@ -376,7 +375,7 @@ class LeaveController extends Controller
         $leaveTypes = LeaveType::where('status', 'active')->get();
 
         $months = collect(range(1, 12))->map(fn($m) => ['value' => $m, 'name' => date('F', mktime(0, 0, 0, $m, 10))]);
-        $years = range(now()->year - 2, now()->year + 2);
+        $years = range(2024, 2050);
 
         // Calculate month name
         $monthName = date('F', mktime(0, 0, 0, $currentMonth, 10));

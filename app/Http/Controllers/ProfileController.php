@@ -43,4 +43,11 @@ class ProfileController extends Controller
 
         return back()->with('success', 'Profile updated successfully.');
     }
+
+    public function edit()
+    {
+        $user = auth()->user();
+        $positions = \App\Models\Position::all();
+        return view('admin.profile.edit', compact('user', 'positions'));
+    }
 }

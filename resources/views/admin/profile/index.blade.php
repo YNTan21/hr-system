@@ -5,85 +5,162 @@
             <x-sharedata.header></x-sharedata.header>
         </div>
         <div class="p-4 sm:ml-64">
-            <div class="p-4 border-2 border-gray-200 rounded-lg dark:border-gray-700 mt-14">
-                <h1 class="text-2xl font-bold text-gray-900 dark:text-white pb-4">Profile Settings</h1>
-
+            <div class="p-4 border-2 border-gray-200 rounded-lg dark:border-gray-700 mt-14 w-full relative">
+                <a href="{{ route('admin.profile.edit') }}" class="absolute top-4 right-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 shadow-md text-xs flex items-center gap-2">
+                    <i class="fas fa-edit"></i> Edit
+                </a>
+                <div class="text-center mb-4">
+                    <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Profile</h2>
+                </div>
                 @if (session('success'))
                     <div class="p-4 mb-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400">
                         {{ session('success') }}
                     </div>
                 @endif
-
-                <form action="{{ route('profile.update') }}" method="POST" class="space-y-6">
-                    @csrf
-                    @method('PUT')
-
+                <!-- Profile Picture -->
+                <div class="flex justify-center mb-4">
+                    <div class="w-24 h-24 rounded-full overflow-hidden border-4 border-blue-200 flex items-center justify-center bg-gray-100 dark:bg-gray-700">
+                        @if($user->profile_picture)
+                            <img src="{{ asset('storage/' . $user->profile_picture) }}" alt="Profile Picture" class="object-cover w-full h-full">
+                        @else
+                            <i class="fas fa-user text-4xl text-gray-400"></i>
+                        @endif
+                    </div>
+                </div>
+                <!-- Info Cards Grid: 3 per row for key fields -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3 w-full">
                     <!-- Username -->
-                    <div>
-                        <label for="username" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Username</label>
-                        <input type="text" name="username" id="username" value="{{ old('username', $user->username) }}"
-                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                        @error('username')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
+                    <div class="bg-white border-2 border-blue-200 rounded-lg p-2 shadow-sm flex items-center gap-2 dark:bg-gray-800 w-full">
+                        <div class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center mr-1">
+                            <i class="fas fa-user text-white text-xs"></i>
+                        </div>
+                        <span class="font-semibold text-gray-700 dark:text-white">Username:</span>
+                        <span class="flex-1 text-gray-900 dark:text-white text-xs">{{ $user->username }}</span>
                     </div>
-
                     <!-- Email -->
-                    <div>
-                        <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Email</label>
-                        <input type="email" name="email" id="email" value="{{ old('email', $user->email) }}"
-                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                        @error('email')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
+                    <div class="bg-white border-2 border-blue-200 rounded-lg p-2 shadow-sm flex items-center gap-2 dark:bg-gray-800 w-full">
+                        <div class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center mr-1">
+                            <i class="fas fa-envelope text-white text-xs"></i>
+                        </div>
+                        <span class="font-semibold text-gray-700 dark:text-white">Email:</span>
+                        <span class="flex-1 text-gray-900 dark:text-white text-xs">{{ $user->email }}</span>
                     </div>
-
                     <!-- Phone -->
-                    <div>
-                        <label for="phone" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Phone Number</label>
-                        <input type="text" name="phone" id="phone" value="{{ old('phone', $user->phone) }}"
-                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                        @error('phone')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <!-- Change Password Section -->
-                    <div class="space-y-4">
-                        <h2 class="text-lg font-medium text-gray-900 dark:text-white">Change Password</h2>
-                        
-                        <div>
-                            <label for="current_password" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Current Password</label>
-                            <input type="password" name="current_password" id="current_password"
-                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                            @error('current_password')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
+                    <div class="bg-white border-2 border-blue-200 rounded-lg p-2 shadow-sm flex items-center gap-2 dark:bg-gray-800 w-full">
+                        <div class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center mr-1">
+                            <i class="fas fa-phone text-white text-xs"></i>
                         </div>
-
-                        <div>
-                            <label for="new_password" class="block text-sm font-medium text-gray-700 dark:text-gray-200">New Password</label>
-                            <input type="password" name="new_password" id="new_password"
-                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                            @error('new_password')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <div>
-                            <label for="new_password_confirmation" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Confirm New Password</label>
-                            <input type="password" name="new_password_confirmation" id="new_password_confirmation"
-                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                        </div>
+                        <span class="font-semibold text-gray-700 dark:text-white">Phone:</span>
+                        <span class="flex-1 text-gray-900 dark:text-white text-xs">{{ $user->phone ?? '-' }}</span>
                     </div>
-
-                    <!-- Submit Button -->
-                    <div class="flex justify-end gap-4">
-                        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
-                            Update Profile
-                        </button>
+                    <!-- IC -->
+                    <div class="bg-white border-2 border-blue-200 rounded-lg p-2 shadow-sm flex items-center gap-2 dark:bg-gray-800 w-full">
+                        <div class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center mr-1">
+                            <i class="fas fa-id-card text-white text-xs"></i>
+                        </div>
+                        <span class="font-semibold text-gray-700 dark:text-white">NRIC/Passport:</span>
+                        <span class="flex-1 text-gray-900 dark:text-white text-xs">{{ $user->ic ?? '-' }}</span>
                     </div>
-                </form>
+                    <!-- DOB -->
+                    <div class="bg-white border-2 border-blue-200 rounded-lg p-2 shadow-sm flex items-center gap-2 dark:bg-gray-800 w-full">
+                        <div class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center mr-1">
+                            <i class="fas fa-birthday-cake text-white text-xs"></i>
+                        </div>
+                        <span class="font-semibold text-gray-700 dark:text-white">DOB:</span>
+                        <span class="flex-1 text-gray-900 dark:text-white text-xs">{{ $user->dob ?? '-' }}</span>
+                    </div>
+                    <!-- Gender -->
+                    <div class="bg-white border-2 border-blue-200 rounded-lg p-2 shadow-sm flex items-center gap-2 dark:bg-gray-800 w-full">
+                        <div class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center mr-1">
+                            <i class="fas fa-venus-mars text-white text-xs"></i>
+                        </div>
+                        <span class="font-semibold text-gray-700 dark:text-white">Gender:</span>
+                        <span class="flex-1 text-gray-900 dark:text-white text-xs">{{ ucfirst($user->gender) ?? '-' }}</span>
+                    </div>
+                    <!-- Marital Status -->
+                    <div class="bg-white border-2 border-blue-200 rounded-lg p-2 shadow-sm flex items-center gap-2 dark:bg-gray-800 w-full">
+                        <div class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center mr-1">
+                            <i class="fas fa-ring text-white text-xs"></i>
+                        </div>
+                        <span class="font-semibold text-gray-700 dark:text-white">Marital:</span>
+                        <span class="flex-1 text-gray-900 dark:text-white text-xs">{{ ucfirst($user->marital_status) ?? '-' }}</span>
+                    </div>
+                    <!-- Nationality -->
+                    <div class="bg-white border-2 border-blue-200 rounded-lg p-2 shadow-sm flex items-center gap-2 dark:bg-gray-800 w-full">
+                        <div class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center mr-1">
+                            <i class="fas fa-flag text-white text-xs"></i>
+                        </div>
+                        <span class="font-semibold text-gray-700 dark:text-white">Nationality:</span>
+                        <span class="flex-1 text-gray-900 dark:text-white text-xs">{{ ucfirst($user->nationality) ?? '-' }}</span>
+                    </div>
+                    <!-- Status -->
+                    <div class="bg-white border-2 border-blue-200 rounded-lg p-2 shadow-sm flex items-center gap-2 dark:bg-gray-800 w-full">
+                        <div class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center mr-1">
+                            <i class="fas fa-toggle-on text-white text-xs"></i>
+                        </div>
+                        <span class="font-semibold text-gray-700 dark:text-white">Status:</span>
+                        <span class="flex-1 text-gray-900 dark:text-white text-xs">{{ ucfirst($user->status) ?? '-' }}</span>
+                    </div>
+                    <!-- Hire Date -->
+                    <div class="bg-white border-2 border-blue-200 rounded-lg p-2 shadow-sm flex items-center gap-2 dark:bg-gray-800 w-full">
+                        <div class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center mr-1">
+                            <i class="fas fa-calendar-plus text-white text-xs"></i>
+                        </div>
+                        <span class="font-semibold text-gray-700 dark:text-white">Hire Date:</span>
+                        <span class="flex-1 text-gray-900 dark:text-white text-xs">{{ $user->hire_date ?? '-' }}</span>
+                    </div>
+                    <!-- Position -->
+                    <div class="bg-white border-2 border-blue-200 rounded-lg p-2 shadow-sm flex items-center gap-2 dark:bg-gray-800 w-full">
+                        <div class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center mr-1">
+                            <i class="fas fa-user-tie text-white text-xs"></i>
+                        </div>
+                        <span class="font-semibold text-gray-700 dark:text-white">Position:</span>
+                        <span class="flex-1 text-gray-900 dark:text-white text-xs">{{ $user->position ? $user->position->position_name : '-' }}</span>
+                    </div>
+                    <!-- Employment Type -->
+                    <div class="bg-white border-2 border-blue-200 rounded-lg p-2 shadow-sm flex items-center gap-2 dark:bg-gray-800 w-full">
+                        <div class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center mr-1">
+                            <i class="fas fa-clipboard-list text-white text-xs"></i>
+                        </div>
+                        <span class="font-semibold text-gray-700 dark:text-white">Type:</span>
+                        <span class="flex-1 text-gray-900 dark:text-white text-xs">{{ ucfirst($user->type) ?? '-' }}</span>
+                    </div>
+                </div>
+                <!-- Address (full width) -->
+                <div class="bg-white border-2 border-blue-200 rounded-lg p-2 shadow-sm flex items-center gap-2 dark:bg-gray-800 mb-3 w-full">
+                    <div class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center mr-1">
+                        <i class="fas fa-map-marker-alt text-white text-xs"></i>
+                    </div>
+                    <span class="font-semibold text-gray-700 dark:text-white">Address:</span>
+                    <span class="flex-1 text-gray-900 dark:text-white text-xs">{{ $user->address ?? '-' }}</span>
+                </div>
+                <!-- Bank Info: 3 per row -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 w-full mb-3">
+                    <!-- Bank Name -->
+                    <div class="bg-white border-2 border-blue-200 rounded-lg p-2 shadow-sm flex items-center gap-2 dark:bg-gray-800 w-full">
+                        <div class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center mr-1">
+                            <i class="fas fa-building text-white text-xs"></i>
+                        </div>
+                        <span class="font-semibold text-gray-700 dark:text-white">Bank Name:</span>
+                        <span class="flex-1 text-gray-900 dark:text-white text-xs">{{ $user->bank_name ?? '-' }}</span>
+                    </div>
+                    <!-- Bank Account Holder Name -->
+                    <div class="bg-white border-2 border-blue-200 rounded-lg p-2 shadow-sm flex items-center gap-2 dark:bg-gray-800 w-full">
+                        <div class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center mr-1">
+                            <i class="fas fa-user-circle text-white text-xs"></i>
+                        </div>
+                        <span class="font-semibold text-gray-700 dark:text-white">Account Holder:</span>
+                        <span class="flex-1 text-gray-900 dark:text-white text-xs">{{ $user->bank_account_holder_name ?? '-' }}</span>
+                    </div>
+                    <!-- Bank Account Number -->
+                    <div class="bg-white border-2 border-blue-200 rounded-lg p-2 shadow-sm flex items-center gap-2 dark:bg-gray-800 w-full">
+                        <div class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center mr-1">
+                            <i class="fas fa-hashtag text-white text-xs"></i>
+                        </div>
+                        <span class="font-semibold text-gray-700 dark:text-white">Account Number:</span>
+                        <span class="flex-1 text-gray-900 dark:text-white text-xs">{{ $user->bank_account_number ?? '-' }}</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

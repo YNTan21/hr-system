@@ -4,81 +4,62 @@
         <div class="row">
             <x-sharedata.header></x-sharedata.header>
         </div>
-        
         <!-- Main Content -->
         <div class="p-4 sm:ml-64">
-            <div class="p-4 border-2 border-gray-200 rounded-lg dark:border-gray-700 mt-14">
-                
-                <!-- Page Title -->
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-xl font-semibold">Create Position</h2>
-                </div>
-
+            <div class="p-4 border-2 border-gray-200 rounded-lg dark:border-gray-700 mt-14 max-w-xl mx-auto">
                 <!-- Success Message -->
                 @if (session('success'))
-                    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4">
+                    <div class="p-4 mb-6 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400 text-center" role="alert">
                         {{ session('success') }}
                     </div>
                 @endif
-
-                <!-- Create Position Form -->
+                @if ($errors->any())
+                    <div class="p-4 mb-6 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400 text-center" role="alert">
+                        <ul class="list-disc list-inside">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
                 <form action="{{ route('admin.employee.positions.store') }}" method="post">
                     @csrf
-                    
+                    <div class="text-center mb-6">
+                        <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Create Position</h2>
+                    </div>
                     <!-- Position Name -->
-                    <div class="mb-6">
-                        <label for="positionName" class="block text-sm font-medium text-gray-700 mb-2">
-                            Position Name
-                        </label>
+                    <div class="bg-white border-2 border-blue-200 rounded-lg p-4 shadow-sm mb-6 flex items-center gap-4 dark:bg-gray-800">
+                        <div class="flex items-center min-w-max">
+                            <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center mr-3">
+                                <i class="fas fa-briefcase text-white text-sm"></i>
+                            </div>
+                            <label for="positionName" class="text-sm font-semibold text-gray-700 dark:text-white whitespace-nowrap">Position Name</label>
+                        </div>
                         <input type="text" 
                                id="positionName" 
                                name="positionName" 
                                value="{{ old('positionName') }}" 
-                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200"
-                               required>
-                        @error('positionName')
-                            <p class="mt-1 text-sm text-red-600">
-                                {{ $message }}
-                            </p>
-                        @enderror
+                               class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm" required>
                     </div>
-
                     <!-- Status -->
-                    <div class="mb-6">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                            Status
-                        </label>
-                        <div class="flex space-x-4">
-                            <div class="flex items-center">
-                                <input type="radio" 
-                                       id="active" 
-                                       name="status" 
-                                       value="active" 
-                                       {{ old('status') == 'active' ? 'checked' : '' }}
-                                       class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                                       required>
-                                <label for="active" class="ml-2 text-sm text-gray-700">
-                                    Active
-                                </label>
+                    <div class="bg-white border-2 border-blue-200 rounded-lg p-4 shadow-sm mb-6 flex items-center gap-4 dark:bg-gray-800">
+                        <div class="flex items-center min-w-max">
+                            <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center mr-3">
+                                <i class="fas fa-toggle-on text-white text-sm"></i>
                             </div>
-                            <div class="flex items-center">
-                                <input type="radio" 
-                                       id="inactive" 
-                                       name="status" 
-                                       value="inactive"
-                                       class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
-                                <label for="inactive" class="ml-2 text-sm text-gray-700">
-                                    Inactive
-                                </label>
-                            </div>
+                            <label class="text-sm font-semibold text-gray-700 dark:text-white whitespace-nowrap">Status</label>
                         </div>
-                        @error('status')
-                            <p class="mt-1 text-sm text-red-600">
-                                {{ $message }}
-                            </p>
-                        @enderror
+                        <div class="flex-1 flex gap-6 items-center">
+                            <label class="inline-flex items-center cursor-pointer">
+                                <input type="radio" name="status" value="active" class="form-radio h-4 w-4 text-blue-600" {{ old('status', 'active') == 'active' ? 'checked' : '' }} required>
+                                <span class="ml-2 text-sm text-gray-700 dark:text-white">Active</span>
+                            </label>
+                            <label class="inline-flex items-center cursor-pointer">
+                                <input type="radio" name="status" value="inactive" class="form-radio h-4 w-4 text-blue-600" {{ old('status') == 'inactive' ? 'checked' : '' }}>
+                                <span class="ml-2 text-sm text-gray-700 dark:text-white">Inactive</span>
+                            </label>
+                        </div>
                     </div>
-
                     <!-- Submit Button -->
                     <div class="flex justify-center">
                         <button type="submit" 
